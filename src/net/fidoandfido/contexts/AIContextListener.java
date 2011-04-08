@@ -14,7 +14,7 @@ public class AIContextListener implements ServletContextListener {
 	public void contextInitialized(ServletContextEvent arg0) {
 		aiRunner = new AIRunner();
 		aiThread = new Thread(aiRunner);
-		aiThread.setName("MARKET_RUNNER_THREAD");
+		aiThread.setName("AI_RUNNER_THREAD");
 		aiThread.start();
 	}
 

@@ -56,7 +56,7 @@ public class MarketMakerRunner implements Runnable {
 	 * Check if there are any outstanding share offers that we can take.
 	 */
 	public void process() {
-		logger.info("Processing.");
+		logger.info("Market maker - Processing.");
 		// Check if there are any open orders...
 		Trader marketMaker = TraderDAO.getTraderByName("MarketMaker");
 		List<Order> openOrders = OrderDAO.getOpenOrders();

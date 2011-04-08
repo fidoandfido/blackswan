@@ -50,11 +50,12 @@ public class AIRunner implements Runnable {
 	}
 
 	public void process() {
+		logger.info("AIRunner - processing");
 		AIStrategyFactory aiFactory = new AIStrategyFactory();
 		List<Trader> aiTraders = TraderDAO.getAITraderList();
 		for (Trader trader : aiTraders) {
 			AITradeStrategy strategy = aiFactory.getStrategyByName(trader.getAiStrategyName());
-			logger.info("Performing trades: " + trader.getName() + " -- " + trader.getAiStrategyName() + " -- " + strategy.getName());
+			logger.info("AIRunner - Performing trades: " + trader.getName() + " -- " + trader.getAiStrategyName() + " -- " + strategy.getName());
 			strategy.performTrades(trader);
 		}
 	}

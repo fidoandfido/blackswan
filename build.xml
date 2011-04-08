@@ -130,7 +130,7 @@
 		  <classes dir="bin"/>
 		  <zipfileset dir="images" prefix="images"/>
 		</war>
-		<copy file="myapp.war" tofile="D:\java\apache-tomcat-7.0.8\webapps\myapp.war"></copy>
+		<copy file="myapp.war" tofile="/usr/local/apache-tomcat-7.0.11/webapps/myapp.war"></copy>
 	</target>
 
 	

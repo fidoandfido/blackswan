@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <data>
-<exchange name="ASX" company-count="100" event-generator="cyclicEvents" description="ASX: The big one." period-length-mins="5"/>
+<exchange name="ASX" company-count="100" event-generator="cyclicEvents" description="ASX: The big one." period-length-mins="20"/>
 <!--<exchange name="SX1" company-count="10" event-generator="cyclicEvents" description="The SX1 - Or stock exchange 1 - is a simple stock exchange where companies 'play by the rules'. It is a safe, black swan free exchange that anyone can get involved in."/>-->
 <!--<exchange name="MX" company-count="20" event-generator="cyclicEvents" description="The MX is the mining exchange. A little volatility here - mainly from companies that strike it big in their mines, and then lose it all if their mines run out."/>-->
 

@@ -5,9 +5,19 @@
 <hibernate-configuration>
     <session-factory>
 
+
+	    <property name="connection.url">jdbc:mysql://localhost/blackswan</property>
+	    <property name="connection.username">root</property>
+	    <property name="connection.password">password</property>
+	    <property name="connection.driver_class">com.mysql.jdbc.Driver</property>
+	    <property name="dialect">org.hibernate.dialect.MySQLDialect</property>
+	    
+		<!-- HSQL DB Settings
         <property name="hibernate.connection.driver_class">org.hsqldb.jdbcDriver</property>
-        <property name="hibernate.connection.url">jdbc:hsqldb:hsql://localhost</property>
+        <property name="hibernate.connection.url">jdbc:mysql://localhost/hibernate</property>
         <property name="hibernate.connection.username">sa</property>
+		-->
+
 
         <property name="hibernate.c3p0.min_size">5</property>
         <property name="hibernate.c3p0.max_size">20</property>
