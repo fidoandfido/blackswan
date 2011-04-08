@@ -1,94 +1,115 @@
 
     alter table Company 
-        drop constraint FK9BDFD45D8370E02C;
+        drop 
+        foreign key FK9BDFD45D8370E02C;
 
     alter table Company 
-        drop constraint FK9BDFD45D912EEC1A;
+        drop 
+        foreign key FK9BDFD45D912EEC1A;
 
     alter table CompanyPeriodReport 
-        drop constraint FKF12227522B724E8D;
+        drop 
+        foreign key FKF12227522B724E8D;
 
     alter table CompanyPeriodReport_PeriodEvent 
-        drop constraint FKADC63FCC4BF9C7DC;
+        drop 
+        foreign key FKADC63FCC4BF9C7DC;
 
     alter table CompanyPeriodReport_PeriodEvent 
-        drop constraint FKADC63FCC31DF3CC2;
+        drop 
+        foreign key FKADC63FCC31DF3CC2;
 
     alter table CompanyPeriodReport_PeriodPartRumour 
-        drop constraint FK816460634BF9C7DC;
+        drop 
+        foreign key FK816460634BF9C7DC;
 
     alter table CompanyPeriodReport_PeriodPartRumour 
-        drop constraint FK8164606332671068;
+        drop 
+        foreign key FK8164606332671068;
+
+    alter table GameUser 
+        drop 
+        foreign key FK9A67C6FDD1B4A736;
 
     alter table PeriodEvent 
-        drop constraint FK28C225392B724E8D;
+        drop 
+        foreign key FK28C225392B724E8D;
 
     alter table PeriodEvent 
-        drop constraint FK28C22539AF969615;
+        drop 
+        foreign key FK28C22539AF969615;
 
     alter table PeriodPartRumour 
-        drop constraint FK2B0FD7162B724E8D;
+        drop 
+        foreign key FK2B0FD7162B724E8D;
 
     alter table PeriodPartRumour 
-        drop constraint FK2B0FD716AF969615;
+        drop 
+        foreign key FK2B0FD716AF969615;
 
     alter table ShareParcel 
-        drop constraint FK611540A8D1B4A736;
+        drop 
+        foreign key FK611540A8D1B4A736;
 
     alter table ShareParcel 
-        drop constraint FK611540A879C9A78F;
+        drop 
+        foreign key FK611540A879C9A78F;
 
     alter table TradeOrder 
-        drop constraint FKE5BBC06A96A002ED;
+        drop 
+        foreign key FKE5BBC06A96A002ED;
 
     alter table TradeOrder 
-        drop constraint FKE5BBC06AD9800AA7;
+        drop 
+        foreign key FKE5BBC06AD9800AA7;
 
     alter table TradeRecord 
-        drop constraint FKD62356B533F8C31B;
+        drop 
+        foreign key FKD62356B533F8C31B;
 
     alter table TradeRecord 
-        drop constraint FKD62356B5889E41E7;
+        drop 
+        foreign key FKD62356B5889E41E7;
 
     alter table TradeRecord 
-        drop constraint FKD62356B579C9A78F;
+        drop 
+        foreign key FKD62356B579C9A78F;
 
     alter table Trader 
-        drop constraint FK95CB27AEDE29A6B0;
-
-    alter table User 
-        drop constraint FK285FEBD1B4A736;
+        drop 
+        foreign key FK95CB27AEDE29A6B0;
 
     alter table UserSession 
-        drop constraint FKC7BC0C2BDE29A6B0;
+        drop 
+        foreign key FKC7BC0C2BDE29A6B0;
 
-    drop table Company if exists;
+    drop table if exists Company;
 
-    drop table CompanyPeriodReport if exists;
+    drop table if exists CompanyPeriodReport;
 
-    drop table CompanyPeriodReport_PeriodEvent if exists;
+    drop table if exists CompanyPeriodReport_PeriodEvent;
 
-    drop table CompanyPeriodReport_PeriodPartRumour if exists;
+    drop table if exists CompanyPeriodReport_PeriodPartRumour;
 
-    drop table PeriodEvent if exists;
+    drop table if exists GameUser;
 
-    drop table PeriodPartRumour if exists;
+    drop table if exists PeriodEvent;
 
-    drop table ShareParcel if exists;
+    drop table if exists PeriodPartRumour;
 
-    drop table Status if exists;
+    drop table if exists ShareParcel;
 
-    drop table StockExchange if exists;
+    drop table if exists Status;
 
-    drop table TradeOrder if exists;
+    drop table if exists StockExchange;
 
-    drop table TradeRecord if exists;
+    drop table if exists TradeOrder;
 
-    drop table Trader if exists;
+    drop table if exists TradeRecord;
 
-    drop table User if exists;
+    drop table if exists Trader;
 
-    drop table UserSession if exists;
+    drop table if exists UserSession;
 
     create table Company (
         company_id varchar(255) not null,
@@ -113,11 +134,11 @@
 
     create table CompanyPeriodReport (
         company_period_report_id varchar(255) not null,
-        startDate timestamp,
+        startDate datetime,
         startingExpectedProfit bigint,
         finalProfit bigint,
-        minimumEndDate timestamp,
-        closeDate timestamp,
+        minimumEndDate datetime,
+        closeDate datetime,
         open bit,
         generation bigint,
         company_id varchar(255),
@@ -138,9 +159,18 @@
         unique (periodRumourList_period_rumour_id)
     );
 
+    create table GameUser (
+        trader_id varchar(255) not null,
+        userName varchar(255),
+        password varchar(255),
+        userAdmin bit,
+        trader_trader_id varchar(255),
+        primary key (trader_id)
+    );
+
     create table PeriodEvent (
         period_event_id varchar(255) not null,
-        dateInformationAvailable timestamp,
+        dateInformationAvailable datetime,
         message varchar(255),
         eventType integer,
         expectedProfit bigint,
@@ -152,20 +182,20 @@
 
     create table PeriodPartRumour (
         period_rumour_id varchar(255) not null,
-        dateInformationAvailable timestamp,
+        dateInformationAvailable datetime,
         message varchar(255),
         eventType integer,
         forecastType varchar(255),
-        company_period_report varchar(255),
         company_id varchar(255),
+        company_period_report varchar(255),
         primary key (period_rumour_id)
     );
 
     create table ShareParcel (
         share_parcel_id varchar(255) not null,
         shareCount bigint,
-        trader_trader_id varchar(255),
         company_company_id varchar(255),
+        trader_trader_id varchar(255),
         primary key (share_parcel_id)
     );
 
@@ -191,13 +221,13 @@
         remainingShareCount bigint,
         offerPrice bigint,
         allowPartialOrder bit,
-        dateCreated timestamp,
+        dateCreated datetime,
         active bit,
         executed bit,
-        dateExecuted timestamp,
+        dateExecuted datetime,
         orderType integer,
-        company varchar(255),
         trader_id varchar(255),
+        company varchar(255),
         primary key (order_id)
     );
 
@@ -205,10 +235,10 @@
         trade_record_id varchar(255) not null,
         shareCount bigint,
         sharePrice bigint,
-        date timestamp,
-        buyer_trader_id varchar(255),
-        company_company_id varchar(255),
+        date datetime,
         seller_trader_id varchar(255),
+        company_company_id varchar(255),
+        buyer_trader_id varchar(255),
         primary key (trade_record_id)
     );
 
@@ -224,18 +254,9 @@
         primary key (trader_id)
     );
 
-    create table User (
-        trader_id varchar(255) not null,
-        userName varchar(255),
-        password varchar(255),
-        userAdmin bit,
-        trader_trader_id varchar(255),
-        primary key (trader_id)
-    );
-
     create table UserSession (
         status_id varchar(255) not null,
-        date timestamp,
+        date datetime,
         sessionId varchar(255),
         active bit,
         user_trader_id varchar(255),
@@ -243,106 +264,127 @@
     );
 
     alter table Company 
+        add index FK9BDFD45D8370E02C (current_period), 
         add constraint FK9BDFD45D8370E02C 
         foreign key (current_period) 
-        references CompanyPeriodReport;
+        references CompanyPeriodReport (company_period_report_id);
 
     alter table Company 
+        add index FK9BDFD45D912EEC1A (stock_exchange_id), 
         add constraint FK9BDFD45D912EEC1A 
         foreign key (stock_exchange_id) 
-        references StockExchange;
+        references StockExchange (stock_exchange_id);
 
     alter table CompanyPeriodReport 
+        add index FKF12227522B724E8D (company_id), 
         add constraint FKF12227522B724E8D 
         foreign key (company_id) 
-        references Company;
+        references Company (company_id);
 
     alter table CompanyPeriodReport_PeriodEvent 
+        add index FKADC63FCC4BF9C7DC (CompanyPeriodReport_company_period_report_id), 
         add constraint FKADC63FCC4BF9C7DC 
         foreign key (CompanyPeriodReport_company_period_report_id) 
-        references CompanyPeriodReport;
+        references CompanyPeriodReport (company_period_report_id);
 
     alter table CompanyPeriodReport_PeriodEvent 
+        add index FKADC63FCC31DF3CC2 (periodEventList_period_event_id), 
         add constraint FKADC63FCC31DF3CC2 
         foreign key (periodEventList_period_event_id) 
-        references PeriodEvent;
+        references PeriodEvent (period_event_id);
 
     alter table CompanyPeriodReport_PeriodPartRumour 
+        add index FK816460634BF9C7DC (CompanyPeriodReport_company_period_report_id), 
         add constraint FK816460634BF9C7DC 
         foreign key (CompanyPeriodReport_company_period_report_id) 
-        references CompanyPeriodReport;
+        references CompanyPeriodReport (company_period_report_id);
 
     alter table CompanyPeriodReport_PeriodPartRumour 
+        add index FK8164606332671068 (periodRumourList_period_rumour_id), 
         add constraint FK8164606332671068 
         foreign key (periodRumourList_period_rumour_id) 
-        references PeriodPartRumour;
+        references PeriodPartRumour (period_rumour_id);
+
+    alter table GameUser 
+        add index FK9A67C6FDD1B4A736 (trader_trader_id), 
+        add constraint FK9A67C6FDD1B4A736 
+        foreign key (trader_trader_id) 
+        references Trader (trader_id);
 
     alter table PeriodEvent 
+        add index FK28C225392B724E8D (company_id), 
         add constraint FK28C225392B724E8D 
         foreign key (company_id) 
-        references Company;
+        references Company (company_id);
 
     alter table PeriodEvent 
+        add index FK28C22539AF969615 (company_period_report), 
         add constraint FK28C22539AF969615 
         foreign key (company_period_report) 
-        references CompanyPeriodReport;
+        references CompanyPeriodReport (company_period_report_id);
 
     alter table PeriodPartRumour 
+        add index FK2B0FD7162B724E8D (company_id), 
         add constraint FK2B0FD7162B724E8D 
         foreign key (company_id) 
-        references Company;
+        references Company (company_id);
 
     alter table PeriodPartRumour 
+        add index FK2B0FD716AF969615 (company_period_report), 
         add constraint FK2B0FD716AF969615 
         foreign key (company_period_report) 
-        references CompanyPeriodReport;
+        references CompanyPeriodReport (company_period_report_id);
 
     alter table ShareParcel 
+        add index FK611540A8D1B4A736 (trader_trader_id), 
         add constraint FK611540A8D1B4A736 
         foreign key (trader_trader_id) 
-        references Trader;
+        references Trader (trader_id);
 
     alter table ShareParcel 
+        add index FK611540A879C9A78F (company_company_id), 
         add constraint FK611540A879C9A78F 
         foreign key (company_company_id) 
-        references Company;
+        references Company (company_id);
 
     alter table TradeOrder 
+        add index FKE5BBC06A96A002ED (company), 
         add constraint FKE5BBC06A96A002ED 
         foreign key (company) 
-        references Company;
+        references Company (company_id);
 
     alter table TradeOrder 
+        add index FKE5BBC06AD9800AA7 (trader_id), 
         add constraint FKE5BBC06AD9800AA7 
         foreign key (trader_id) 
-        references Trader;
+        references Trader (trader_id);
 
     alter table TradeRecord 
+        add index FKD62356B533F8C31B (buyer_trader_id), 
         add constraint FKD62356B533F8C31B 
         foreign key (buyer_trader_id) 
-        references Trader;
+        references Trader (trader_id);
 
     alter table TradeRecord 
+        add index FKD62356B5889E41E7 (seller_trader_id), 
         add constraint FKD62356B5889E41E7 
         foreign key (seller_trader_id) 
-        references Trader;
+        references Trader (trader_id);
 
     alter table TradeRecord 
+        add index FKD62356B579C9A78F (company_company_id), 
         add constraint FKD62356B579C9A78F 
         foreign key (company_company_id) 
-        references Company;
+        references Company (company_id);
 
     alter table Trader 
+        add index FK95CB27AEDE29A6B0 (user_trader_id), 
         add constraint FK95CB27AEDE29A6B0 
         foreign key (user_trader_id) 
-        references User;
-
-    alter table User 
-        add constraint FK285FEBD1B4A736 
-        foreign key (trader_trader_id) 
-        references Trader;
+        references GameUser (trader_id);
 
     alter table UserSession 
+        add index FKC7BC0C2BDE29A6B0 (user_trader_id), 
         add constraint FKC7BC0C2BDE29A6B0 
         foreign key (user_trader_id) 
-        references User;
+        references GameUser (trader_id);

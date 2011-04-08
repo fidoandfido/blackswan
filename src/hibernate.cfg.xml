@@ -11,11 +11,20 @@
 	    <property name="connection.password">password</property>
 	    <property name="connection.driver_class">com.mysql.jdbc.Driver</property>
 	    <property name="dialect">org.hibernate.dialect.MySQLDialect</property>
+
+		<!-- Postgresql Settings
+		<property name="connection.url">jdbc:postgresql://localhost/blackswan</property>
+		<property name="connection.username">postgres</property>
+		<property name="connection.driver_class">org.postgresql.Driver</property>
+		<property name="dialect">org.hibernate.dialect.PostgreSQLDialect</property>
+		<property name="connection.password">postgres</property>
+	    -->
 	    
 		<!-- HSQL DB Settings
         <property name="hibernate.connection.driver_class">org.hsqldb.jdbcDriver</property>
         <property name="hibernate.connection.url">jdbc:mysql://localhost/hibernate</property>
         <property name="hibernate.connection.username">sa</property>
+        <property name="dialect">org.hibernate.dialect.HSQLDialect</property>
 		-->
 
 
@@ -43,7 +52,6 @@
         <!-- Bind the getCurrentSession() method to the thread. -->
         <property name="current_session_context_class">thread</property>
 
-        <property name="dialect">org.hibernate.dialect.HSQLDialect</property>
 
         <mapping class="net.fidoandfido.model.AppStatus"/>
         <mapping class="net.fidoandfido.model.Company"/>

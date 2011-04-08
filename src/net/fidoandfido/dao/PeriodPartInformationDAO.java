@@ -21,8 +21,9 @@ public class PeriodPartInformationDAO {
 		Session session = HibernateUtil.getSession();
 		Query query = session.createQuery("from PeriodEvent p where p.dateInformationAvailable < :date order by p.dateInformationAvailable desc");
 		query.setParameter("date", date);
+		query.setFirstResult(0);
 		query.setMaxResults(i);
-
+		
 		return query.list();
 	}
 

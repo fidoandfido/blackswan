@@ -10,7 +10,7 @@ import javax.persistence.Table;
 import org.hibernate.annotations.GenericGenerator;
 
 @Entity
-@Table(name = "User")
+@Table(name = "GameUser")
 // Nothing in here at the moment.
 public class User {
 

@@ -33,16 +33,22 @@ public class AIRunner implements Runnable {
 	@Override
 	public void run() {
 		while (running) {
+			try {
 			HibernateUtil.beginTransaction();
 			process();
 			HibernateUtil.commitTransaction();
+			} catch (Exception e) {
+				logger.error("AI Runner - exception thrown! " + e.getMessage());
+			} finally {
+				logger.info("AI runner - processing finished");
+			}
 			// Wait and go again
 			synchronized (this) {
 				try {
 					wait(timeout);
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
-					logger.error("Market maker runner interrupted...");
+					logger.error("AI runner interrupted...");
 					break;
 				}
 			}
@@ -58,6 +64,7 @@ public class AIRunner implements Runnable {
 			logger.info("AIRunner - Performing trades: " + trader.getName() + " -- " + trader.getAiStrategyName() + " -- " + strategy.getName());
 			strategy.performTrades(trader);
 		}
+		logger.info("AIRunner - processing complete");
 	}
 
 	/**
