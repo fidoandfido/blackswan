@@ -1,0 +1,291 @@
+package net.fidoandfido.app;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import java.util.Set;
+
+import net.fidoandfido.dao.AppStatusDAO;
+import net.fidoandfido.dao.CompanyDAO;
+import net.fidoandfido.dao.CompanyPeriodReportDAO;
+import net.fidoandfido.dao.HibernateUtil;
+import net.fidoandfido.dao.ShareParcelDAO;
+import net.fidoandfido.dao.StockExchangeDAO;
+import net.fidoandfido.dao.TraderDAO;
+import net.fidoandfido.dao.UserDAO;
+import net.fidoandfido.engine.PeriodEventGenerator;
+import net.fidoandfido.initialiser.CompanyNameBody;
+import net.fidoandfido.initialiser.CompanyNameParser;
+import net.fidoandfido.initialiser.CompanyNamePrefix;
+import net.fidoandfido.initialiser.CompanyNameSuffix;
+import net.fidoandfido.initialiser.ExchangeParser;
+import net.fidoandfido.initialiser.TraderParser;
+import net.fidoandfido.model.AppStatus;
+import net.fidoandfido.model.Company;
+import net.fidoandfido.model.CompanyPeriodReport;
+import net.fidoandfido.model.ShareParcel;
+import net.fidoandfido.model.StockExchange;
+import net.fidoandfido.model.Trader;
+import net.fidoandfido.model.User;
+
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+import org.xml.sax.XMLReader;
+import org.xml.sax.helpers.XMLReaderFactory;
+
+public class AppInitialiser {
+
+	/**
+	 *
+	 */
+	private static final long serialVersionUID = 1L;
+	private static final int CODE_LENGTH = 4;
+	public static final long TRADER_START_CASH = 10000000;
+	public static final long MARKET_MAKER_START_CASH = 20000000;
+
+	private Map<String, StockExchange> exchangeMap = new HashMap<String, StockExchange>();
+	private Map<String, Trader> traderMap = new HashMap<String, Trader>();
+
+	public static void main(String argv[]) {
+		System.out.println("Initialising application!");
+		HibernateUtil.connectToDB();
+		System.out.println("Connected to database, beginning initislisation.");
+		AppInitialiser appInitialiser = new AppInitialiser();
+		HibernateUtil.beginTransaction();
+		try {
+			appInitialiser.initApp();
+			System.out.println("Initialisation complete, committing transaction.");
+			HibernateUtil.commitTransaction();
+		} catch (Exception e) {
+			HibernateUtil.rollbackTransaction();
+			e.printStackTrace();
+		}
+		HibernateUtil.beginTransaction();
+		AppDataLister appDataLister = new AppDataLister();
+		appDataLister.writeData();
+		HibernateUtil.commitTransaction();
+	}
+
+	public AppInitialiser() {
+		// Nothing to do here.
+	}
+
+	/**
+	 * Initialise the application. This whole unit of work should be unertaken within a transaction.
+	 * 
+	 * @throws Exception
+	 */
+	public void initApp() throws Exception {
+		if (appNotInited()) {
+			System.out.println("Creating and saving Users");
+			createAndSaveUsers();
+			System.out.println("Creating and saving traders.");
+			createAndSaveTraders();
+			System.out.println("Creating and saving exchanges.");
+			createAndSaveExchanges();
+			System.out.println("Creating and saving companies.");
+			createAndSaveCompanies();
+			updateStatus();
+		} else {
+			System.out.println("App already initialised!");
+		}
+	}
+
+	private void updateStatus() {
+		AppStatus status = AppStatusDAO.getStatus();
+		status.setStatus(AppStatus.INITIALISED);
+		AppStatusDAO.saveStatus(status);
+	}
+
+	private boolean appNotInited() {
+		AppStatus status = AppStatusDAO.getStatus();
+		if (AppStatus.INITIALISED.equals(status.getStatus())) {
+			return false;
+		}
+		return true;
+	}
+
+	private void createAndSaveUsers() {
+		User andy = new User("andy", "andy", true);
+		UserDAO.saveUser(andy);
+		User asdf = new User("asdf", "asdf", false);
+		UserDAO.saveUser(asdf);
+	}
+
+	private void createAndSaveTraders() throws IOException, SAXException {
+		XMLReader reader = XMLReaderFactory.createXMLReader();
+		InputSource src = new InputSource(this.getClass().getResourceAsStream("/initdata.xml"));
+		TraderParser traderParser = new TraderParser();
+		reader.setContentHandler(traderParser);
+		reader.parse(src);
+		for (Trader trader : traderParser.traderList) {
+			String name = trader.getName();
+			if (!traderMap.containsKey(name)) {
+				TraderDAO.saveTrader(trader);
+				traderMap.put(name, trader);
+			}
+		}
+	}
+
+	private void createAndSaveExchanges() throws IOException, SAXException {
+		XMLReader reader = XMLReaderFactory.createXMLReader();
+		ExchangeParser exchangeParser = new ExchangeParser();
+		reader.setContentHandler(exchangeParser);
+		InputSource src = new InputSource(this.getClass().getResourceAsStream("/initdata.xml"));
+		reader.parse(src);
+		for (StockExchange exchange : exchangeParser.exchangeList) {
+			String name = exchange.getName();
+			if (!exchangeMap.containsKey(name)) {
+				StockExchangeDAO.saveStockExchange(exchange);
+				exchangeMap.put(name, exchange);
+			}
+		}
+	}
+
+	private void createAndSaveCompanies() throws SAXException, IOException {
+		// Initialise our company lists...
+		initCompanyGenerator();
+
+		Date date = new Date();
+		PeriodEventGenerator generator = new PeriodEventGenerator();
+
+		for (StockExchange exchange : exchangeMap.values()) {
+			for (int i = 0; i < exchange.getCompanyCount(); i++) {
+				Company company = getNewCompany();
+				company.setStockExchange(exchange);
+				CompanyDAO.saveCompany(company);
+
+				CompanyPeriodReport periodReport = new CompanyPeriodReport(company, company.getCapitalisation() * 10 / 100, date,
+						exchange.getCompanyPeriodLength(), 0);
+				CompanyPeriodReportDAO.savePeriodReport(periodReport);
+
+				generator.generateEvents(periodReport, company, exchange);
+
+				company.setCurrentPeriod(periodReport);
+				CompanyDAO.saveCompany(company);
+
+				long currentShareCount = company.getOutstandingShares();
+				int traderCount = traderMap.size();
+				// The market maker will get half of the shares to start off with, but will not
+				// be trading to make money, so eventually will not have many... hopefully!
+				long marketMakerCount = currentShareCount / 2;
+				long defaultShareCount = currentShareCount / (2 * (traderCount - 1));
+
+				for (Trader trader : traderMap.values()) {
+					ShareParcel shareParcel = new ShareParcel(trader, trader.isMarketMaker() ? marketMakerCount : defaultShareCount, company);
+					ShareParcelDAO.saveShareParcel(shareParcel);
+				}
+			}
+		}
+
+	}
+
+	public Company getNewCompany() {
+		CompanyNameBody body = bodies.get(bodyRandom.nextInt(bodies.size()));
+		while (body.value == null) {
+			body = bodies.get(bodyRandom.nextInt(bodies.size()));
+		}
+
+		boolean prefixed = false;
+		String name = body.value;
+		String code = body.code;
+
+		// If we are prefixable, *always* add a prefix if we are not suffixable, otherwise add randomly.
+		if (body.prefixable && (!body.suffixable && usePrefixRandom.nextBoolean())) {
+			prefixed = true;
+			CompanyNamePrefix prefix = prefixes.get(prefixRandom.nextInt(prefixes.size()));
+			while (prefix.value == null || prefix.value.equals(body.value)) {
+				prefix = prefixes.get(prefixRandom.nextInt(prefixes.size()));
+			}
+			if (prefix.spaceAllowed && (!prefix.spaceOptional || useSpace.nextBoolean())) {
+				name = prefix.value + " " + body.value;
+			} else {
+				name = prefix.value + body.value;
+			}
+			code = prefix.code + code;
+		}
+
+		// If we are suffixable, always add if we don't have a prefix, otherwise add randomly.
+		if (body.suffixable && (!prefixed || suffixRandom.nextBoolean())) {
+			CompanyNameSuffix suffix = suffixes.get(suffixRandom.nextInt(suffixes.size()));
+			if (suffix.spaceAllowed && (!suffix.spaceOptional || useSpace.nextBoolean())) {
+				name = name + " " + suffix.value;
+			} else {
+				name = name + suffix.value;
+			}
+			code = code + suffix.code;
+		}
+		code = fixCode(code);
+
+		String sector = body.sector;
+		String modifierName = body.strategy;
+		// At the moment, companies start out all the same.
+		long assets = /*			*/100000000; // formatting retarted for clarity!
+		long debt = /*				 */50000000;
+		long capitalisation = /*	 */50000000;
+		long shareCount = 100000;
+		Company company = new Company(name, code, assets, debt, capitalisation, shareCount, sector, modifierName);
+
+		// Last trade price will effectively be capitalisation / share count
+		company.setLastTradePrice(capitalisation / shareCount);
+
+		company.setAlwaysPayDividend(companyAlwaysDividendsRandom.nextBoolean());
+		if (!company.isAlwaysPayDividend()) {
+			company.setNeverPayDividend(companyNeverDividendsRandom.nextBoolean());
+		}
+		return company;
+	}
+
+	private Set<String> codes = new HashSet<String>();
+
+	private String fixCode(String originalCode) {
+		if (originalCode.length() < CODE_LENGTH) {
+			// ????
+			System.out.println("SHORT CODE: " + originalCode);
+			return originalCode;
+		}
+
+		String code = originalCode.substring(0, CODE_LENGTH);
+		while (codes.contains(code)) {
+			code = originalCode;
+			while (code.length() > CODE_LENGTH) {
+				// Remove a random char
+				int charToRemove = companyCodeSelectorRandom.nextInt(code.length());
+				code = code.substring(0, charToRemove) + code.substring(charToRemove + 1, code.length());
+			}
+		}
+		codes.add(code);
+		return code;
+	}
+
+	// Guaranteed random by fair dice roll.
+	// private static final int SEED = 4;
+	private static final int SEED = 17;
+
+	Random companyCodeSelectorRandom = new Random(SEED);
+	Random usePrefixRandom = new Random(SEED);
+	Random prefixRandom = new Random(SEED);
+	Random bodyRandom = new Random(SEED);
+	Random suffixRandom = new Random(SEED);
+	Random useSpace = new Random(SEED);
+	Random companyAlwaysDividendsRandom = new Random(SEED);
+	Random companyNeverDividendsRandom = new Random(SEED);
+
+	public List<CompanyNamePrefix> prefixes = new ArrayList<CompanyNamePrefix>();
+	public List<CompanyNameBody> bodies = new ArrayList<CompanyNameBody>();
+	public List<CompanyNameSuffix> suffixes = new ArrayList<CompanyNameSuffix>();
+
+	private void initCompanyGenerator() throws SAXException, IOException {
+		InputSource src = new InputSource(this.getClass().getResourceAsStream("/initdata.xml"));
+		XMLReader reader = XMLReaderFactory.createXMLReader();
+		CompanyNameParser companyNameParser = new CompanyNameParser(this);
+		reader.setContentHandler(companyNameParser);
+		reader.parse(src);
+	}
+
+}

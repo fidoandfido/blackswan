@@ -1,0 +1,6 @@
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+	<title>Black Swan Trading</title>
+
+	<link href="stylesheets/style.css" rel="stylesheet" type="text/css" media="screen" />
+</head>

@@ -1,0 +1,137 @@
+<project name="Black Swan" default="compile" basedir=".">
+
+    <!-- Name of project and version -->
+    <property name="proj.name"      value="Black Swan"/>
+    <property name="proj.shortname" value="blackswan"/>
+    <property name="version"        value="1.0"/>
+
+    <!-- Global properties for this build -->
+    <property name="database.dir"           value="database"/>
+    <property name="src.java.dir"           value="src"/>
+    <property name="lib_hibernate.dir"      value="lib_hibernate"/>
+    <property name="lib_tomcat.dir"         value="lib_tomcat"/>
+    <property name="build.dir"              value="build"/>
+
+    <!-- Classpath declaration -->
+    <path id="project.classpath">
+    	<fileset dir="${lib_tomcat.dir}">
+            <include name="**/*.jar"/>
+            <include name="**/*.zip"/>
+        </fileset>
+        <fileset dir="${lib_hibernate.dir}">
+            <include name="**/*.jar"/>
+            <include name="**/*.zip"/>
+        </fileset>
+    </path>
+
+    <!-- Useful shortcuts -->
+    <patternset id="meta.files">
+        <include name="**/*.xml"/>
+        <include name="**/*.properties"/>
+    </patternset>
+
+    <!-- Clean up -->
+    <target name="clean" description="Clean the build directory">
+        <delete dir="${build.dir}"/>
+        <mkdir dir="${build.dir}"/>
+    </target>
+
+    <!-- Compile Java source -->
+    <target name="compile">
+        <mkdir dir="${build.dir}"/>
+        <javac srcdir="${src.java.dir}"
+               destdir="${build.dir}"
+               classpathref="project.classpath"/>
+    </target>
+
+    <!-- Copy metadata to build classpath -->
+    <target name="copymetafiles">
+        <mkdir dir="${build.dir}"/>
+        <copy todir="${build.dir}">
+            <fileset dir="${src.java.dir}">
+                <patternset refid="meta.files"/>
+            </fileset>
+        </copy>
+    </target>
+
+	<target name="runserver" depends="datainit" description="Build and run Black Swan Server">
+	        <java fork="true"
+	              classname="net.fidoandfido.app.Server"
+	              classpathref="project.classpath">
+	            <classpath path="${build.dir}"/>
+	        </java>
+	</target>
+	
+    <!-- Run App initialiser-->
+    <target name="datainit" depends="compile"
+        description="Build and run Black Swan Server">
+        <java fork="true"
+              classname="net.fidoandfido.app.Server"
+              classpathref="project.classpath">
+            <classpath path="${build.dir}"/>
+        </java>
+    </target>
+
+    <!-- Hibernate Tools import -->
+    <taskdef name="hibernatetool"
+             classname="org.hibernate.tool.ant.HibernateToolTask"
+             classpathref="project.classpath"/>
+
+    <!-- Export the database schema -->
+    <target name="schemaexport" depends="compile, copymetafiles"
+        description="Exports a generated schema to DB and file">
+
+        <hibernatetool destdir="${basedir}">
+            <classpath path="${build.dir}"/>
+            <annotationConfiguration
+                configurationfile="${build.dir}/hibernate.cfg.xml"/>
+            <hbm2ddl
+                drop="true"
+                create="true"
+                export="true"
+                outputfilename="${proj.shortname}-ddl.sql"
+                delimiter=";"
+                format="true"/>
+        </hibernatetool>
+    </target>
+
+    <!-- Start the HSQL DB server -->
+    <target name="startdb" description="Run HSQL database server with clean DB">
+        <!-- Delete database files -->
+        <delete dir="${database.dir}"/>
+        <java classname="org.hsqldb.Server"
+              fork="yes"
+              classpathref="project.classpath"
+              failonerror="true">
+            <arg value="-database.0"/>
+            <arg value="file:${database.dir}/db"/>
+        </java>
+    </target>
+
+    <!-- Start the HSQL DB browser tool -->
+    <target name="dbmanager" description="Start HSQL DB manager">
+        <java
+            classname="org.hsqldb.util.DatabaseManagerSwing"
+            fork="yes"
+            classpathref="project.classpath"
+            failonerror="true">
+            <arg value="-url"/>
+            <arg value="jdbc:hsqldb:hsql://localhost/"/>
+            <arg value="-driver"/>
+            <arg value="org.hsqldb.jdbcDriver"/>
+        </java>
+    </target>
+
+	<target name="make_war">
+		<war destfile="myapp.war" webxml="web.xml">
+		  <fileset dir="web"/>
+		  <fileset dir="jsps"/>
+		  <lib dir="lib_hibernate" />
+		  <classes dir="bin"/>
+		  <zipfileset dir="images" prefix="images"/>
+		</war>
+		<copy file="myapp.war" tofile="D:\java\apache-tomcat-7.0.8\webapps\myapp.war"></copy>
+	</target>
+
+	
+</project>

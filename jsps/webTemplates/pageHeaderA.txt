@@ -1,0 +1,13 @@
+
+<!--  PAGE HEADER -->
+<div id="header-wrapper">
+	<div id="logo">
+		<h1><a href="/myapp/Welcome.jsp">Black Swan Trading</a></h1>
+	</div>
+	<hr />
+	<!--  end #logo -->
+	<div id="header">
+		<div id="menu">
+			<ul>
+				<li class="current_page_item"><a href="/myapp/Welcome.jsp">Home</a></li>
+				<li class="current_page_item"><a href="/myapp/logout">Log out</a><li>
