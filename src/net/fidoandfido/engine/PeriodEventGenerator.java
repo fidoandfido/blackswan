@@ -153,7 +153,7 @@ public class PeriodEventGenerator {
 	 */
 	private Date getDateWithinPeriod(CompanyPeriodReport periodReport, long periodPartCount, long periodPartIndex, boolean randomizeStartTime) {
 		Date date = periodReport.getStartDate();
-		long periodPartLength = Constants.DEFAULT_PERIOD_LENGTH_IN_MILLIS / periodPartCount;
+		long periodPartLength = periodReport.getPeriodLength() / periodPartCount;
 		long periodPartOffSet = periodPartLength * periodPartIndex;
 		long periodPartStartTimeDelta = 0;
 		if (randomizeStartTime) {

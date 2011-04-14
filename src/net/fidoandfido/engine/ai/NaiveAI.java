@@ -5,6 +5,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.log4j.Logger;
+
 import net.fidoandfido.dao.OrderDAO;
 import net.fidoandfido.dao.PeriodPartInformationDAO;
 import net.fidoandfido.dao.ShareParcelDAO;
@@ -18,6 +20,9 @@ import net.fidoandfido.model.Trader;
 
 public class NaiveAI implements AITradeStrategy {
 
+	Logger logger = Logger.getLogger(getClass());
+
+	
 	public static final String Name = "Naive";
 
 	@Override
@@ -82,6 +87,7 @@ public class NaiveAI implements AITradeStrategy {
 				OrderDAO.saveOrder(order);
 			}
 
+			logger.info("naive ai: " + trader.getName() + " buys " + shareCount + " of " + company.getName() + " at " + askingPrice);
 			Order buyOrder = new Order(trader, company, shareCount, askingPrice, Order.OrderType.BUY);
 			OrderDAO.saveOrder(buyOrder);
 			// Attempt to process the order...
@@ -105,12 +111,14 @@ public class NaiveAI implements AITradeStrategy {
 				order.setActive(false);
 				OrderDAO.saveOrder(order);
 			}
+			logger.info("naive ai: " + trader.getName() + " sells " + shareCount + " of " + company.getName() + " at " + askingPrice);
 			Order sellOrder = new Order(trader, company, shareCount, askingPrice, Order.OrderType.SELL);
 			OrderDAO.saveOrder(sellOrder);
 
 			// Attempt to process the order...
 			StockExchange exchange = company.getStockExchange();
 			exchange.processOrder(sellOrder);
+			
 		}
 	}
 

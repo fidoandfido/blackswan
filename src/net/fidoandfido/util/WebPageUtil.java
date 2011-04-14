@@ -1,5 +1,6 @@
 package net.fidoandfido.util;
 
+import java.text.NumberFormat;
 import java.util.Date;
 
 import net.fidoandfido.model.Trader;
@@ -13,6 +14,43 @@ public class WebPageUtil {
 
 	public static final String DEFAULT_PAGE_TITLE = "Black Swan Trading";
 
+	private static NumberFormat nf = NumberFormat.getCurrencyInstance();
+	
+	public static String formatCurrency(long valueParm) {
+		double value = valueParm;
+		value = value / 100;
+	    return (nf.format(value));
+	}
+	
+	public static String formatCurrencyByHand(long valueParm) {
+		StringBuilder retVal = new StringBuilder();
+		retVal.append("$");
+		long value = valueParm;
+		if (value < 0) {
+			retVal.append("-");
+			value = value * -1;
+		}
+		if (value < 100 && value > -100) {
+			retVal.append("0.");
+			retVal.append(value);
+		} else if (value < 100000 && value > -100000){
+			// Thousands - show all
+			retVal.append(value / 100);
+			retVal.append(".");
+			retVal.append(value % 100);
+		} else if (value < 100000000 && value > -100000000){
+			// Hundred of thousands - strip the cents
+			retVal.append(value / 100);
+		} else if (value < 100000000000L && value > -100000000000L){
+			// Millions - strip the cents
+			 retVal.append(value / 100);
+		} else {
+			retVal.append(value / 100000000);
+			retVal.append("M");
+		}
+		return retVal.toString();
+	}
+	
 	public static String generateSideBar(Trader trader, User user) {
 		StringBuilder retval = new StringBuilder();
 		if (trader != null) {
@@ -22,7 +60,7 @@ public class WebPageUtil {
 			retval.append("			<h2>Trader Status</h2>");
 			retval.append("			<ul>");
 			retval.append("				<li>Name: " + trader.getName() + "</li>");
-			retval.append("				<li>Availabale Cash: " + trader.getCash() + "</li>");
+			retval.append("				<li>Availabale Cash: " + formatCurrency(trader.getCash()) + "</li>");
 			retval.append("			</ul>");
 			retval.append("			</li>");
 			retval.append("			<li>");

@@ -12,6 +12,15 @@
     <property name="lib_tomcat.dir"         value="lib_tomcat"/>
     <property name="build.dir"              value="build"/>
 
+	<property name="webapp.name"			value="myapp"/>
+	
+	<property file="etc/tomcat.properties"/>
+	<taskdef file="etc/tomcatTask.properties">
+	        <classpath>
+	            <pathelement path="lib_tomcat/catalina-ant.jar"/>
+	        </classpath>
+    </taskdef>
+
     <!-- Classpath declaration -->
     <path id="project.classpath">
     	<fileset dir="${lib_tomcat.dir}">
@@ -53,24 +62,7 @@
             </fileset>
         </copy>
     </target>
-
-	<target name="runserver" depends="datainit" description="Build and run Black Swan Server">
-	        <java fork="true"
-	              classname="net.fidoandfido.app.Server"
-	              classpathref="project.classpath">
-	            <classpath path="${build.dir}"/>
-	        </java>
-	</target>
 	
-    <!-- Run App initialiser-->
-    <target name="datainit" depends="compile"
-        description="Build and run Black Swan Server">
-        <java fork="true"
-              classname="net.fidoandfido.app.Server"
-              classpathref="project.classpath">
-            <classpath path="${build.dir}"/>
-        </java>
-    </target>
 
     <!-- Hibernate Tools import -->
     <taskdef name="hibernatetool"
@@ -95,33 +87,6 @@
         </hibernatetool>
     </target>
 
-    <!-- Start the HSQL DB server -->
-    <target name="startdb" description="Run HSQL database server with clean DB">
-        <!-- Delete database files -->
-        <delete dir="${database.dir}"/>
-        <java classname="org.hsqldb.Server"
-              fork="yes"
-              classpathref="project.classpath"
-              failonerror="true">
-            <arg value="-database.0"/>
-            <arg value="file:${database.dir}/db"/>
-        </java>
-    </target>
-
-    <!-- Start the HSQL DB browser tool -->
-    <target name="dbmanager" description="Start HSQL DB manager">
-        <java
-            classname="org.hsqldb.util.DatabaseManagerSwing"
-            fork="yes"
-            classpathref="project.classpath"
-            failonerror="true">
-            <arg value="-url"/>
-            <arg value="jdbc:hsqldb:hsql://localhost/"/>
-            <arg value="-driver"/>
-            <arg value="org.hsqldb.jdbcDriver"/>
-        </java>
-    </target>
-
 	<target name="make_war">
 		<war destfile="myapp.war" webxml="web.xml">
 		  <fileset dir="web"/>
@@ -130,8 +95,60 @@
 		  <classes dir="bin"/>
 		  <zipfileset dir="images" prefix="images"/>
 		</war>
-		<copy file="myapp.war" tofile="/usr/local/apache-tomcat-7.0.11/webapps/myapp.war"></copy>
-	</target>
+		
+	</target>	
 
+	<target name="copy_war" depends="make_war">
+		<copy file="myapp.war" tofile="/usr/local/apache-tomcat-7.0.11/webapps/myapp.war"></copy>
+	</target>	
+	
+	<target name="deploy" depends="stop, remove, install, start">
+		</target>
+	
+    <target name="install" description="Install application in Tomcat"
+        depends="make_war">
+        <deploy url="${tomcat.manager.url}"
+            username="${tomcat.username}"
+            password="${tomcat.password}"
+            path="/${webapp.name}"
+            war="file:myapp.war"/>
+    </target>
+
+    <target name="remove" description="Remove application in Tomcat">
+        <undeploy url="${tomcat.manager.url}"
+            username="${tomcat.username}"
+            password="${tomcat.password}"
+            path="/${webapp.name}"/>
+    </target>
+
+    <target name="reload" description="Reload application in Tomcat">
+        <reload url="${tomcat.manager.url}"
+            username="${tomcat.username}"
+            password="${tomcat.password}"
+            path="/${webapp.name}"/>
+    </target>
+
+    <target name="start" description="Start Tomcat application">
+        <start url="${tomcat.manager.url}"
+            username="${tomcat.username}"
+            password="${tomcat.password}"
+            path="/${webapp.name}"/>
+    </target>
+
+    <target name="stop" description="Stop Tomcat application">
+        <stop url="${tomcat.manager.url}"
+            username="${tomcat.username}"
+            password="${tomcat.password}"
+            path="/${webapp.name}"/>
+    </target>
+
+    <target name="list" description="List Tomcat applications">
+        <list url="${tomcat.manager.url}"
+            username="${tomcat.username}"
+            password="${tomcat.password}"/>
+    </target>
+
+	
+	
 	
 </project>

@@ -16,6 +16,7 @@
 <%@page import="net.fidoandfido.dao.TraderDAO"%>
 <%@page import="net.fidoandfido.util.WebPageUtil"%>
 <%@page import="net.fidoandfido.util.Constants"%>
+<%@ page import="net.fidoandfido.servlets.BuySharesServlet"%>
 
 <%
 	HibernateUtil.beginTransaction();
@@ -83,11 +84,9 @@ to access (or create) your trader profile.</p>
 					<li>Company Sector: <%= company.getSector() %></li>
 					<li>Company Outstanding shares: <%= company.getOutstandingShares() %></li>
 					<li>Stock Exchange: <%= company.getStockExchange().getName() %></li>
-					<li>Last share trade price: <%= company.getLastTradePrice() %></li>
-					<li>OTHER COMPANY DATA BELONGS HERE.</li>
-					<li>Starting Expected Profit: <%= currentReport == null ? 0 : currentReport.getStartingExpectedProfit() %></li>
-					<li>Current Period: <%= currentReport == null ? 0 : currentReport.getGeneration() %></li>
-					<li>Current Period must end after: <%=  currentReport == null ? "NA" : currentReport.getMinimumEndDate().toString() %></li>
+					<li>Last share trade price: <%= WebPageUtil.formatCurrency(company.getLastTradePrice()) %></li>
+					<li>Starting Expected Profit: <%= currentReport == null ? WebPageUtil.formatCurrency(0) : WebPageUtil.formatCurrency(currentReport.getStartingExpectedProfit()) %></li>
+					
 <% 			if (currentReport != null) { %>
 					<li>Period ID: <%= currentReport.getGeneration() %></li>
 					
@@ -124,6 +123,23 @@ to access (or create) your trader profile.</p>
 <% 			} %>
 					
 					</ul>
+
+				Your current balance is: <%=WebPageUtil.formatCurrency(trader.getCash())%><br/>
+				Last sale price: <%=WebPageUtil.formatCurrency(company.getLastTradePrice()) %><br/>
+				Maximum buy count: <%= trader.getCash() / company.getLastTradePrice() %>
+				
+				<form action="/myapp/buyshares" method="post">
+				<ul>
+					<li>Please enter all fields!</li>
+					<li>Company Code:<input name="<%=BuySharesServlet.COMPANY_CODE_PARM%>" value="<%=company.getCode()%>" cols="60"></input></li>
+					<li>Share Count:<input name="<%=BuySharesServlet.SHARE_COUNT%>"  cols="60"></input></li>
+					<li>Offer price (in cents):<input name="<%=BuySharesServlet.OFFER_PRICE%>" value="<%=company.getLastTradePrice() %>" cols="60"></input></li>
+				</ul>
+				<input type="submit" value="Buy Shares" />
+				</form>
+
+					
+					
 				</div>
 			</div>	
 <%
@@ -135,18 +151,20 @@ to access (or create) your trader profile.</p>
 				<h2 class="title">Admin Information: <%= company.getName() %></h2>
 				<div class="entry">
 				<ul>
+				<li>Current Period: <%= currentReport == null ? 0 : currentReport.getGeneration() %></li>
+				<li>Current Period must end after: <%=  currentReport == null ? "NA" : currentReport.getMinimumEndDate().toString() %></li>
 				<li>Long term sector outlook available after: <%= longTermSectorInformation.getDateInformationAvailable().toString() %></li>
 				<li>event type: <%= longTermSectorInformation.getEventType() %> </li>
-				<li>updated profit: <%= longTermSectorInformation.getExpectedProfit()%></li>
+				<li>updated profit: <%= WebPageUtil.formatCurrency(longTermSectorInformation.getExpectedProfit())%></li>
 				<li>Long term company outlook available after: <%= longTermCompanyInformation.getDateInformationAvailable().toString() %></li>
 				<li>event type: <%= longTermCompanyInformation.getEventType()%></li>
-				<li>updated profit: <%= longTermCompanyInformation.getExpectedProfit()%></li>
+				<li>updated profit: <%= WebPageUtil.formatCurrency(longTermCompanyInformation.getExpectedProfit())%></li>
 				<li>Short term sector outlook available: <%= shortTermSectorInformation.getDateInformationAvailable().toString() %></li>
 				<li>event type: <%= shortTermSectorInformation.getEventType()%> </li>
-				<li>updated profit: <%= shortTermSectorInformation.getExpectedProfit()%></li>
+				<li>updated profit: <%= WebPageUtil.formatCurrency(shortTermSectorInformation.getExpectedProfit())%></li>
 				<li>Short term company outlook available: <%=  shortTermCompanyInformation.getDateInformationAvailable().toString() %></li>
 				<li>event type: <%= shortTermCompanyInformation.getEventType() %></li>
-				<li>updated profit: <%= shortTermCompanyInformation.getExpectedProfit() %></li>
+				<li>updated profit: <%= WebPageUtil.formatCurrency(shortTermCompanyInformation.getExpectedProfit()) %></li>
 				
 				
 					</ul>
@@ -175,8 +193,7 @@ to access (or create) your trader profile.</p>
 	Company Code: <%= currentCompany.getCode() %><br/>
 	Company Exchange: <%= currentCompany.getStockExchange().getName() %><br/>
 	Company Outstanding shares: <%= currentCompany.getOutstandingShares() %><br/>
-	Company Expected profit: <%=currentPeriodReport.getFinalProfit()%><br/>
-	Company last share trade price: <%= currentCompany.getLastTradePrice() %><br/>
+	Company last share trade price: <%= WebPageUtil.formatCurrency(currentCompany.getLastTradePrice()) %><br/>
 						</li>
 <%	
 				}

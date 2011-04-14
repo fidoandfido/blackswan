@@ -63,6 +63,7 @@
         <mapping class="net.fidoandfido.model.Order"/>
         <mapping class="net.fidoandfido.model.ShareParcel"/>
         <mapping class="net.fidoandfido.model.TradeRecord"/>
+        <mapping class="net.fidoandfido.model.TraderEvent"/>
         <mapping class="net.fidoandfido.model.User"/>
         <mapping class="net.fidoandfido.model.UserSession"/>
         

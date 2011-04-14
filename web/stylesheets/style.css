@@ -35,6 +35,15 @@ p, ul, ol {
 	font-size: 11px;
 }
 
+
+table {
+	margin-top: 0;
+	line-height: 240%;
+	text-align: justify;
+	font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+	font-size: 11px;
+}
+
 ul, ol { }
 
 blockquote { }

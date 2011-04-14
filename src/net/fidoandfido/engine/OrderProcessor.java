@@ -8,11 +8,13 @@ import net.fidoandfido.dao.OrderDAO;
 import net.fidoandfido.dao.ShareParcelDAO;
 import net.fidoandfido.dao.TradeRecordDAO;
 import net.fidoandfido.dao.TraderDAO;
+import net.fidoandfido.dao.TraderEventDAO;
 import net.fidoandfido.model.Company;
 import net.fidoandfido.model.Order;
 import net.fidoandfido.model.ShareParcel;
 import net.fidoandfido.model.TradeRecord;
 import net.fidoandfido.model.Trader;
+import net.fidoandfido.model.TraderEvent;
 
 public class OrderProcessor {
 
@@ -103,9 +105,18 @@ public class OrderProcessor {
 		// Price is always based on the buyer's offer
 		long saleAmount = shareCount * buyOrder.getOfferPrice();
 
+		Date date = new Date();
+		if (!buyer.isMarketMaker()) {
+			TraderEvent event = new TraderEvent(buyer, TraderEvent.BUY_SHARES_PAYMENT, date, buyOrder.getCompany(), shareCount, saleAmount * -1, buyer.getCash(), buyer.getCash() - saleAmount);			
+			TraderEventDAO.saveTraderEvent(event);
+		}
+		if (!seller.isMarketMaker()) {
+			TraderEvent event = new TraderEvent(seller, TraderEvent.SELL_SHARES_PAYMENT, date, buyOrder.getCompany(), shareCount, saleAmount, buyer.getCash(), buyer.getCash() + saleAmount);
+			TraderEventDAO.saveTraderEvent(event);
+		}
+
 		buyer.takeCash(saleAmount);
 		seller.giveCash(saleAmount);
-
 		TraderDAO.saveTrader(seller);
 		TraderDAO.saveTrader(buyer);
 

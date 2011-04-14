@@ -33,15 +33,7 @@ public class AIRunner implements Runnable {
 	@Override
 	public void run() {
 		while (running) {
-			try {
-			HibernateUtil.beginTransaction();
 			process();
-			HibernateUtil.commitTransaction();
-			} catch (Exception e) {
-				logger.error("AI Runner - exception thrown! " + e.getMessage());
-			} finally {
-				logger.info("AI runner - processing finished");
-			}
 			// Wait and go again
 			synchronized (this) {
 				try {
@@ -56,15 +48,27 @@ public class AIRunner implements Runnable {
 	}
 
 	public void process() {
-		logger.info("AIRunner - processing");
-		AIStrategyFactory aiFactory = new AIStrategyFactory();
-		List<Trader> aiTraders = TraderDAO.getAITraderList();
-		for (Trader trader : aiTraders) {
-			AITradeStrategy strategy = aiFactory.getStrategyByName(trader.getAiStrategyName());
-			logger.info("AIRunner - Performing trades: " + trader.getName() + " -- " + trader.getAiStrategyName() + " -- " + strategy.getName());
-			strategy.performTrades(trader);
+		try {
+			logger.info("AIRunner - processing");
+			HibernateUtil.beginTransaction();
+			AIStrategyFactory aiFactory = new AIStrategyFactory();
+			List<Trader> aiTraders = TraderDAO.getAITraderList();
+			for (Trader trader : aiTraders) {
+				AITradeStrategy strategy = aiFactory.getStrategyByName(trader
+						.getAiStrategyName());
+				logger.info("AIRunner - Performing trades: " + trader.getName()
+						+ " -- " + trader.getAiStrategyName() + " -- "
+						+ strategy.getName());
+				strategy.performTrades(trader);
+			}
+			HibernateUtil.commitTransaction();
+			logger.info("AIRunner - processing complete");
+		} catch (Exception e) {
+			HibernateUtil.rollbackTransaction();
+			logger.error("AI Runner - exception thrown! " + e.getMessage());
+		} finally {
+			logger.info("AI runner - processing finished");
 		}
-		logger.info("AIRunner - processing complete");
 	}
 
 	/**

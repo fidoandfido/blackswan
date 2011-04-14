@@ -8,11 +8,13 @@ import net.fidoandfido.dao.HibernateUtil;
 import net.fidoandfido.dao.ShareParcelDAO;
 import net.fidoandfido.dao.StockExchangeDAO;
 import net.fidoandfido.dao.TraderDAO;
+import net.fidoandfido.dao.TraderEventDAO;
 import net.fidoandfido.model.Company;
 import net.fidoandfido.model.CompanyPeriodReport;
 import net.fidoandfido.model.ShareParcel;
 import net.fidoandfido.model.StockExchange;
 import net.fidoandfido.model.Trader;
+import net.fidoandfido.model.TraderEvent;
 
 import org.apache.log4j.Logger;
 
@@ -36,7 +38,8 @@ public class PeriodGenerator implements Runnable {
 	public PeriodGenerator(String exchangeName) {
 		this.exchangeName = exchangeName;
 		HibernateUtil.beginTransaction();
-		StockExchange exchange = StockExchangeDAO.getStockExchangeByName(exchangeName);
+		StockExchange exchange = StockExchangeDAO
+				.getStockExchangeByName(exchangeName);
 		this.periodLength = exchange.getCompanyPeriodLength();
 		HibernateUtil.commitTransaction();
 	}
@@ -63,18 +66,21 @@ public class PeriodGenerator implements Runnable {
 	public void generatePeriodReports() {
 		// Start a period. This will initialise companies reporting.
 		logger.info("Generating period reports: Retrieving exchange");
-		StockExchange exchange = StockExchangeDAO.getStockExchangeByName(exchangeName);
+		StockExchange exchange = StockExchangeDAO
+				.getStockExchangeByName(exchangeName);
 		if (exchange == null) {
 			return;
 		}
 		Date currentDate = new Date();
 		// Create a period event generator...
 		PeriodEventGenerator generator = new PeriodEventGenerator();
-		Iterable<Company> companyList = CompanyDAO.getCompaniesByExchange(exchange);
+		Iterable<Company> companyList = CompanyDAO
+				.getCompaniesByExchange(exchange);
 		for (Company company : companyList) {
 			logger.info("Updating company: " + company.getName());
 			// Create a new company report entry. Somehow...
-			CompanyPeriodReport currentPeriodReport = company.getCurrentPeriod();
+			CompanyPeriodReport currentPeriodReport = company
+					.getCurrentPeriod();
 
 			long expectedProfit = 0;
 			long generation = 0;
@@ -91,12 +97,14 @@ public class PeriodGenerator implements Runnable {
 				distributeDividends(currentPeriodReport);
 				currentPeriodReport.close(currentDate);
 				CompanyPeriodReportDAO.savePeriodReport(currentPeriodReport);
-				expectedProfit = (currentPeriodReport.getFinalProfit() + company.getCapitalisation() * 5 / 100) / 2;
+				expectedProfit = (currentPeriodReport.getFinalProfit() + company
+						.getCapitalisation() * 5 / 100) / 2;
 			} else {
 				expectedProfit = company.getCapitalisation() * 5 / 100;
 			}
-			CompanyPeriodReport newPeriodReport = new CompanyPeriodReport(company, expectedProfit, currentDate, exchange.getCompanyPeriodLength(),
-					generation + 1);
+			CompanyPeriodReport newPeriodReport = new CompanyPeriodReport(
+					company, expectedProfit, currentDate,
+					exchange.getCompanyPeriodLength(), generation + 1);
 			CompanyPeriodReportDAO.savePeriodReport(newPeriodReport);
 			generator.generateEvents(newPeriodReport, company, exchange);
 			company.setCurrentPeriod(newPeriodReport);
@@ -113,21 +121,34 @@ public class PeriodGenerator implements Runnable {
 		long profit = currentPeriodReport.getFinalProfit();
 		logger.info("Profit: " + profit);
 
-		// Distribute the profit.
-		// 25% will go to the company, the rest will be dividend.
-		company.incrementAssetValue(profit / 4);
-		// Get the dividend (in cents!)
-		long dividend = (profit / 4) * 3;
-		dividend = dividend / company.getOutstandingShares();
-		logger.info("Dividend per share:" + dividend);
-		Iterable<ShareParcel> parcels = ShareParcelDAO.getHoldingsByCompany(company);
-		for (ShareParcel parcel : parcels) {
-			Trader trader = parcel.getTrader();
-			logger.info("Giving cash: " + (dividend * parcel.getShareCount()) + " to Trader: " + trader.getName());
-			trader.giveCash(dividend * parcel.getShareCount());
-			TraderDAO.saveTrader(trader);
+		if (profit > 0) {
+			// Distribute the profit.
+			// 25% will go to the company, the rest will be dividend.
+			company.incrementAssetValue(profit / 4);
+			// Get the dividend (in cents!)
+			long dividend = (profit / 4) * 3;
+			dividend = dividend / company.getOutstandingShares();
+			logger.info("Dividend per share:" + dividend);
+			Iterable<ShareParcel> parcels = ShareParcelDAO
+					.getHoldingsByCompany(company);
+			for (ShareParcel parcel : parcels) {
+				Trader trader = parcel.getTrader();
+				long payment = dividend * parcel.getShareCount();
+				logger.info("Giving cash: " + payment + " to Trader: "
+						+ trader.getName());
+				if (!trader.isMarketMaker()) {
+					TraderEvent event = new TraderEvent(trader,
+							TraderEvent.DIVIDEND_PAYMENT, new Date(),
+							parcel.getCompany(), parcel.getShareCount(),
+							payment, trader.getCash(), trader.getCash()
+									+ payment);
+					TraderEventDAO.saveTraderEvent(event);
+				}
+				trader.giveCash(payment);
+				TraderDAO.saveTrader(trader);
+			}
+			CompanyDAO.saveCompany(company);
 		}
-		CompanyDAO.saveCompany(company);
 	}
 
 	/**

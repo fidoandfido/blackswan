@@ -36,9 +36,17 @@ public class MarketMakerRunner implements Runnable {
 	@Override
 	public void run() {
 		while (running) {
-			HibernateUtil.beginTransaction();
-			process();
-			HibernateUtil.commitTransaction();
+			try {
+				logger.info("Processing starting");
+				HibernateUtil.beginTransaction();
+				process();
+				HibernateUtil.commitTransaction();
+			} catch (Exception e) {
+				HibernateUtil.rollbackTransaction();
+				logger.error("Exception thrown! " + e.getMessage());
+			} finally {
+				logger.info("Processing finished.");
+			}
 			// Wait 20 seconds and go again
 			synchronized (this) {
 				try {
@@ -69,7 +77,8 @@ public class MarketMakerRunner implements Runnable {
 			}
 			long offerPrice = order.getOfferPrice();
 			Company company = order.getCompany();
-			// Will try to accept any order within... say... 10% of the current price.
+			// Will try to accept any order within... say... 10% of the current
+			// price.
 			long maxDelta = company.getLastTradePrice() / 10;
 			if (maxDelta == 0) {
 				maxDelta = 1;
@@ -89,8 +98,10 @@ public class MarketMakerRunner implements Runnable {
 
 			Order marketMakerOrder;
 			if (order.getOrderType().equals(OrderType.BUY)) {
-				// If they are trying to buy, make sure we have some shares to sell!
-				ShareParcel mmHoldings = ShareParcelDAO.getHoldingsByTraderForCompany(marketMaker, company);
+				// If they are trying to buy, make sure we have some shares to
+				// sell!
+				ShareParcel mmHoldings = ShareParcelDAO
+						.getHoldingsByTraderForCompany(marketMaker, company);
 				if (mmHoldings == null) {
 					continue;
 				}
@@ -103,10 +114,12 @@ public class MarketMakerRunner implements Runnable {
 					shareCount = mmHoldings.getShareCount();
 				}
 				logger.info("Market maker is selling some shares...");
-				marketMakerOrder = new Order(marketMaker, company, shareCount, offerPrice, OrderType.SELL);
+				marketMakerOrder = new Order(marketMaker, company, shareCount,
+						offerPrice, OrderType.SELL);
 			} else {
 				logger.info("Market maker is buying some shares....");
-				marketMakerOrder = new Order(marketMaker, company, shareCount, offerPrice, OrderType.BUY);
+				marketMakerOrder = new Order(marketMaker, company, shareCount,
+						offerPrice, OrderType.BUY);
 			}
 			OrderDAO.saveOrder(marketMakerOrder);
 			processor.processOrder(marketMakerOrder);

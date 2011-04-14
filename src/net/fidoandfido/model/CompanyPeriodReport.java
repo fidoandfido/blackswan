@@ -272,4 +272,8 @@ public class CompanyPeriodReport {
 		return resultsMap;
 	}
 
+	public long getPeriodLength() {
+		return getCompany().getStockExchange().getCompanyPeriodLength();
+	}
+
 }
