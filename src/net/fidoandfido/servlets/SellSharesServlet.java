@@ -62,13 +62,16 @@ public class SellSharesServlet extends HttpServlet {
 			Company company = CompanyDAO.getCompanyByCode(companyCode);
 
 			if (trader == null) {
+				logger.info("trader null");
 				return false;
 			}
 			if (company == null) {
+				logger.info("compay null -- code:" + companyCode);
 				return false;
 			}
 
 			if (!validateOrder(trader, company, shareCount)) {
+				logger.info("validate order failed");
 				return false;
 			}
 			Order sellOrder = new Order(trader, company, shareCount, askingPrice, Order.OrderType.SELL);
@@ -89,7 +92,7 @@ public class SellSharesServlet extends HttpServlet {
 		long holdingCount = 0;
 		if (shareParcel != null) {
 			holdingCount = holdingCount + shareParcel.getShareCount();
-			if (holdingCount > shareCount) {
+			if (holdingCount >= shareCount) {
 				return true;
 			}
 		}

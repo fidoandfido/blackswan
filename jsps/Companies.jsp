@@ -129,16 +129,15 @@ to access (or create) your trader profile.</p>
 				Maximum buy count: <%= trader.getCash() / company.getLastTradePrice() %>
 				
 				<form action="/myapp/buyshares" method="post">
+				<input type="hidden" name="<%=BuySharesServlet.COMPANY_CODE_PARM%>" value="<%=company.getCode()%>"></input></li>
 				<ul>
-					<li>Please enter all fields!</li>
-					<li>Company Code:<input name="<%=BuySharesServlet.COMPANY_CODE_PARM%>" value="<%=company.getCode()%>" cols="60"></input></li>
 					<li>Share Count:<input name="<%=BuySharesServlet.SHARE_COUNT%>"  cols="60"></input></li>
 					<li>Offer price (in cents):<input name="<%=BuySharesServlet.OFFER_PRICE%>" value="<%=company.getLastTradePrice() %>" cols="60"></input></li>
 				</ul>
 				<input type="submit" value="Buy Shares" />
 				</form>
 
-					
+				
 					
 				</div>
 			</div>	

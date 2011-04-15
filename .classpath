@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="src" path="test"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="lib_tomcat/servlet-api.jar"/>
+	<classpathentry kind="lib" path="lib_hibernate/hibernate-annotations.jar"/>
+	<classpathentry kind="lib" path="lib_hibernate/hibernate3.jar"/>
+	<classpathentry kind="lib" path="lib_hibernate/log4j-1.2.13.jar"/>
+	<classpathentry kind="lib" path="lib_hibernate/hibernate-jpa-2.0-api-1.0.0.Final.jar"/>
+	<classpathentry kind="lib" path="lib_hibernate/antlr-2.7.6.jar"/>
+	<classpathentry kind="lib" path="lib_hibernate/asm-attrs.jar"/>
+	<classpathentry kind="lib" path="lib_hibernate/asm.jar"/>
+	<classpathentry kind="lib" path="lib_hibernate/c3p0-0.9.0.jar"/>
+	<classpathentry kind="lib" path="lib_hibernate/cglib-2.1.3.jar"/>
+	<classpathentry kind="lib" path="lib_hibernate/commons-collections-2.1.1.jar"/>
+	<classpathentry kind="lib" path="lib_hibernate/commons-logging-1.0.4.jar"/>
+	<classpathentry kind="lib" path="lib_hibernate/dom4j-1.6.1.jar"/>
+	<classpathentry kind="lib" path="lib_hibernate/hibernate-tools.jar"/>
+	<classpathentry kind="lib" path="lib_hibernate/hsqldb.jar"/>
+	<classpathentry kind="lib" path="lib_hibernate/jta.jar"/>
+	<classpathentry kind="lib" path="lib_hibernate/postgresql-8.4-702.jdbc3.jar"/>
+	<classpathentry kind="lib" path="lib_hibernate/mysql-connector-java-5.1.10.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

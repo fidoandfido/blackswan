@@ -63,4 +63,11 @@ public class OrderDAO {
 		return crit.list();
 	}
 
+	public static Order getOrderById(String id) {
+		Session session = HibernateUtil.getSession();
+		Criteria crit = session.createCriteria(Order.class);
+		crit.add(Restrictions.eq("id", id));
+		return (Order) crit.uniqueResult();
+	}
+
 }

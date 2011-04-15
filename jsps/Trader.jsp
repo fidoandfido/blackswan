@@ -1,3 +1,5 @@
+<%@page import="net.fidoandfido.servlets.CancelOrderServlet"%>
+<%@page import="net.fidoandfido.servlets.BuySharesServlet"%>
 <%@page import="net.fidoandfido.model.TraderEvent"%>
 <%@page import="net.fidoandfido.dao.TraderEventDAO"%>
 <%@page import="net.fidoandfido.model.Order"%>
@@ -15,7 +17,7 @@
 <%@page import="net.fidoandfido.dao.TraderDAO"%>
 <%@page import="net.fidoandfido.model.Trader"%>
 <%@page import="net.fidoandfido.util.Constants"%>
-
+<%@page import="net.fidoandfido.servlets.SellSharesServlet"%>
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1" pageEncoding="ISO-8859-1"%>
 
 <%	
@@ -71,6 +73,24 @@
 			Share count: <%= shareParcel.getShareCount() %><br/>
 			Last traded price: <%= WebPageUtil.formatCurrency(shareParcel.getCompany().getLastTradePrice()) %><br/>
 			Market Value: <%= WebPageUtil.formatCurrency(marketValue)  %><br/>
+			
+			Buy More Shares: (Max buying power at market rate: <%= trader.getAvailableCash() / shareParcel.getCompany().getLastTradePrice() %>)<br/>
+			<form action="/myapp/buyshares" method="post">
+				<input type="hidden" name="<%=BuySharesServlet.COMPANY_CODE_PARM%>" value="<%=shareParcel.getCompany().getCode()%>" ></input>
+				<table>
+					<tr><td>Share Count:</td><td><input name="<%=BuySharesServlet.SHARE_COUNT%>" value="" cols="60"></input></td></tr>
+					<tr><td>Offer price (in cents):</td><td><input name="<%=BuySharesServlet.OFFER_PRICE%>" value="<%=shareParcel.getCompany().getLastTradePrice() %>" cols="30"></input><input type="submit" value="Buy Shares" /></td></tr>
+				</table>
+			</form>
+			
+			Sell Shares:<br/>
+			<form action="/myapp/sellshares" method="post">
+				<input type="hidden" name="<%=SellSharesServlet.COMPANY_CODE_PARM%>" value="<%=shareParcel.getCompany().getCode()%>" ></input>
+				<table>
+					<tr><td>Share Count:</td><td><input name="<%=SellSharesServlet.SHARE_COUNT%>" value="<%= shareParcel.getShareCount() %>" cols="60"></input></td></tr>
+					<tr><td>Asking price (in cents):</td><td><input name="<%=SellSharesServlet.ASKING_PRICE%>" value="<%=shareParcel.getCompany().getLastTradePrice() %>" cols="30"></input><input type="submit" value="Sell Shares" /></td></tr>
+				</table>
+			</form>
 			</li>
 <%		
 		}
@@ -99,6 +119,10 @@
 					Company: <%= order.getCompany().getName() %></br>
 					Share count: <%= order.getRemainingShareCount() %></br>
 					Price: <%= WebPageUtil.formatCurrency(order.getOfferPrice()) %></br>
+					<form action="/myapp/cancelorder" method="post">
+					<input type="hidden" name="<%= CancelOrderServlet.ID_PARM %>" value="<%= order.getId() %>"/>
+					<input type="submit" value="Cancel Order" />
+				</form>
 				</li>
 <%
 		}

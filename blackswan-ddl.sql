@@ -79,6 +79,14 @@
         drop 
         foreign key FK95CB27AEDE29A6B0;
 
+    alter table TraderEvent 
+        drop 
+        foreign key FKB03F78CD1B4A736;
+
+    alter table TraderEvent 
+        drop 
+        foreign key FKB03F78C79C9A78F;
+
     alter table UserSession 
         drop 
         foreign key FKC7BC0C2BDE29A6B0;
@@ -109,6 +117,8 @@
 
     drop table if exists Trader;
 
+    drop table if exists TraderEvent;
+
     drop table if exists UserSession;
 
     create table Company (
@@ -127,8 +137,8 @@
         neverPayDividend bit,
         dividendRate bigint,
         lastTradePrice bigint,
-        stock_exchange_id varchar(255),
         current_period varchar(255),
+        stock_exchange_id varchar(255),
         primary key (company_id)
     );
 
@@ -186,8 +196,8 @@
         message varchar(255),
         eventType integer,
         forecastType varchar(255),
-        company_id varchar(255),
         company_period_report varchar(255),
+        company_id varchar(255),
         primary key (period_rumour_id)
     );
 
@@ -226,8 +236,8 @@
         executed bit,
         dateExecuted datetime,
         orderType integer,
-        trader_id varchar(255),
         company varchar(255),
+        trader_id varchar(255),
         primary key (order_id)
     );
 
@@ -236,9 +246,9 @@
         shareCount bigint,
         sharePrice bigint,
         date datetime,
-        seller_trader_id varchar(255),
-        company_company_id varchar(255),
         buyer_trader_id varchar(255),
+        company_company_id varchar(255),
+        seller_trader_id varchar(255),
         primary key (trade_record_id)
     );
 
@@ -251,6 +261,19 @@
         isMarketMaker bit,
         experiencePoints bigint,
         user_trader_id varchar(255),
+        primary key (trader_id)
+    );
+
+    create table TraderEvent (
+        trader_id varchar(255) not null,
+        eventType varchar(255),
+        date datetime,
+        shareCount bigint,
+        amountTransferred bigint,
+        startingCash bigint,
+        endingCash bigint,
+        company_company_id varchar(255),
+        trader_trader_id varchar(255),
         primary key (trader_id)
     );
 
@@ -382,6 +405,18 @@
         add constraint FK95CB27AEDE29A6B0 
         foreign key (user_trader_id) 
         references GameUser (trader_id);
+
+    alter table TraderEvent 
+        add index FKB03F78CD1B4A736 (trader_trader_id), 
+        add constraint FKB03F78CD1B4A736 
+        foreign key (trader_trader_id) 
+        references Trader (trader_id);
+
+    alter table TraderEvent 
+        add index FKB03F78C79C9A78F (company_company_id), 
+        add constraint FKB03F78C79C9A78F 
+        foreign key (company_company_id) 
+        references Company (company_id);
 
     alter table UserSession 
         add index FKC7BC0C2BDE29A6B0 (user_trader_id), 
