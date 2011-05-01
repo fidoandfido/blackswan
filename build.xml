@@ -10,6 +10,7 @@
     <property name="src.java.dir"           value="src"/>
     <property name="lib_hibernate.dir"      value="lib_hibernate"/>
     <property name="lib_tomcat.dir"         value="lib_tomcat"/>
+	<property name="lib_jfreechart.dir"		value="lib_jfreechart"/>
     <property name="build.dir"              value="build"/>
 
 	<property name="webapp.name"			value="myapp"/>
@@ -28,6 +29,10 @@
             <include name="**/*.zip"/>
         </fileset>
         <fileset dir="${lib_hibernate.dir}">
+            <include name="**/*.jar"/>
+            <include name="**/*.zip"/>
+        </fileset>
+        <fileset dir="${lib_jfreechart.dir}">
             <include name="**/*.jar"/>
             <include name="**/*.zip"/>
         </fileset>
@@ -91,7 +96,8 @@
 		<war destfile="myapp.war" webxml="web.xml">
 		  <fileset dir="web"/>
 		  <fileset dir="jsps"/>
-		  <lib dir="lib_hibernate" />
+		  <lib dir="${lib_jfreechart.dir}"/>
+		  <lib dir="${lib_hibernate.dir}"/>
 		  <classes dir="bin"/>
 		  <zipfileset dir="images" prefix="images"/>
 		</war>

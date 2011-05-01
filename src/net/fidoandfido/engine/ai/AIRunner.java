@@ -1,10 +1,15 @@
 package net.fidoandfido.engine.ai;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import net.fidoandfido.dao.HibernateUtil;
+import net.fidoandfido.dao.OrderDAO;
 import net.fidoandfido.dao.TraderDAO;
+import net.fidoandfido.model.Order;
 import net.fidoandfido.model.Trader;
+import net.fidoandfido.util.ServerUtil;
 
 import org.apache.log4j.Logger;
 
@@ -16,11 +21,17 @@ public class AIRunner implements Runnable {
 
 	Logger logger = Logger.getLogger(getClass());
 
-	public static long DEFUALT_TIMEOUT = 5000;
+	public static long DEFUALT_TIMEOUT = 30000;
 
 	private final long timeout;
 
 	private boolean running = true;
+
+	// Seeded (as always!)
+	private Random aiSelector = new Random(17);
+
+	// Only do 10 traders each time
+	private static final int AI_TRADE_COUNT = 10;
 
 	public AIRunner() {
 		timeout = DEFUALT_TIMEOUT;
@@ -54,18 +65,41 @@ public class AIRunner implements Runnable {
 			AIStrategyFactory aiFactory = new AIStrategyFactory();
 			List<Trader> aiTraders = TraderDAO.getAITraderList();
 			for (Trader trader : aiTraders) {
-				AITradeStrategy strategy = aiFactory.getStrategyByName(trader
-						.getAiStrategyName());
-				logger.info("AIRunner - Performing trades: " + trader.getName()
-						+ " -- " + trader.getAiStrategyName() + " -- "
-						+ strategy.getName());
+				logger.info("AIRunner - removing outstanding orders: " + trader.getName());
+				List<Order> closedOrders = OrderDAO.getClosedOrdersByTrader(trader);
+				for (Order order : closedOrders) {
+					OrderDAO.deleteOrder(order);
+				}
+			}
+			HibernateUtil.commitTransaction();
+
+			HibernateUtil.beginTransaction();
+			aiTraders = TraderDAO.getAITraderList();
+			// for (Trader trader : aiTraders) {
+			// AITradeStrategy strategy =
+			// aiFactory.getStrategyByName(trader.getAiStrategyName());
+			// logger.info("AIRunner - Performing trades: " + trader.getName() +
+			// " -- " + trader.getAiStrategyName() + " -- " +
+			// strategy.getName());
+			// strategy.performTrades(trader);
+			// }
+
+			List<Trader> localList = new ArrayList<Trader>(aiTraders);
+
+			for (int i = 0; i < AI_TRADE_COUNT; i++) {
+				int index = aiSelector.nextInt(localList.size());
+				Trader trader = localList.get(index);
+				AITradeStrategy strategy = aiFactory.getStrategyByName(trader.getAiStrategyName());
+				logger.info("AIRunner - Performing trades: " + trader.getName() + " -- " + trader.getAiStrategyName() + " -- " + strategy.getName());
 				strategy.performTrades(trader);
+				localList.remove(index);
 			}
 			HibernateUtil.commitTransaction();
 			logger.info("AIRunner - processing complete");
 		} catch (Exception e) {
 			HibernateUtil.rollbackTransaction();
-			logger.error("AI Runner - exception thrown! " + e.getMessage());
+			// logger.error("AI Runner - exception thrown! " + e.getMessage());
+			ServerUtil.logError(logger, e);
 		} finally {
 			logger.info("AI runner - processing finished");
 		}

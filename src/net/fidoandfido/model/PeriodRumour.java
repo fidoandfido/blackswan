@@ -14,147 +14,211 @@ import net.fidoandfido.util.Constants.EventType;
 
 import org.hibernate.annotations.GenericGenerator;
 
-
 @Entity
 @Table(name = "PeriodPartRumour")
 public class PeriodRumour {
 
-		@Id
-		@Column(name = "period_rumour_id")
-		@GeneratedValue(generator = "uuid")
-		@GenericGenerator(name = "uuid", strategy = "uuid")
-		private String id;
+	@Id
+	@Column(name = "period_rumour_id")
+	@GeneratedValue(generator = "uuid")
+	@GenericGenerator(name = "uuid", strategy = "uuid")
+	private String id;
 
-		@ManyToOne
-		@JoinColumn(name = "company_id")
-		private Company company;
+	@ManyToOne
+	@JoinColumn(name = "company_id")
+	private Company company;
 
-		@ManyToOne
-		@JoinColumn(name = "company_period_report")
-		private CompanyPeriodReport companyPeriodReport;
+	@ManyToOne
+	@JoinColumn(name = "company_period_report")
+	private CompanyPeriodReport companyPeriodReport;
 
-		@Column
-		private Date dateInformationAvailable;
+	@Column
+	private Date dateInformationAvailable;
 
-		@Column
-		private String message;
+	@Column
+	private Date dateRumourExpires;
 
-		@Column
-		private EventType eventType;
+	@Column
+	private int reputationRequired = 0;
 
-		@Column
-		private String forecastType;
+	@Column
+	private String sector;
 
-		public PeriodRumour(Company company, CompanyPeriodReport companyPeriodReport, Date dateInformationAvailable, String message, EventType eventType,
-				String forecastType) {
-			this.company = company;
-			this.companyPeriodReport = companyPeriodReport;
-			this.dateInformationAvailable = dateInformationAvailable;
-			this.message = message;
-			this.eventType = eventType;
-			this.forecastType = forecastType;
-		}
+	@Column
+	private String message;
 
-		public PeriodRumour() {
-			super();
-			// TODO Auto-generated constructor stub
-		}
+	@Column
+	private EventType eventType;
 
-		/**
-		 * @return the id
-		 */
-		public String getId() {
-			return id;
-		}
+	@Column
+	private String forecastType;
 
-		/**
-		 * @param id the id to set
-		 */
-		public void setId(String id) {
-			this.id = id;
-		}
+	public PeriodRumour(Company company, CompanyPeriodReport companyPeriodReport, Date dateInformationAvailable, Date rumourExpires, int reputationRequired,
+			String message, EventType eventType, String forecastType) {
+		this.company = company;
+		this.companyPeriodReport = companyPeriodReport;
+		this.dateInformationAvailable = dateInformationAvailable;
+		this.dateRumourExpires = rumourExpires;
+		this.reputationRequired = reputationRequired;
+		this.sector = company.getSector();
+		this.message = message;
+		this.eventType = eventType;
+		this.forecastType = forecastType;
+	}
 
-		/**
-		 * @return the company
-		 */
-		public Company getCompany() {
-			return company;
-		}
+	public PeriodRumour() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
 
-		/**
-		 * @param company the company to set
-		 */
-		public void setCompany(Company company) {
-			this.company = company;
-		}
+	/**
+	 * @return the id
+	 */
+	public String getId() {
+		return id;
+	}
 
-		/**
-		 * @return the companyPeriodReport
-		 */
-		public CompanyPeriodReport getCompanyPeriodReport() {
-			return companyPeriodReport;
-		}
+	/**
+	 * @param id
+	 *            the id to set
+	 */
+	public void setId(String id) {
+		this.id = id;
+	}
 
-		/**
-		 * @param companyPeriodReport the companyPeriodReport to set
-		 */
-		public void setCompanyPeriodReport(CompanyPeriodReport companyPeriodReport) {
-			this.companyPeriodReport = companyPeriodReport;
-		}
+	/**
+	 * @return the company
+	 */
+	public Company getCompany() {
+		return company;
+	}
 
-		/**
-		 * @return the dateInformationAvailable
-		 */
-		public Date getDateInformationAvailable() {
-			return dateInformationAvailable;
-		}
+	/**
+	 * @param company
+	 *            the company to set
+	 */
+	public void setCompany(Company company) {
+		this.company = company;
+	}
 
-		/**
-		 * @param dateInformationAvailable the dateInformationAvailable to set
-		 */
-		public void setDateInformationAvailable(Date dateInformationAvailable) {
-			this.dateInformationAvailable = dateInformationAvailable;
-		}
+	/**
+	 * @return the companyPeriodReport
+	 */
+	public CompanyPeriodReport getCompanyPeriodReport() {
+		return companyPeriodReport;
+	}
 
-		/**
-		 * @return the message
-		 */
-		public String getMessage() {
-			return message;
-		}
+	/**
+	 * @param companyPeriodReport
+	 *            the companyPeriodReport to set
+	 */
+	public void setCompanyPeriodReport(CompanyPeriodReport companyPeriodReport) {
+		this.companyPeriodReport = companyPeriodReport;
+	}
 
-		/**
-		 * @param message the message to set
-		 */
-		public void setMessage(String message) {
-			this.message = message;
-		}
+	/**
+	 * @return the dateInformationAvailable
+	 */
+	public Date getDateInformationAvailable() {
+		return dateInformationAvailable;
+	}
 
-		/**
-		 * @return the eventType
-		 */
-		public EventType getEventType() {
-			return eventType;
-		}
+	/**
+	 * @param dateInformationAvailable
+	 *            the dateInformationAvailable to set
+	 */
+	public void setDateInformationAvailable(Date dateInformationAvailable) {
+		this.dateInformationAvailable = dateInformationAvailable;
+	}
 
-		/**
-		 * @param eventType the eventType to set
-		 */
-		public void setEventType(EventType eventType) {
-			this.eventType = eventType;
-		}
+	/**
+	 * @return the dateRumourExpires
+	 */
+	public Date getDateRumourExpires() {
+		return dateRumourExpires;
+	}
 
-		/**
-		 * @return the forecastType
-		 */
-		public String getForecastType() {
-			return forecastType;
-		}
+	/**
+	 * @param dateRumourExpires
+	 *            the dateRumourExpires to set
+	 */
+	public void setDateRumourExpires(Date dateRumourExpires) {
+		this.dateRumourExpires = dateRumourExpires;
+	}
 
-		/**
-		 * @param forecastType the forecastType to set
-		 */
-		public void setForecastType(String forecastType) {
-			this.forecastType = forecastType;
-		}
+	/**
+	 * @return the message
+	 */
+	public String getMessage() {
+		return message;
+	}
+
+	/**
+	 * @param message
+	 *            the message to set
+	 */
+	public void setMessage(String message) {
+		this.message = message;
+	}
+
+	/**
+	 * @return the eventType
+	 */
+	public EventType getEventType() {
+		return eventType;
+	}
+
+	/**
+	 * @param eventType
+	 *            the eventType to set
+	 */
+	public void setEventType(EventType eventType) {
+		this.eventType = eventType;
+	}
+
+	/**
+	 * @return the forecastType
+	 */
+	public String getForecastType() {
+		return forecastType;
+	}
+
+	/**
+	 * @param forecastType
+	 *            the forecastType to set
+	 */
+	public void setForecastType(String forecastType) {
+		this.forecastType = forecastType;
+	}
+
+	/**
+	 * @return the reputationRequired
+	 */
+	public int getReputationRequired() {
+		return reputationRequired;
+	}
+
+	/**
+	 * @param reputationRequired
+	 *            the reputationRequired to set
+	 */
+	public void setReputationRequired(int reputationRequired) {
+		this.reputationRequired = reputationRequired;
+	}
+
+	/**
+	 * @return the sector
+	 */
+	public String getSector() {
+		return sector;
+	}
+
+	/**
+	 * @param sector
+	 *            the sector to set
+	 */
+	public void setSector(String sector) {
+		this.sector = sector;
+	}
+
 }

@@ -1,9 +1,9 @@
-package net.fidoandfido.engine.EventGenerators;
+package net.fidoandfido.engine.eventgenerators;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import net.fidoandfido.engine.EventGenerator;
+import net.fidoandfido.engine.event.EventGenerator;
 
 public class EventGeneratorFactory {
 

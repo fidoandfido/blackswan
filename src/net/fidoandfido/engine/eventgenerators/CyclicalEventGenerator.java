@@ -1,8 +1,8 @@
-package net.fidoandfido.engine.EventGenerators;
+package net.fidoandfido.engine.eventgenerators;
 
 import java.util.Random;
 
-import net.fidoandfido.engine.EventGenerator;
+import net.fidoandfido.engine.event.EventGenerator;
 import net.fidoandfido.util.Constants.EventType;
 
 public class CyclicalEventGenerator implements EventGenerator {
@@ -19,9 +19,9 @@ public class CyclicalEventGenerator implements EventGenerator {
 			EventType.GREAT, // 5
 			EventType.EXTRAORDINARY }; // 6
 
-	private int lowerEventCountBound = 100;
+	private int lowerEventCountBound = 1000;
 
-	private int upperEventCountBound = 200;
+	private int upperEventCountBound = 2000;
 
 	EventType currentEventCycle = EventType.AVERAGE;
 
@@ -42,6 +42,11 @@ public class CyclicalEventGenerator implements EventGenerator {
 
 	@Override
 	public EventType getNextEventType() {
+		return getNextEventType(EventType.AVERAGE);
+	}
+
+	@Override
+	public EventType getNextEventType(EventType previousEvent) {
 		// This will produce events of the same general type.
 		// it will be biased against the extreme events.
 
@@ -71,6 +76,8 @@ public class CyclicalEventGenerator implements EventGenerator {
 			}
 		}
 
+		EventType newEvent = EventType.AVERAGE;
+
 		// Now figure out what type of event we need to return
 		switch (currentEventCycle) {
 		case POOR:
@@ -83,21 +90,27 @@ public class CyclicalEventGenerator implements EventGenerator {
 			// 0 % chance of EXTRAORDINARY
 			switch (random.nextInt(10)) {
 			case 0:
-				return EventType.CATASTROPHIC;
+				newEvent = EventType.CATASTROPHIC;
+				break;
 			case 1:
 			case 2:
-				return EventType.TERRIBLE;
+				newEvent = EventType.TERRIBLE;
+				break;
 			case 3:
 			case 4:
 			case 5:
-				return EventType.POOR;
+				newEvent = EventType.POOR;
+				break;
 			case 6:
 			case 7:
-				return EventType.AVERAGE;
+				newEvent = EventType.AVERAGE;
+				break;
 			case 8:
-				return EventType.GOOD;
+				newEvent = EventType.GOOD;
+				break;
 			case 9:
-				return EventType.GREAT;
+				newEvent = EventType.GREAT;
+				break;
 			}
 			break;
 		case AVERAGE:
@@ -110,20 +123,25 @@ public class CyclicalEventGenerator implements EventGenerator {
 			// 0 % chance of EXTRAORDINARY
 			switch (random.nextInt(10)) {
 			case 0:
-				return EventType.TERRIBLE;
+				newEvent = EventType.TERRIBLE;
+				break;
 			case 1:
 			case 2:
-				return EventType.POOR;
+				newEvent = EventType.POOR;
+				break;
 			case 3:
 			case 4:
 			case 5:
 			case 6:
-				return EventType.AVERAGE;
+				newEvent = EventType.AVERAGE;
+				break;
 			case 7:
 			case 8:
-				return EventType.GOOD;
+				newEvent = EventType.GOOD;
+				break;
 			case 9:
-				return EventType.GREAT;
+				newEvent = EventType.GREAT;
+				break;
 			}
 			break;
 		case GOOD:
@@ -137,21 +155,27 @@ public class CyclicalEventGenerator implements EventGenerator {
 			int rand = random.nextInt(10);
 			switch (rand) {
 			case 0:
-				return EventType.TERRIBLE;
+				newEvent = EventType.TERRIBLE;
+				break;
 			case 1:
-				return EventType.POOR;
+				newEvent = EventType.POOR;
+				break;
 			case 2:
 			case 3:
-				return EventType.AVERAGE;
+				newEvent = EventType.AVERAGE;
+				break;
 			case 4:
 			case 5:
 			case 6:
-				return EventType.GOOD;
+				newEvent = EventType.GOOD;
+				break;
 			case 7:
 			case 8:
-				return EventType.GREAT;
+				newEvent = EventType.GREAT;
+				break;
 			case 9:
-				return EventType.EXTRAORDINARY;
+				newEvent = EventType.EXTRAORDINARY;
+				break;
 			}
 			break;
 		default:
@@ -159,8 +183,35 @@ public class CyclicalEventGenerator implements EventGenerator {
 			currentEventCycle = EventType.AVERAGE;
 			gettingBetter = true;
 		}
-		// SAFETY
-		return currentEventCycle;
+
+		// Make sure that our old event is not too far away from the new one.
+		// Don't worry about the average case.
+		switch (previousEvent) {
+		case EXTRAORDINARY:
+		case GREAT:
+			if (newEvent == EventType.TERRIBLE || newEvent == EventType.CATASTROPHIC) {
+				newEvent = EventType.POOR;
+			}
+			break;
+		case GOOD:
+			if (newEvent == EventType.CATASTROPHIC) {
+				newEvent = EventType.TERRIBLE;
+			}
+		case AVERAGE:
+			break;
+		case POOR:
+			if (newEvent == EventType.EXTRAORDINARY) {
+				newEvent = EventType.GREAT;
+			}
+			break;
+		case TERRIBLE:
+		case CATASTROPHIC:
+			if (newEvent == EventType.EXTRAORDINARY || newEvent == EventType.GREAT) {
+				newEvent = EventType.GOOD;
+			}
+			break;
+		}
+		return newEvent;
 	}
 
 	private void resetEventCount() {

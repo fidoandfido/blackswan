@@ -1,20 +1,19 @@
 package net.fidoandfido.model;
 
-import java.util.Date;
-
 import net.fidoandfido.util.Constants;
 
 public class SectorNewsEvent {
 
 	private String sector;
 
-	private String longMessage;
-	private Constants.EventType longEventType;
-	private Date longEventDate;
+	// private String longMessage;
+	private Constants.EventType firstEventType;
+	// private Date longEventDate;
 
-	private String shortMessage;
-	private Constants.EventType shortEventType;
-	private Date shortEventDate;
+	// private String shortMessage;
+	private Constants.EventType secondEventType;
+
+	// private Date shortEventDate;
 
 	public SectorNewsEvent() {
 		// Default constructor required for persistence
@@ -39,93 +38,94 @@ public class SectorNewsEvent {
 		this.sector = sector;
 	}
 
-	/**
-	 * @return the longMessage
-	 */
-	public String getLongMessage() {
-		return longMessage;
-	}
-
-	/**
-	 * @param longMessage
-	 *            the longMessage to set
-	 */
-	public void setLongMessage(String longMessage) {
-		this.longMessage = longMessage;
-	}
+	//
+	// /**
+	// * @return the longMessage
+	// */
+	// public String getLongMessage() {
+	// return longMessage;
+	// }
+	//
+	// /**
+	// * @param longMessage
+	// * the longMessage to set
+	// */
+	// public void setLongMessage(String longMessage) {
+	// this.longMessage = longMessage;
+	// }
 
 	/**
 	 * @return the longEventType
 	 */
-	public Constants.EventType getLongEventType() {
-		return longEventType;
+	public Constants.EventType getFirstEventType() {
+		return firstEventType;
 	}
 
 	/**
 	 * @param longEventType
 	 *            the longEventType to set
 	 */
-	public void setLongEventType(Constants.EventType longEventType) {
-		this.longEventType = longEventType;
+	public void setFirstEventType(Constants.EventType longEventType) {
+		this.firstEventType = longEventType;
 	}
 
-	/**
-	 * @return the longEventDate
-	 */
-	public Date getLongEventDate() {
-		return longEventDate;
-	}
-
-	/**
-	 * @param longEventDate
-	 *            the longEventDate to set
-	 */
-	public void setLongEventDate(Date longEventDate) {
-		this.longEventDate = longEventDate;
-	}
-
-	/**
-	 * @return the shortMessage
-	 */
-	public String getShortMessage() {
-		return shortMessage;
-	}
-
-	/**
-	 * @param shortMessage
-	 *            the shortMessage to set
-	 */
-	public void setShortMessage(String shortMessage) {
-		this.shortMessage = shortMessage;
-	}
+	// /**
+	// * @return the longEventDate
+	// */
+	// public Date getLongEventDate() {
+	// return longEventDate;
+	// }
+	//
+	// /**
+	// * @param longEventDate
+	// * the longEventDate to set
+	// */
+	// public void setLongEventDate(Date longEventDate) {
+	// this.longEventDate = longEventDate;
+	// }
+	//
+	// /**
+	// * @return the shortMessage
+	// */
+	// public String getShortMessage() {
+	// return shortMessage;
+	// }
+	//
+	// /**
+	// * @param shortMessage
+	// * the shortMessage to set
+	// */
+	// public void setShortMessage(String shortMessage) {
+	// this.shortMessage = shortMessage;
+	// }
 
 	/**
 	 * @return the shortEventType
 	 */
-	public Constants.EventType getShortEventType() {
-		return shortEventType;
+	public Constants.EventType getSecondEventType() {
+		return secondEventType;
 	}
 
 	/**
 	 * @param shortEventType
 	 *            the shortEventType to set
 	 */
-	public void setShortEventType(Constants.EventType shortEventType) {
-		this.shortEventType = shortEventType;
+	public void setSecondEventType(Constants.EventType shortEventType) {
+		this.secondEventType = shortEventType;
 	}
-
-	/**
-	 * @return the shortEventDate
-	 */
-	public Date getShortEventDate() {
-		return shortEventDate;
-	}
-
-	/**
-	 * @param shortEventDate
-	 *            the shortEventDate to set
-	 */
-	public void setShortEventDate(Date shortEventDate) {
-		this.shortEventDate = shortEventDate;
-	}
+	//
+	// /**
+	// * @return the shortEventDate
+	// */
+	// public Date getShortEventDate() {
+	// return shortEventDate;
+	// }
+	//
+	// /**
+	// * @param shortEventDate
+	// * the shortEventDate to set
+	// */
+	// public void setShortEventDate(Date shortEventDate) {
+	// this.shortEventDate = shortEventDate;
+	// }
 }

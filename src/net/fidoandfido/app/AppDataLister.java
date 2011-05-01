@@ -5,6 +5,7 @@ import java.util.List;
 import net.fidoandfido.dao.CompanyDAO;
 import net.fidoandfido.dao.HibernateUtil;
 import net.fidoandfido.dao.OrderDAO;
+import net.fidoandfido.dao.ReputationItemDAO;
 import net.fidoandfido.dao.ShareParcelDAO;
 import net.fidoandfido.dao.StockExchangeDAO;
 import net.fidoandfido.dao.TraderDAO;
@@ -12,6 +13,8 @@ import net.fidoandfido.model.Company;
 import net.fidoandfido.model.CompanyPeriodReport;
 import net.fidoandfido.model.Order;
 import net.fidoandfido.model.PeriodEvent;
+import net.fidoandfido.model.ReputationEffect;
+import net.fidoandfido.model.ReputationItem;
 import net.fidoandfido.model.ShareParcel;
 import net.fidoandfido.model.StockExchange;
 import net.fidoandfido.model.Trader;
@@ -79,10 +82,13 @@ public class AppDataLister {
 			// System.out.println("- Short term company");
 			// printPeriodPartInformation(currentReport.getShortTermCompanyInformation());
 			for (PeriodEvent event : currentReport.getPeriodEventList()) {
-				System.out.println("EVENT: " + event.getForecastType());
+				System.out.println("EVENT: " + event.getAnnouncementType());
+				System.out.println("Message: " + event.getMessage());
 				System.out.println("Date available: " + event.getDateInformationAvailable());
-				System.out.println("Expected profit: " + event.getExpectedProfit());
+				System.out.println("Expected profit: " + event.getProfit());
 			}
+			System.out.println("----> Final profit: " + currentReport.getFinalProfit());
+
 		}
 
 		for (Company company : companyList) {
@@ -99,10 +105,21 @@ public class AppDataLister {
 			System.out.println("Active? " + order.isActive());
 		}
 
+		List<ReputationItem> itemList = ReputationItemDAO.getItems();
+		for (ReputationItem item : itemList) {
+			System.out.println("Item:" + item.getName());
+			System.out.println("Cost:" + item.getCost());
+			System.out.println("Image:" + item.getImage());
+			for (ReputationEffect effect : item.getEffectList()) {
+				System.out.println(" --> " + effect.getSector() + " ---- " + effect.getPoints());
+			}
+
+		}
+
 	}
 
 	private void printPeriodPartInformation(PeriodEvent periodPartInformation) {
-		System.out.println("----> Expected profit: " + periodPartInformation.getExpectedProfit());
+		System.out.println("----> Expected profit: " + periodPartInformation.getProfit());
 		System.out.println("----> " + periodPartInformation.getMessage());
 		System.out.println("----> " + periodPartInformation.getEventType());
 		System.out.println("----> " + periodPartInformation.getDateInformationAvailable());

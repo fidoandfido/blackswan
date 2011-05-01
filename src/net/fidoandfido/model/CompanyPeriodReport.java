@@ -2,6 +2,7 @@ package net.fidoandfido.model;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
@@ -43,17 +44,32 @@ public class CompanyPeriodReport {
 	@Column
 	private long startingExpectedProfit;
 
+	@Column
+	private long startingExpectedRevenue;
+
+	@Column
+	private long startingExpectedExpenses;
+
+	@Column
+	private long startingExpectedInterest;
+
+	@Column
+	private long startingAssets;
+
+	@Column
+	private long startingDebt;
+
 	// ///////////////////////
 	// List of 'forecasts'
 	// ///////////////////////
 	@OneToMany
 	@Sort(type = SortType.COMPARATOR, comparator = PeriodEvent.EventCompator.class)
-	private Set<PeriodEvent> periodEventList;
+	private Set<PeriodEvent> periodEventList = new HashSet<PeriodEvent>();
 	// ///////////////////////
 	// List of 'rumours'
 	// ///////////////////////
 	@OneToMany(fetch = FetchType.LAZY)
-	private Set<PeriodRumour> periodRumourList;
+	private Set<PeriodRumour> periodRumourList = new HashSet<PeriodRumour>();
 
 	// /////////////////////////////
 	// FINAL INFORMATION
@@ -61,6 +77,15 @@ public class CompanyPeriodReport {
 
 	@Column
 	private long finalProfit;
+
+	@Column
+	private long finalRevenue;
+
+	@Column
+	private long finalExpenses;
+
+	@Column
+	private long finalInterest;
 
 	@Column
 	private Date minimumEndDate;
@@ -78,12 +103,13 @@ public class CompanyPeriodReport {
 		// Default constructor required for persistence
 	}
 
-	public CompanyPeriodReport(Company company, long expectedProfit, Date startDate, long periodLength, long generation) {
+	public CompanyPeriodReport(Company company, Date startDate, long periodLength, long generation) {
 		this.company = company;
-		this.startingExpectedProfit = expectedProfit;
-		this.finalProfit = expectedProfit;
 		this.startDate = startDate;
-		// Set the minimum end date to be the start date plus period length minus the period buffer.
+		this.startingAssets = company.getAssetValue();
+		this.startingDebt = company.getDebtValue();
+		// Set the minimum end date to be the start date plus period length
+		// minus the period buffer.
 		this.minimumEndDate = new Date(startDate.getTime() + periodLength);
 		this.open = true;
 		this.generation = generation;
@@ -150,6 +176,30 @@ public class CompanyPeriodReport {
 		this.startingExpectedProfit = startingExpectedProfit;
 	}
 
+	public long getStartingExpectedRevenue() {
+		return startingExpectedRevenue;
+	}
+
+	public void setStartingExpectedRevenue(long startingExpectedRevenue) {
+		this.startingExpectedRevenue = startingExpectedRevenue;
+	}
+
+	public long getStartingExpectedExpenses() {
+		return startingExpectedExpenses;
+	}
+
+	public void setStartingExpectedExpenses(long startingExpectedExpenses) {
+		this.startingExpectedExpenses = startingExpectedExpenses;
+	}
+
+	public long getStartingExpectedInterest() {
+		return startingExpectedInterest;
+	}
+
+	public void setStartingExpectedInterest(long startingExpectedInterest) {
+		this.startingExpectedInterest = startingExpectedInterest;
+	}
+
 	/**
 	 * @return the finalProfit
 	 */
@@ -163,6 +213,60 @@ public class CompanyPeriodReport {
 	 */
 	public void setFinalProfit(long finalProfit) {
 		this.finalProfit = finalProfit;
+	}
+
+	public long getFinalRevenue() {
+		return finalRevenue;
+	}
+
+	public void setFinalRevenue(long finalRevenue) {
+		this.finalRevenue = finalRevenue;
+	}
+
+	public long getFinalExpenses() {
+		return finalExpenses;
+	}
+
+	public void setFinalExpenses(long finalExpenses) {
+		this.finalExpenses = finalExpenses;
+	}
+
+	public long getFinalInterest() {
+		return finalInterest;
+	}
+
+	public void setFinalInterest(long finalInterest) {
+		this.finalInterest = finalInterest;
+	}
+
+	/**
+	 * @return the startingAssets
+	 */
+	public long getStartingAssets() {
+		return startingAssets;
+	}
+
+	/**
+	 * @param startingAssets
+	 *            the startingAssets to set
+	 */
+	public void setStartingAssets(long startingAssets) {
+		this.startingAssets = startingAssets;
+	}
+
+	/**
+	 * @return the startingDebt
+	 */
+	public long getStartingDebt() {
+		return startingDebt;
+	}
+
+	/**
+	 * @param startingDebt
+	 *            the startingDebt to set
+	 */
+	public void setStartingDebt(long startingDebt) {
+		this.startingDebt = startingDebt;
 	}
 
 	/**
@@ -260,6 +364,10 @@ public class CompanyPeriodReport {
 		this.periodRumourList = periodRumourList;
 	}
 
+	public void addRumour(PeriodRumour rumour) {
+		periodRumourList.add(rumour);
+	}
+
 	public void addPeriodEvent(PeriodEvent periodEvent) {
 		periodEventList.add(periodEvent);
 	}
@@ -267,7 +375,7 @@ public class CompanyPeriodReport {
 	public Map<String, PeriodEvent> getPeriodPartInformationMappedByEvent() {
 		HashMap<String, PeriodEvent> resultsMap = new HashMap<String, PeriodEvent>();
 		for (PeriodEvent event : periodEventList) {
-			resultsMap.put(event.getForecastType(), event);
+			resultsMap.put(event.getAnnouncementType(), event);
 		}
 		return resultsMap;
 	}

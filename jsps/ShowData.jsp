@@ -16,7 +16,7 @@
 <%@page import="net.fidoandfido.model.StockExchange"%>
 <%@page import="net.fidoandfido.model.Trader"%>
 <%@page import="net.fidoandfido.util.WebPageUtil"%>
-
+<%@page session="true" %>
 
 <html>
 <%@ include file="webTemplates/header.txt" %>

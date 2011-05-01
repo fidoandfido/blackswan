@@ -21,5 +21,7 @@
 	<classpathentry kind="lib" path="lib_hibernate/jta.jar"/>
 	<classpathentry kind="lib" path="lib_hibernate/postgresql-8.4-702.jdbc3.jar"/>
 	<classpathentry kind="lib" path="lib_hibernate/mysql-connector-java-5.1.10.jar"/>
+	<classpathentry kind="lib" path="lib_jfreechart/jcommon-1.0.16.jar"/>
+	<classpathentry kind="lib" path="lib_jfreechart/jfreechart-1.0.13.jar" sourcepath="/usr/local/java/jfreechart-1.0.13/source"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

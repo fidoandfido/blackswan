@@ -17,6 +17,17 @@ public class TraderDAO {
 
 	}
 
+	public static Trader getMarketMaker() {
+		Session session = HibernateUtil.getSession();
+		Criteria crit = session.createCriteria(Trader.class);
+		crit.add(Restrictions.eq("isMarketMaker", true));
+		Trader trader = (Trader) crit.uniqueResult();
+		if (trader == null) {
+			throw new IllegalStateException("Market Maker trader not found.");
+		}
+		return trader;
+	}
+
 	@SuppressWarnings("unchecked")
 	public static List<Trader> getTraderList() {
 		Session session = HibernateUtil.getSession();
@@ -46,6 +57,5 @@ public class TraderDAO {
 		crit.add(Restrictions.eq("isAITrader", Boolean.TRUE));
 		List<Trader> results = crit.list();
 		return results;
-
 	}
 }

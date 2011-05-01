@@ -35,17 +35,25 @@ public class StockExchange {
 	@Column
 	private long companyPeriodLength;
 
+	@Column
+	private long primeInterestRateBasisPoints;
+
+	@Column
+	private boolean updating = false;
+
 	public StockExchange() {
 		// Default constructor required for persistence
 	}
 
-	public StockExchange(String name, String description, int companyCount, String eventGeneratorName, long companyPeriodLength) {
+	public StockExchange(String name, String description, int companyCount, String eventGeneratorName, long companyPeriodLength,
+			long primeInterestRateBasisPoints) {
 		super();
 		this.description = description;
 		this.name = name;
 		this.companyCount = companyCount;
 		this.eventGeneratorName = eventGeneratorName;
 		this.companyPeriodLength = companyPeriodLength;
+		this.primeInterestRateBasisPoints = primeInterestRateBasisPoints;
 	}
 
 	@Override
@@ -145,6 +153,21 @@ public class StockExchange {
 	}
 
 	/**
+	 * @return the primeInterestRate
+	 */
+	public long getPrimeInterestRate() {
+		return primeInterestRateBasisPoints;
+	}
+
+	/**
+	 * @param primeInterestRate
+	 *            the primeInterestRate to set
+	 */
+	public void setPrimeInterestRate(long primeInterestRate) {
+		this.primeInterestRateBasisPoints = primeInterestRate;
+	}
+
+	/**
 	 * Process an order.
 	 * 
 	 * @param buyOrder
@@ -153,4 +176,35 @@ public class StockExchange {
 		OrderProcessor processor = new OrderProcessor();
 		processor.processOrder(buyOrder);
 	}
+
+	/**
+	 * @return the primeInterestRateBasisPoints
+	 */
+	public long getPrimeInterestRateBasisPoints() {
+		return primeInterestRateBasisPoints;
+	}
+
+	/**
+	 * @param primeInterestRateBasisPoints
+	 *            the primeInterestRateBasisPoints to set
+	 */
+	public void setPrimeInterestRateBasisPoints(long primeInterestRateBasisPoints) {
+		this.primeInterestRateBasisPoints = primeInterestRateBasisPoints;
+	}
+
+	/**
+	 * @return the updating
+	 */
+	public boolean isUpdating() {
+		return updating;
+	}
+
+	/**
+	 * @param updating
+	 *            the updating to set
+	 */
+	public void setUpdating(boolean updating) {
+		this.updating = updating;
+	}
+
 }

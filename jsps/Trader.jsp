@@ -1,3 +1,11 @@
+<%@page import="java.util.ArrayList"%>
+<%@page import="java.util.Set"%>
+<%@page import="net.fidoandfido.model.ReputationItem"%>
+<%@page import="net.fidoandfido.model.PeriodRumour"%>
+<%@page import="net.fidoandfido.model.PeriodEvent"%>
+<%@page import="java.util.Date"%>
+<%@page import="net.fidoandfido.dao.PeriodPartInformationDAO"%>
+<%@page import="net.fidoandfido.dao.RumourDAO"%>
 <%@page import="net.fidoandfido.servlets.CancelOrderServlet"%>
 <%@page import="net.fidoandfido.servlets.BuySharesServlet"%>
 <%@page import="net.fidoandfido.model.TraderEvent"%>
@@ -19,11 +27,12 @@
 <%@page import="net.fidoandfido.util.Constants"%>
 <%@page import="net.fidoandfido.servlets.SellSharesServlet"%>
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1" pageEncoding="ISO-8859-1"%>
-
+<%@page session="true" %>
 <%	
 	HibernateUtil.beginTransaction();
 	User user = null;
 	Trader trader = null;
+	Date currentDate = new Date();
 
 	UserSession userSession = UserSessionDAO.getUserSessionBySessionId(request.getSession().getId());
 
@@ -94,6 +103,10 @@
 			</li>
 <%		
 		}
+		// Update net worth to include purchased items...
+		for (ReputationItem item : trader.getReputationItems()) {
+			totalValue += item.getCost();
+		}
 %>
 	</ul>
 		 	Total current net worth: <%= WebPageUtil.formatCurrency(totalValue) %>
@@ -135,6 +148,127 @@
 <%		
 	}
 
+%>
+				
+				</div><!-- end entry -->
+			</div><!-- end post -->
+			<div class="post">
+				<h2 class="title">News - All the latest!</h2>
+				<div class="entry">
+				<p><b>Latest Rumours:</b></p>
+				<ul>
+				
+<%
+			List<PeriodRumour> rumours = RumourDAO.getLatestRumours(5, currentDate);
+			List<String> sectors = new ArrayList<String>();
+			for (PeriodRumour rumour : rumours) {
+				if (rumour.getDateRumourExpires().before(currentDate)) {
+					continue;
+				}
+				String sector = rumour.getSector();
+				if (trader.getReputation(sector) < rumour.getReputationRequired()) {
+					sectors.add(sector);
+				} else {
+%>
+				<li>
+				Company: <a href="Companies.jsp?<%= Constants.COMPANY_CODE_PARM %>=<%=rumour.getCompany().getCode()%>"><%= rumour.getCompany().getName() %></a>
+				Date released: <%= rumour.getDateInformationAvailable() %><br/>
+				Event message: <%= rumour.getMessage() %><br/>
+				Analyst Reaction: <%= rumour.getEventType() %><br/>
+				</li>
+<% 				
+				}
+			}
+%>					
+				</ul>
+<%
+			if (sectors.size() != 0) {
+%>
+				Rumours are available in the following sectors:
+				<ul>
+<%
+				for (String sector : sectors) {
+%>
+					<li><%= sector %></li>
+<%				
+				}
+%>				
+				</ul> 
+				but you require more reputation points.
+				Perhaps you should visit the <a href="/myapp/ItemShop.jsp">store</a> to buy some items?
+<%						
+				
+			}
+
+%>
+				<p><b>Latest Announcements:</b></p>
+				<ul>
+								
+<%
+			List<PeriodEvent> events = PeriodPartInformationDAO.getLatestEvents(10, currentDate);
+			for (PeriodEvent event : events) {				
+%>
+				<li>
+				Company: <a href="Companies.jsp?<%= Constants.COMPANY_CODE_PARM %>=<%=event.getCompany().getCode()%>"><%= event.getCompany().getName() %></a><br/>
+				Event: <%= event.getAnnouncementType() %><br/>
+				Date released: <%= event.getDateInformationAvailable() %><br/>
+				Event message: <%= event.getMessage() %><br/>
+				Analyst Reaction: <%= event.getEventType() %><br/>
+				</li>
+<% 				
+			}
+%>	
+				</ul>
+				</div><!-- end entry -->
+			</div><!-- end post -->
+			
+			<div class="post">
+				<h2 class="title">Trader Items</h2>
+				<div class="entry">
+			
+<%
+			Set<ReputationItem> reputationItems = trader.getReputationItems();
+			if (reputationItems.size() == 0) {
+%>
+				No items to display. You may purchase reputation enhancing items at the <a href="/myapp/ItemShop.jsp">Item Store</a>.
+<%				
+			} else {
+%>
+					<table>
+					<tr>
+						<td>Name</td>
+						<td>Cost</td>
+						<td></td>
+						<td></td>
+					</tr>
+<%
+					for (ReputationItem item : reputationItems) {
+%>
+						<tr>
+							<td><%= item.getName() %></td>
+							<td><%= WebPageUtil.formatCurrency(item.getCost()) %></td>
+							<td><img src="<%= WebPageUtil.getImageLocation(item.getImage()) %>" width="60" height="60"/></td>
+							<td>Sell</td>
+						</tr>
+<%
+						}
+%>		
+					
+					</table>			
+<%
+				}
+			
+%>
+				</div><!-- end entry -->
+			</div><!-- end post -->
+			
+			<div class="post">
+				<h2 class="title">Trader Audit Events</h2>
+				<div class="entry">
+			
+<%
+	
+	
 	List<TraderEvent> eventList = TraderEventDAO.getTraderEventList(trader);
 	if (eventList.size() != 0) {
 %>
@@ -154,8 +288,8 @@
 			<tr>
 			<td><%= event.getDate() %></td>
 			<td><%= event.getEventType() %></td>
-			<td><%= event.getCompany().getName() %></td>
-			<td><%= event.getShareCount() %></td>
+			<td><%= event.getCompany() == null ? event.getItem().getName() : event.getCompany().getName() %></td>
+			<td><%= event.getCompany() == null ? 1 : event.getShareCount() %></td>
 			<td><%= WebPageUtil.formatCurrency(event.getAmountTransferred()) %></td>
 			<td><%= WebPageUtil.formatCurrency(event.getStartingCash()) %></td>
 			<td><%= WebPageUtil.formatCurrency(event.getEndingCash()) %></td>

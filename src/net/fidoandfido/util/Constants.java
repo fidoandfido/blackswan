@@ -10,7 +10,8 @@ public class Constants {
 	public static final long MILLIS_IN_DAY = MILLIS_IN_HOUR * 24;
 
 	public static final long DEFAULT_PERIOD_LENGTH_IN_MILLIS = MILLIS_IN_DAY * 7;
-//	public static final long PERIOD_LENGTH_BUFFER = MILLIS_IN_MINUTE * 1;
+
+	// public static final long PERIOD_LENGTH_BUFFER = MILLIS_IN_MINUTE * 1;
 
 	public static enum EventType {
 		EXTRAORDINARY, GREAT, GOOD, AVERAGE, POOR, TERRIBLE, CATASTROPHIC;

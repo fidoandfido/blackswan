@@ -21,6 +21,7 @@ public class ExchangeParser extends DefaultHandler {
 	private static final String DESCRIPTION_ATTRIB = "description";
 	private static final String EVENT_GENERATOR_NAME = "event-generator";
 	private static final String PERIOD_LENGTH_ATTRIB = "period-length-mins";
+	private static final String STARTING_INTEREST = "interest-rate";
 
 	@Override
 	public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
@@ -30,6 +31,7 @@ public class ExchangeParser extends DefaultHandler {
 			int companyCount = Integer.parseInt(attributes.getValue(COMPANIES_ATTRIB));
 			String eventGeneratorName = attributes.getValue(EVENT_GENERATOR_NAME);
 			String periodLengthString = attributes.getValue(PERIOD_LENGTH_ATTRIB);
+			long interestRate = Long.parseLong(attributes.getValue(STARTING_INTEREST));
 			long periodLength = Constants.DEFAULT_PERIOD_LENGTH_IN_MILLIS;
 			try {
 				periodLength = Long.parseLong(periodLengthString);
@@ -37,8 +39,9 @@ public class ExchangeParser extends DefaultHandler {
 			} catch (NumberFormatException nfe) {
 				// and ignore it.
 			}
-			// EventGenerator generator = EventGeneratorFactory.getGeneratorByName(eventGeneratorName);
-			StockExchange stockExchange = new StockExchange(name, description, companyCount, eventGeneratorName, periodLength);
+			// EventGenerator generator =
+			// EventGeneratorFactory.getGeneratorByName(eventGeneratorName);
+			StockExchange stockExchange = new StockExchange(name, description, companyCount, eventGeneratorName, periodLength, interestRate);
 			exchangeList.add(stockExchange);
 		}
 	}

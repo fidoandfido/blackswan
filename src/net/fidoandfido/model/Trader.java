@@ -1,9 +1,13 @@
 package net.fidoandfido.model;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.ManyToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
@@ -38,6 +42,9 @@ public class Trader {
 
 	@Column
 	private long experiencePoints = 0;
+
+	@ManyToMany
+	private Set<ReputationItem> reputationItems = new HashSet<ReputationItem>();
 
 	public Trader() {
 		// Default constructor required for persistence code.
@@ -258,6 +265,41 @@ public class Trader {
 	 */
 	public void setAiStrategyName(String aiStrategyName) {
 		this.aiStrategyName = aiStrategyName;
+	}
+
+	/**
+	 * @return the reputationItems
+	 */
+	public Set<ReputationItem> getReputationItems() {
+		return reputationItems;
+	}
+
+	/**
+	 * @param reputationItems
+	 *            the reputationItems to set
+	 */
+	public void setReputationItems(Set<ReputationItem> reputationItems) {
+		this.reputationItems = reputationItems;
+	}
+
+	public int getReputation(String sector) {
+		int reputation = 0;
+		for (ReputationItem item : reputationItems) {
+			reputation = reputation + item.getReputation(sector);
+		}
+		return reputation;
+	}
+
+	public void addItem(ReputationItem item) {
+		this.reputationItems.add(item);
+	}
+
+	public boolean hasItem(ReputationItem item) {
+		return reputationItems.contains(item);
+	}
+
+	public void removeItem(ReputationItem item) {
+		reputationItems.remove(item);
 	}
 
 }

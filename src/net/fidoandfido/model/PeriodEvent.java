@@ -11,6 +11,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import net.fidoandfido.engine.event.EventData;
 import net.fidoandfido.util.Constants.EventType;
 
 import org.hibernate.annotations.GenericGenerator;
@@ -73,25 +74,45 @@ public class PeriodEvent {
 	private EventType eventType;
 
 	@Column
-	private long expectedProfit;
+	private long profit;
 
 	@Column
-	private String forecastType;
+	private long revenue;
+
+	@Column
+	private long expenses;
+
+	@Column
+	private long interest;
+
+	@Column
+	private long runningProfit;
+
+	@Column
+	private long runningRevenue;
+
+	@Column
+	private long runningExpenses;
+
+	@Column
+	private long runningInterest;
+
+	@Column
+	private String announcementType;
 
 	public PeriodEvent() {
 		// Default constructor required for persistence
 	}
 
 	public PeriodEvent(Company company, CompanyPeriodReport companyPeriodReport, Date dateInformationAvailable, String message, EventType eventType,
-			long expectedProfit, String forecastType) {
+			String forecastType) {
 		super();
 		this.company = company;
 		this.companyPeriodReport = companyPeriodReport;
 		this.dateInformationAvailable = dateInformationAvailable;
 		this.message = message;
 		this.eventType = eventType;
-		this.expectedProfit = expectedProfit;
-		this.forecastType = forecastType;
+		this.announcementType = forecastType;
 	}
 
 	/**
@@ -187,31 +208,126 @@ public class PeriodEvent {
 	/**
 	 * @return the expectedProfit
 	 */
-	public long getExpectedProfit() {
-		return expectedProfit;
+	public long getProfit() {
+		return profit;
 	}
 
 	/**
 	 * @param expectedProfit
 	 *            the expectedProfit to set
 	 */
-	public void setExpectedProfit(long expectedProfit) {
-		this.expectedProfit = expectedProfit;
+	public void setProfit(long expectedProfit) {
+		this.profit = expectedProfit;
+	}
+
+	public long getRevenue() {
+		return revenue;
+	}
+
+	public void setRevenue(long revenue) {
+		this.revenue = revenue;
+	}
+
+	public long getExpenses() {
+		return expenses;
+	}
+
+	public void setExpenses(long expenses) {
+		this.expenses = expenses;
+	}
+
+	public long getInterest() {
+		return interest;
+	}
+
+	public void setInterest(long interest) {
+		this.interest = interest;
+	}
+
+	/**
+	 * @return the runningProfit
+	 */
+	public long getRunningProfit() {
+		return runningProfit;
+	}
+
+	/**
+	 * @param runningProfit
+	 *            the runningProfit to set
+	 */
+	public void setRunningProfit(long runningProfit) {
+		this.runningProfit = runningProfit;
+	}
+
+	/**
+	 * @return the runningRevenue
+	 */
+	public long getRunningRevenue() {
+		return runningRevenue;
+	}
+
+	/**
+	 * @param runningRevenue
+	 *            the runningRevenue to set
+	 */
+	public void setRunningRevenue(long runningRevenue) {
+		this.runningRevenue = runningRevenue;
+	}
+
+	/**
+	 * @return the runningExpenses
+	 */
+	public long getRunningExpenses() {
+		return runningExpenses;
+	}
+
+	/**
+	 * @param runningExpenses
+	 *            the runningExpenses to set
+	 */
+	public void setRunningExpenses(long runningExpenses) {
+		this.runningExpenses = runningExpenses;
+	}
+
+	/**
+	 * @return the runningInterest
+	 */
+	public long getRunningInterest() {
+		return runningInterest;
+	}
+
+	/**
+	 * @param runningInterest
+	 *            the runningInterest to set
+	 */
+	public void setRunningInterest(long runningInterest) {
+		this.runningInterest = runningInterest;
 	}
 
 	/**
 	 * @return the forecastType
 	 */
-	public String getForecastType() {
-		return forecastType;
+	public String getAnnouncementType() {
+		return announcementType;
 	}
 
 	/**
 	 * @param forecastType
 	 *            the forecastType to set
 	 */
-	public void setForecastType(String forecastType) {
-		this.forecastType = forecastType;
+	public void setAnnouncementType(String forecastType) {
+		this.announcementType = forecastType;
+	}
+
+	public void setData(EventData currentData) {
+		this.profit = currentData.getProfit();
+		this.expenses = currentData.getExpenses();
+		this.revenue = currentData.getRevenue();
+		this.interest = currentData.getInterestPaid();
+		this.runningProfit = currentData.getRunningProfit();
+		this.runningExpenses = currentData.getRunningExpenses();
+		this.runningRevenue = currentData.getRunningRevenue();
+		this.runningInterest = currentData.getRunningInterestPaid();
 	}
 
 }

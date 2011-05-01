@@ -54,6 +54,14 @@ public class OrderDAO {
 
 	}
 
+	public static List<Order> getClosedOrdersByTrader(Trader trader) {
+		Session session = HibernateUtil.getSession();
+		Criteria crit = session.createCriteria(Order.class);
+		crit.add(Restrictions.eq("active", Boolean.FALSE));
+		crit.add(Restrictions.eq("trader", trader));
+		return crit.list();
+	}
+
 	public static List<Order> getOpenOrdersByTrader(Trader trader, Company company) {
 		Session session = HibernateUtil.getSession();
 		Criteria crit = session.createCriteria(Order.class);
@@ -68,6 +76,11 @@ public class OrderDAO {
 		Criteria crit = session.createCriteria(Order.class);
 		crit.add(Restrictions.eq("id", id));
 		return (Order) crit.uniqueResult();
+	}
+
+	public static void deleteOrder(Order order) {
+		Session session = HibernateUtil.getSession();
+		session.delete(order);
 	}
 
 }

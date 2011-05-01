@@ -5,12 +5,12 @@
 <%@page import="net.fidoandfido.util.WebPageUtil"%>
 <%@page import="net.fidoandfido.model.User"%>
 <%@page import="net.fidoandfido.dao.HibernateUtil"%>
-
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1" pageEncoding="ISO-8859-1"%>
 <%@page import="java.util.List"%>
 <%@page import="net.fidoandfido.dao.TraderDAO"%>
 <%@page import="net.fidoandfido.model.Trader"%>
 
+<%@page session="true" %>
 <%	
 	HibernateUtil.beginTransaction();
 	UserSession userSession = UserSessionDAO.getUserSessionBySessionId(request.getSession().getId());

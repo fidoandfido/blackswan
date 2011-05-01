@@ -5,6 +5,10 @@
 
     alter table Company 
         drop 
+        foreign key FK9BDFD45D3AD658EE;
+
+    alter table Company 
+        drop 
         foreign key FK9BDFD45D912EEC1A;
 
     alter table CompanyPeriodReport 
@@ -47,6 +51,14 @@
         drop 
         foreign key FK2B0FD716AF969615;
 
+    alter table ReputationItem_ReputationEffect 
+        drop 
+        foreign key FK83DFF81DEBECF1ED;
+
+    alter table ReputationItem_ReputationEffect 
+        drop 
+        foreign key FK83DFF81D71D7F768;
+
     alter table ShareParcel 
         drop 
         foreign key FK611540A8D1B4A736;
@@ -85,7 +97,19 @@
 
     alter table TraderEvent 
         drop 
+        foreign key FKB03F78C662D2E86;
+
+    alter table TraderEvent 
+        drop 
         foreign key FKB03F78C79C9A78F;
+
+    alter table Trader_ReputationItem 
+        drop 
+        foreign key FKE1744FFD15E7CA32;
+
+    alter table Trader_ReputationItem 
+        drop 
+        foreign key FKE1744FFDD1B4A736;
 
     alter table UserSession 
         drop 
@@ -105,6 +129,12 @@
 
     drop table if exists PeriodPartRumour;
 
+    drop table if exists ReputationEffect;
+
+    drop table if exists ReputationItem;
+
+    drop table if exists ReputationItem_ReputationEffect;
+
     drop table if exists ShareParcel;
 
     drop table if exists Status;
@@ -119,6 +149,8 @@
 
     drop table if exists TraderEvent;
 
+    drop table if exists Trader_ReputationItem;
+
     drop table if exists UserSession;
 
     create table Company (
@@ -129,16 +161,20 @@
         profitModifierName varchar(255),
         assetValue bigint,
         debtValue bigint,
-        capitalisation bigint,
         outstandingShares bigint,
-        profit bigint,
-        previousDividend bigint,
+        keepBorrowing bit,
         alwaysPayDividend bit,
+        minimumDividend bigint,
         neverPayDividend bit,
         dividendRate bigint,
+        defaultRevenueRate bigint,
+        defaultExpenseRate bigint,
         lastTradePrice bigint,
+        lastTradeChange bigint,
+        previousDividend bigint,
         current_period varchar(255),
         stock_exchange_id varchar(255),
+        previous_period varchar(255),
         primary key (company_id)
     );
 
@@ -146,7 +182,15 @@
         company_period_report_id varchar(255) not null,
         startDate datetime,
         startingExpectedProfit bigint,
+        startingExpectedRevenue bigint,
+        startingExpectedExpenses bigint,
+        startingExpectedInterest bigint,
+        startingAssets bigint,
+        startingDebt bigint,
         finalProfit bigint,
+        finalRevenue bigint,
+        finalExpenses bigint,
+        finalInterest bigint,
         minimumEndDate datetime,
         closeDate datetime,
         open bit,
@@ -183,8 +227,15 @@
         dateInformationAvailable datetime,
         message varchar(255),
         eventType integer,
-        expectedProfit bigint,
-        forecastType varchar(255),
+        profit bigint,
+        revenue bigint,
+        expenses bigint,
+        interest bigint,
+        runningProfit bigint,
+        runningRevenue bigint,
+        runningExpenses bigint,
+        runningInterest bigint,
+        announcementType varchar(255),
         company_period_report varchar(255),
         company_id varchar(255),
         primary key (period_event_id)
@@ -193,12 +244,39 @@
     create table PeriodPartRumour (
         period_rumour_id varchar(255) not null,
         dateInformationAvailable datetime,
+        dateRumourExpires datetime,
+        reputationRequired integer,
+        sector varchar(255),
         message varchar(255),
         eventType integer,
         forecastType varchar(255),
         company_period_report varchar(255),
         company_id varchar(255),
         primary key (period_rumour_id)
+    );
+
+    create table ReputationEffect (
+        reputation_item_id varchar(255) not null,
+        sector varchar(255),
+        points integer,
+        primary key (reputation_item_id)
+    );
+
+    create table ReputationItem (
+        reputation_item_id varchar(255) not null,
+        name varchar(255),
+        cost bigint,
+        image varchar(255),
+        isLimited bit,
+        remainingCount bigint,
+        primary key (reputation_item_id)
+    );
+
+    create table ReputationItem_ReputationEffect (
+        ReputationItem_reputation_item_id varchar(255) not null,
+        effectList_reputation_item_id varchar(255) not null,
+        primary key (ReputationItem_reputation_item_id, effectList_reputation_item_id),
+        unique (effectList_reputation_item_id)
     );
 
     create table ShareParcel (
@@ -222,6 +300,8 @@
         companyCount integer,
         eventGeneratorName varchar(255),
         companyPeriodLength bigint,
+        primeInterestRateBasisPoints bigint,
+        updating bit,
         primary key (stock_exchange_id)
     );
 
@@ -272,9 +352,16 @@
         amountTransferred bigint,
         startingCash bigint,
         endingCash bigint,
-        company_company_id varchar(255),
         trader_trader_id varchar(255),
+        item_reputation_item_id varchar(255),
+        company_company_id varchar(255),
         primary key (trader_id)
+    );
+
+    create table Trader_ReputationItem (
+        Trader_trader_id varchar(255) not null,
+        reputationItems_reputation_item_id varchar(255) not null,
+        primary key (Trader_trader_id, reputationItems_reputation_item_id)
     );
 
     create table UserSession (
@@ -290,6 +377,12 @@
         add index FK9BDFD45D8370E02C (current_period), 
         add constraint FK9BDFD45D8370E02C 
         foreign key (current_period) 
+        references CompanyPeriodReport (company_period_report_id);
+
+    alter table Company 
+        add index FK9BDFD45D3AD658EE (previous_period), 
+        add constraint FK9BDFD45D3AD658EE 
+        foreign key (previous_period) 
         references CompanyPeriodReport (company_period_report_id);
 
     alter table Company 
@@ -358,6 +451,18 @@
         foreign key (company_period_report) 
         references CompanyPeriodReport (company_period_report_id);
 
+    alter table ReputationItem_ReputationEffect 
+        add index FK83DFF81DEBECF1ED (ReputationItem_reputation_item_id), 
+        add constraint FK83DFF81DEBECF1ED 
+        foreign key (ReputationItem_reputation_item_id) 
+        references ReputationItem (reputation_item_id);
+
+    alter table ReputationItem_ReputationEffect 
+        add index FK83DFF81D71D7F768 (effectList_reputation_item_id), 
+        add constraint FK83DFF81D71D7F768 
+        foreign key (effectList_reputation_item_id) 
+        references ReputationEffect (reputation_item_id);
+
     alter table ShareParcel 
         add index FK611540A8D1B4A736 (trader_trader_id), 
         add constraint FK611540A8D1B4A736 
@@ -413,10 +518,28 @@
         references Trader (trader_id);
 
     alter table TraderEvent 
+        add index FKB03F78C662D2E86 (item_reputation_item_id), 
+        add constraint FKB03F78C662D2E86 
+        foreign key (item_reputation_item_id) 
+        references ReputationItem (reputation_item_id);
+
+    alter table TraderEvent 
         add index FKB03F78C79C9A78F (company_company_id), 
         add constraint FKB03F78C79C9A78F 
         foreign key (company_company_id) 
         references Company (company_id);
+
+    alter table Trader_ReputationItem 
+        add index FKE1744FFD15E7CA32 (reputationItems_reputation_item_id), 
+        add constraint FKE1744FFD15E7CA32 
+        foreign key (reputationItems_reputation_item_id) 
+        references ReputationItem (reputation_item_id);
+
+    alter table Trader_ReputationItem 
+        add index FKE1744FFDD1B4A736 (Trader_trader_id), 
+        add constraint FKE1744FFDD1B4A736 
+        foreign key (Trader_trader_id) 
+        references Trader (trader_id);
 
     alter table UserSession 
         add index FKC7BC0C2BDE29A6B0 (user_trader_id), 

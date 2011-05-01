@@ -9,6 +9,10 @@ public class AIStrategyFactory {
 		if (ReactiveAI.Name.equals(strategyName)) {
 			return new ReactiveAI();
 		}
+		if (ValueAI.Name.equals(strategyName)) {
+			return new ValueAI();
+		}
+
 		return new RandomAI();
 	}
 

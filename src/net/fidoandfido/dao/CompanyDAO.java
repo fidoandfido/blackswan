@@ -7,6 +7,7 @@ import net.fidoandfido.model.StockExchange;
 
 import org.hibernate.Criteria;
 import org.hibernate.Session;
+import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 
 public class CompanyDAO {
@@ -29,6 +30,7 @@ public class CompanyDAO {
 		Session session = HibernateUtil.getSession();
 		Criteria crit = session.createCriteria(Company.class);
 		crit.add(Restrictions.eq("stockExchange", exchange));
+		crit.addOrder(Order.asc("name"));
 		List<Company> results = crit.list();
 		return results;
 	}

@@ -2,7 +2,7 @@ package net.fidoandfido.engine.ai;
 
 import net.fidoandfido.model.Trader;
 
-public class RandomAI implements AITradeStrategy {
+public class RandomAI extends AITrader implements AITradeStrategy {
 
 	public static final String NAME = "Random";
 

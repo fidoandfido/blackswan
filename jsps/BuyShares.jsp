@@ -10,6 +10,7 @@
 <%@ page import="net.fidoandfido.dao.TraderDAO"%>
 <%@ page import="net.fidoandfido.model.Trader"%>
 <%@page import="net.fidoandfido.util.WebPageUtil"%>
+<%@page session="true" %>
 <html>
 
 <%	

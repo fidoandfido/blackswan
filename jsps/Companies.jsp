@@ -1,4 +1,5 @@
-<%@page import="net.fidoandfido.engine.PeriodEventGenerator"%>
+<%@page import="net.fidoandfido.model.StockExchange"%>
+<%@page import="net.fidoandfido.engine.event.PeriodEventGenerator"%>
 <%@page import="java.util.Map"%>
 <%@page import="net.fidoandfido.model.PeriodEvent"%>
 <%@page import="net.fidoandfido.dao.HibernateUtil"%>
@@ -17,7 +18,7 @@
 <%@page import="net.fidoandfido.util.WebPageUtil"%>
 <%@page import="net.fidoandfido.util.Constants"%>
 <%@ page import="net.fidoandfido.servlets.BuySharesServlet"%>
-
+<%@page session="true" %>
 <%
 	HibernateUtil.beginTransaction();
 	User user = WebUtil.getCurrentUserBySession(request.getSession().getId());
@@ -55,7 +56,7 @@
 <p>Hello!
 <a href="/myapp/Welcome.jsp">Sign in</a>
 to access (or create) your trader profile.</p>
-<% 
+<%
 	} else if (trader == null) {
 		// Show trader registration form
 %>
@@ -63,17 +64,16 @@ to access (or create) your trader profile.</p>
 		<div>Enter a name for you trader:<input name="trader_name"  cols="60"></input></div>
 		<div><input type="submit" value="Create Trader" /></div>
 	</form>
-<% 
+<%
 	} else {
 		if (company != null) {
-			// Show company information!
-			CompanyPeriodReport currentReport = company.getCurrentPeriod();
-			Map<String, PeriodEvent> events = currentReport.getPeriodPartInformationMappedByEvent();
-			PeriodEvent longTermSectorInformation = events.get(PeriodEventGenerator.LONG_TERM_SECTOR);
-			PeriodEvent longTermCompanyInformation = events.get(PeriodEventGenerator.LONG_TERM_COMPANY);
-			PeriodEvent shortTermSectorInformation = events.get(PeriodEventGenerator.SHORT_TERM_SECTOR);
-			PeriodEvent shortTermCompanyInformation = events.get(PeriodEventGenerator.SHORT_TERM_COMPANY);
-			
+	// Show company information!
+	CompanyPeriodReport currentReport = company.getCurrentPeriod();
+	Map<String, PeriodEvent> events = currentReport.getPeriodPartInformationMappedByEvent();
+	PeriodEvent firstQuarterEvent = events.get(PeriodEventGenerator.FIRST_QUARTER);
+	PeriodEvent secondQuarterEvent = events.get(PeriodEventGenerator.SECOND_QUARTER);
+	PeriodEvent thirdQuarterEvent = events.get(PeriodEventGenerator.THIRD_QUARTER);
+	PeriodEvent fourthQuarterEvent = events.get(PeriodEventGenerator.FOURTH_QUARTER);
 %>
 			<div class="post">
 				<h2 class="title"><%= company.getName() %></h2>
@@ -85,40 +85,62 @@ to access (or create) your trader profile.</p>
 					<li>Company Outstanding shares: <%= company.getOutstandingShares() %></li>
 					<li>Stock Exchange: <%= company.getStockExchange().getName() %></li>
 					<li>Last share trade price: <%= WebPageUtil.formatCurrency(company.getLastTradePrice()) %></li>
-					<li>Starting Expected Profit: <%= currentReport == null ? WebPageUtil.formatCurrency(0) : WebPageUtil.formatCurrency(currentReport.getStartingExpectedProfit()) %></li>
-					
+					<li>Earning per share: <%= WebPageUtil.formatCurrency(company.getCurrentPeriod().getStartingExpectedExpenses() / company.getOutstandingShares() ) %></li>
+					<li>Dividend Scheme: 
+<%			if (company.isNeverPayDividend()) {  %>					
+						Never pays dividend.
+<%			} else if (company.isAlwaysPayDividend()) {   %>
+						Always pays dividend. </li><li>Rate: <%= company.getDividendRate() %>% of profits, miminum dividend: <%= WebPageUtil.formatCurrency(company.getMinimumDividend()) %>
+<%			} else { %>					
+						Dividend paid when profits allow.  </li><li>Rate: <%= company.getDividendRate() %>% of profits.
+<%			} %>										
+					</li>
+					<li>Assets: <%= WebPageUtil.formatCurrency(company.getAssetValue()) %></li>
+					<li>Debts: <%= WebPageUtil.formatCurrency(company.getDebtValue()) %></li>
+					<li>Previous year profit: <%=WebPageUtil.formatCurrency(company.getPreviousProfit())%>					
+					<li>Last dividend: <%= WebPageUtil.formatCurrency(company.getPreviousDividend()) %></li>
+					<li>Starting Profit outlook: <%= currentReport == null ? WebPageUtil.formatCurrency(0) : WebPageUtil.formatCurrency(currentReport.getStartingExpectedProfit()) %></li>
 <% 			if (currentReport != null) { %>
 					<li>Period ID: <%= currentReport.getGeneration() %></li>
 					
 							
-<% 				if (longTermSectorInformation != null && currentDate.after(longTermSectorInformation.getDateInformationAvailable())) { 
+<% 				if (firstQuarterEvent != null && currentDate.after(firstQuarterEvent.getDateInformationAvailable())) { 
 					// Show the long term sector forecast...
 %>
-					<li><b>Long Term Sector Forecast</b></li>
-					<li>Headline: <%= longTermSectorInformation.getMessage() %></li>
-					<li>Analyst reaction: <%= longTermSectorInformation.getEventType() %></li>	
+					<li><b>First quarter results</b></li>
+					<li>Headline: <%= firstQuarterEvent.getMessage() %></li>
+					<li>Analyst reaction: <%= firstQuarterEvent.getEventType() %></li>
+					<li>Quarter Profit: <%= WebPageUtil.formatCurrency(firstQuarterEvent.getProfit()) %></li>
+					<li>Updated Projected Yearly Profit: <%= WebPageUtil.formatCurrency(firstQuarterEvent.getProfit() + ( (currentReport.getStartingExpectedProfit() / 4) * 3) ) %></li>
 <% 				}
-				if (longTermCompanyInformation != null && currentDate.after(longTermCompanyInformation.getDateInformationAvailable())) { 
+				if (secondQuarterEvent != null && currentDate.after(secondQuarterEvent.getDateInformationAvailable())) { 
+				
 					// Show the long term company forecast...
 %>
-					<li><b>Long Term Company Forecast</b></li>
-					<li>Headline: <%= longTermCompanyInformation.getMessage() %></li>
-					<li>Analyst reaction: <%= longTermCompanyInformation.getEventType() %></li>	
+					<li><b>Second  quarter results</b></li>
+					<li>Headline: <%= secondQuarterEvent.getMessage() %></li>
+					<li>Analyst reaction: <%= secondQuarterEvent.getEventType() %></li>
+					<li>Quarter Profit: <%= WebPageUtil.formatCurrency(secondQuarterEvent.getProfit()) %></li>
+					<li>Updated Projected Yearly Profit: <%= WebPageUtil.formatCurrency(secondQuarterEvent.getRunningProfit() + ((currentReport.getStartingExpectedProfit() / 4) * 2)) %></li>
 <% 				}
-				if (shortTermSectorInformation != null && currentDate.after(shortTermSectorInformation.getDateInformationAvailable())) { 
+				if (thirdQuarterEvent != null && currentDate.after(thirdQuarterEvent.getDateInformationAvailable())) { 
 					// Show the short term sector forecast...
 %>
-					<li><b>Short Term Sector Forecast</b></li>
-					<li>Headline: <%= shortTermSectorInformation.getMessage() %></li>
-					<li>Analyst reaction: <%= shortTermSectorInformation.getEventType() %></li>
+					<li><b>Third quarter results</b></li>
+					<li>Headline: <%= thirdQuarterEvent.getMessage() %></li>
+					<li>Analyst reaction: <%= thirdQuarterEvent.getEventType() %></li>
+					<li>Quarter Profit: <%= WebPageUtil.formatCurrency(thirdQuarterEvent.getProfit()) %></li>
+					<li>Updated Projected Yearly Profit: <%= WebPageUtil.formatCurrency(thirdQuarterEvent.getRunningProfit() + ((currentReport.getStartingExpectedProfit() / 4) * 1)) %></li>
 		
 <% 				}
-				if (shortTermCompanyInformation != null && currentDate.after(shortTermCompanyInformation.getDateInformationAvailable())) { 
+				if (fourthQuarterEvent != null && currentDate.after(fourthQuarterEvent.getDateInformationAvailable())) { 
 					// Show the short term company forecast...
 %>
-					<li><b>Short Term Company Forecast</b></li>
-					<li>Headline: <%= shortTermCompanyInformation.getMessage() %></li>
-					<li>Analyst reaction: <%= shortTermCompanyInformation.getEventType() %></li>
+					<li><b>Fourth quarter results</b></li>
+					<li>Headline: <%= fourthQuarterEvent.getMessage() %></li>
+					<li>Analyst reaction: <%= fourthQuarterEvent.getEventType() %></li>
+					<li>Quarter Profit: <%= WebPageUtil.formatCurrency(fourthQuarterEvent.getProfit()) %></li>
+					<li>Updated Projected Yearly Profit: <%= WebPageUtil.formatCurrency(fourthQuarterEvent.getRunningProfit()) %></li>
 <% 				}%>				
 <% 			} %>
 					
@@ -152,18 +174,18 @@ to access (or create) your trader profile.</p>
 				<ul>
 				<li>Current Period: <%= currentReport == null ? 0 : currentReport.getGeneration() %></li>
 				<li>Current Period must end after: <%=  currentReport == null ? "NA" : currentReport.getMinimumEndDate().toString() %></li>
-				<li>Long term sector outlook available after: <%= longTermSectorInformation.getDateInformationAvailable().toString() %></li>
-				<li>event type: <%= longTermSectorInformation.getEventType() %> </li>
-				<li>updated profit: <%= WebPageUtil.formatCurrency(longTermSectorInformation.getExpectedProfit())%></li>
-				<li>Long term company outlook available after: <%= longTermCompanyInformation.getDateInformationAvailable().toString() %></li>
-				<li>event type: <%= longTermCompanyInformation.getEventType()%></li>
-				<li>updated profit: <%= WebPageUtil.formatCurrency(longTermCompanyInformation.getExpectedProfit())%></li>
-				<li>Short term sector outlook available: <%= shortTermSectorInformation.getDateInformationAvailable().toString() %></li>
-				<li>event type: <%= shortTermSectorInformation.getEventType()%> </li>
-				<li>updated profit: <%= WebPageUtil.formatCurrency(shortTermSectorInformation.getExpectedProfit())%></li>
-				<li>Short term company outlook available: <%=  shortTermCompanyInformation.getDateInformationAvailable().toString() %></li>
-				<li>event type: <%= shortTermCompanyInformation.getEventType() %></li>
-				<li>updated profit: <%= WebPageUtil.formatCurrency(shortTermCompanyInformation.getExpectedProfit()) %></li>
+				<li>Long term sector outlook available after: <%= firstQuarterEvent.getDateInformationAvailable().toString() %></li>
+				<li>event type: <%= firstQuarterEvent.getEventType() %> </li>
+				<li>updated profit: <%=WebPageUtil.formatCurrency(firstQuarterEvent.getProfit())%></li>
+				<li>Long term company outlook available after: <%=secondQuarterEvent.getDateInformationAvailable().toString()%></li>
+				<li>event type: <%=secondQuarterEvent.getEventType()%></li>
+				<li>updated profit: <%=WebPageUtil.formatCurrency(secondQuarterEvent.getProfit())%></li>
+				<li>Short term sector outlook available: <%=thirdQuarterEvent.getDateInformationAvailable().toString()%></li>
+				<li>event type: <%=thirdQuarterEvent.getEventType()%> </li>
+				<li>updated profit: <%=WebPageUtil.formatCurrency(thirdQuarterEvent.getProfit())%></li>
+				<li>Short term company outlook available: <%=fourthQuarterEvent.getDateInformationAvailable().toString()%></li>
+				<li>event type: <%=fourthQuarterEvent.getEventType()%></li>
+				<li>updated profit: <%=WebPageUtil.formatCurrency(fourthQuarterEvent.getProfit())%></li>
 				
 				
 					</ul>
@@ -175,33 +197,51 @@ to access (or create) your trader profile.</p>
 
 <%			
 		} else {
+			Collection<StockExchange> exchangeList = StockExchangeDAO.getStockExchangeList();
 			// List all the companies
-			Collection<Company> companyList = CompanyDAO.getCompanyList();
-			if (companyList != null && companyList.size() != 0) {
+			for (StockExchange exchange : exchangeList) {
+				Iterable<Company> companyList = CompanyDAO.getCompaniesByExchange(exchange);
+				if (companyList != null && companyList.iterator().hasNext()) {
 %>
 			<div class="post">
-				<h2 class="title">Companies (Showing <%= companyList.size() %> entries)</h2>
+				<h2 class="title">Companies on <%= exchange.getName() %> (Showing <%= exchange.getCompanyCount() %> entries)</h2>
 				<div class="entry">
-					<ul>
-<%	
-				for (Company currentCompany : companyList) {
-					CompanyPeriodReport currentPeriodReport = currentCompany.getCurrentPeriod();				
+					<table>
+					<tr>
+					<td>Company</td>
+					<td>Code</td>
+					<td>Last Trade</td>
+					<td>Change</td>
+					<td></td>
+					<td>Prev. Dividend</td>
+					</tr>
+
+<%
+					for (Company currentCompany : companyList) {
+						CompanyPeriodReport currentPeriodReport = currentCompany.getCurrentPeriod();				
 %>
-					<li>
-	Company Name: <a href="Companies.jsp?<%= Constants.COMPANY_CODE_PARM %>=<%=currentCompany.getCode()%>"><%= currentCompany.getName() %></a><br/>
-	Company Code: <%= currentCompany.getCode() %><br/>
-	Company Exchange: <%= currentCompany.getStockExchange().getName() %><br/>
-	Company Outstanding shares: <%= currentCompany.getOutstandingShares() %><br/>
-	Company last share trade price: <%= WebPageUtil.formatCurrency(currentCompany.getLastTradePrice()) %><br/>
-						</li>
+					<tr>
+					<td><a href="Companies.jsp?<%= Constants.COMPANY_CODE_PARM %>=<%=currentCompany.getCode()%>"><%= currentCompany.getName() %></a></td>
+					<td><%= currentCompany.getCode() %></td>
+					<td><%= WebPageUtil.formatCurrency(currentCompany.getLastTradePrice()) %></td>
+					<td><%= WebPageUtil.formatCurrency(currentCompany.getLastTradeChange()) %></td>
+					<td><% if (currentCompany.getLastTradeChange() > 0) { %>
+						<img src="/myapp/images/arrow-up.png"/>
+						<% } else if (currentCompany.getLastTradeChange() < 0) { %>
+						<img src="/myapp/images/arrow-down.png"/>
+						<% } else if (currentCompany.getLastTradeChange() == 0) { %>
+						<img src="/myapp/images/flat-line.png"/>
+						<% }  %></td>
+					<td><%= WebPageUtil.formatCurrency(currentCompany.getPreviousDividend()) %></td>
+					</tr>
 <%	
-				}
+					}
 %>
-					</ul>
+					</table>
 				</div>
 			</div>
 <%
-			} else {
+				} else {
 		// No companies!
 %>
 		<div class="post">
@@ -213,7 +253,8 @@ to access (or create) your trader profile.</p>
 			</div>
 		</div>
 <%
-			} 
+				}
+			}
 		}
 	}
 %>
