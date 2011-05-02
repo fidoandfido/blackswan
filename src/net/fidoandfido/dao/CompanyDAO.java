@@ -12,13 +12,13 @@ import org.hibernate.criterion.Restrictions;
 
 public class CompanyDAO {
 
-	public static void saveCompany(Company company) {
+	public void saveCompany(Company company) {
 		Session session = HibernateUtil.getSession();
 		session.saveOrUpdate(company);
 	}
 
 	@SuppressWarnings("unchecked")
-	public static List<Company> getCompanyList() {
+	public List<Company> getCompanyList() {
 		Session session = HibernateUtil.getSession();
 		Criteria crit = session.createCriteria(Company.class);
 		List<Company> results = crit.list();
@@ -26,7 +26,7 @@ public class CompanyDAO {
 	}
 
 	@SuppressWarnings("unchecked")
-	public static Iterable<Company> getCompaniesByExchange(StockExchange exchange) {
+	public Iterable<Company> getCompaniesByExchange(StockExchange exchange) {
 		Session session = HibernateUtil.getSession();
 		Criteria crit = session.createCriteria(Company.class);
 		crit.add(Restrictions.eq("stockExchange", exchange));
@@ -35,7 +35,7 @@ public class CompanyDAO {
 		return results;
 	}
 
-	public static Company getCompanyByCode(String string) {
+	public Company getCompanyByCode(String string) {
 		Session session = HibernateUtil.getSession();
 		Criteria crit = session.createCriteria(Company.class);
 		crit.add(Restrictions.eq("code", string));

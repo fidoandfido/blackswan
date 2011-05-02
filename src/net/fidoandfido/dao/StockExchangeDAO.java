@@ -11,20 +11,20 @@ import org.hibernate.criterion.Restrictions;
 
 public class StockExchangeDAO {
 
-	public static void saveStockExchange(StockExchange exchange) {
+	public void saveStockExchange(StockExchange exchange) {
 		Session session = HibernateUtil.getSession();
 		session.saveOrUpdate(exchange);
 	}
 
 	@SuppressWarnings("unchecked")
-	public static List<StockExchange> getStockExchangeList() {
+	public List<StockExchange> getStockExchangeList() {
 		Session session = HibernateUtil.getSession();
 		Criteria crit = session.createCriteria(StockExchange.class);
 		List<StockExchange> results = crit.list();
 		return results;
 	}
 
-	public static StockExchange getStockExchangeByName(String exchangeName) {
+	public StockExchange getStockExchangeByName(String exchangeName) {
 		Session session = HibernateUtil.getSession();
 		Criteria crit = session.createCriteria(StockExchange.class);
 		crit.add(Restrictions.eq("name", exchangeName));
@@ -33,7 +33,7 @@ public class StockExchangeDAO {
 	}
 
 	@SuppressWarnings("unchecked")
-	public static List<String> getStockExchangeNameList() {
+	public List<String> getStockExchangeNameList() {
 		Session session = HibernateUtil.getSession();
 		Query query = session.createQuery("select name from StockExchange");
 		return query.list();

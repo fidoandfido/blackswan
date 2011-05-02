@@ -39,7 +39,18 @@ public class PeriodEventGenerator {
 	public static final String THIRD_QUARTER = "Third quarter forecast";
 	public static final String FOURTH_QUARTER = "Fourth quarter forecast";
 
+	private PeriodPartInformationDAO periodPartInformationDAO;
+	private CompanyPeriodReportDAO companyPeriodReportDAO;
+	private RumourDAO rumourDAO;
+
 	// private static final int DIVIDEND_ANNOUNCED = 4;
+
+	public PeriodEventGenerator() {
+		super();
+		periodPartInformationDAO = new PeriodPartInformationDAO();
+		companyPeriodReportDAO = new CompanyPeriodReportDAO();
+		rumourDAO = new RumourDAO();
+	}
 
 	public void generateEvents(CompanyPeriodReport periodReport, Company company, StockExchange stockExchange) {
 
@@ -96,7 +107,7 @@ public class PeriodEventGenerator {
 
 		firstQuarterEvent.setData(eventData);
 
-		PeriodPartInformationDAO.savePeriodPartInformation(firstQuarterEvent);
+		periodPartInformationDAO.savePeriodPartInformation(firstQuarterEvent);
 		periodReport.addPeriodEvent(firstQuarterEvent);
 		generateRumour(periodReport, firstQuarterEvent, FIRST_QUARTER_PART_INDEX);
 
@@ -112,7 +123,7 @@ public class PeriodEventGenerator {
 
 		secondQuarterInformation.setData(eventData);
 
-		PeriodPartInformationDAO.savePeriodPartInformation(secondQuarterInformation);
+		periodPartInformationDAO.savePeriodPartInformation(secondQuarterInformation);
 		periodReport.addPeriodEvent(secondQuarterInformation);
 		generateRumour(periodReport, secondQuarterInformation, SECOND_QUARTER_PART_INDEX);
 
@@ -125,7 +136,7 @@ public class PeriodEventGenerator {
 				sectorEvent.getSecondEventType(), THIRD_QUARTER);
 
 		thirdQuarterInformation.setData(eventData);
-		PeriodPartInformationDAO.savePeriodPartInformation(thirdQuarterInformation);
+		periodPartInformationDAO.savePeriodPartInformation(thirdQuarterInformation);
 		periodReport.addPeriodEvent(thirdQuarterInformation);
 		generateRumour(periodReport, thirdQuarterInformation, THIRD_QUARTER_PART_INDEX);
 
@@ -140,7 +151,7 @@ public class PeriodEventGenerator {
 				shortTermCompanyEventType, FOURTH_QUARTER);
 
 		shortTermCompanyInformation.setData(eventData);
-		PeriodPartInformationDAO.savePeriodPartInformation(shortTermCompanyInformation);
+		periodPartInformationDAO.savePeriodPartInformation(shortTermCompanyInformation);
 		periodReport.addPeriodEvent(shortTermCompanyInformation);
 		generateRumour(periodReport, secondQuarterInformation, FOURTH_QUARTER_PART_INDEX);
 
@@ -152,7 +163,7 @@ public class PeriodEventGenerator {
 		periodReport.setFinalInterest(eventData.getRunningInterestPaid());
 		periodReport.setFinalProfit(eventData.getRunningProfit());
 
-		CompanyPeriodReportDAO.savePeriodReport(periodReport);
+		companyPeriodReportDAO.savePeriodReport(periodReport);
 	}
 
 	private String getMessage(EventType eventType) {
@@ -262,7 +273,7 @@ public class PeriodEventGenerator {
 			PeriodRumour rumour = new PeriodRumour(periodReport.getCompany(), periodReport, rumourStarts, event.getDateInformationAvailable(),
 					reputationRequired, message, (positive ? EventType.GREAT : EventType.TERRIBLE), event.getAnnouncementType());
 
-			RumourDAO.saveRumour(rumour);
+			rumourDAO.saveRumour(rumour);
 			periodReport.addRumour(rumour);
 
 		}

@@ -6,7 +6,7 @@ import org.hibernate.Session;
 
 public class TradeRecordDAO {
 
-	public static void saveTradeRecord(TradeRecord tr) {
+	public void saveTradeRecord(TradeRecord tr) {
 		Session session = HibernateUtil.getSession();
 		session.saveOrUpdate(tr);
 	}

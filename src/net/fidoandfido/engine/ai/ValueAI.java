@@ -22,6 +22,8 @@ public class ValueAI extends AITrader implements AITradeStrategy {
 		return Name;
 	}
 
+	private PeriodPartInformationDAO periodPartInformationDAO = new PeriodPartInformationDAO();
+
 	@Override
 	public void performTrades(Trader trader) {
 		// So basically, we are going to get some companies, look at their
@@ -32,7 +34,7 @@ public class ValueAI extends AITrader implements AITradeStrategy {
 		// prime interest rate, we sell
 		Set<Company> companySet = new HashSet<Company>();
 
-		List<PeriodEvent> recentEvents = PeriodPartInformationDAO.getLatestEvents(20, new Date());
+		List<PeriodEvent> recentEvents = periodPartInformationDAO.getLatestEvents(20, new Date());
 		for (PeriodEvent periodEvent : recentEvents) {
 			Company company = periodEvent.getCompany();
 			if (companySet.contains(company)) {

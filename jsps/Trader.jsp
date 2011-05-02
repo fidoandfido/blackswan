@@ -34,7 +34,8 @@
 	Trader trader = null;
 	Date currentDate = new Date();
 
-	UserSession userSession = UserSessionDAO.getUserSessionBySessionId(request.getSession().getId());
+	UserSessionDAO userSessionDAO = new UserSessionDAO();
+	UserSession userSession = userSessionDAO.getUserSessionBySessionId(request.getSession().getId());
 
 	if (userSession != null && userSession.isActive()) {
 		user = userSession.getUser();
@@ -66,7 +67,8 @@
 				Available balance: <%= WebPageUtil.formatCurrency(trader.getCash()) %><br/>
 <%
 	long totalValue = trader.getCash();
-	Iterable<ShareParcel> shareParcels = ShareParcelDAO.getHoldingsByTrader(trader);
+ShareParcelDAO shareParcelDAO = new ShareParcelDAO();
+	Iterable<ShareParcel> shareParcels = shareParcelDAO.getHoldingsByTrader(trader);
 	if (shareParcels.iterator().hasNext()) {
 %>
 	<ul>
@@ -159,7 +161,8 @@
 				<ul>
 				
 <%
-			List<PeriodRumour> rumours = RumourDAO.getLatestRumours(5, currentDate);
+			RumourDAO rumourDAO = new RumourDAO();
+			List<PeriodRumour> rumours = rumourDAO.getLatestRumours(5, currentDate);
 			List<String> sectors = new ArrayList<String>();
 			for (PeriodRumour rumour : rumours) {
 				if (rumour.getDateRumourExpires().before(currentDate)) {
@@ -205,7 +208,8 @@
 				<ul>
 								
 <%
-			List<PeriodEvent> events = PeriodPartInformationDAO.getLatestEvents(10, currentDate);
+			PeriodPartInformationDAO periodPartInformationDAO = new PeriodPartInformationDAO();
+			List<PeriodEvent> events = periodPartInformationDAO.getLatestEvents(10, currentDate);
 			for (PeriodEvent event : events) {				
 %>
 				<li>
@@ -268,8 +272,8 @@
 			
 <%
 	
-	
-	List<TraderEvent> eventList = TraderEventDAO.getTraderEventList(trader);
+	TraderEventDAO traderEventDAO = new TraderEventDAO();
+	List<TraderEvent> eventList = traderEventDAO.getTraderEventList(trader);
 	if (eventList.size() != 0) {
 %>
 		<table>

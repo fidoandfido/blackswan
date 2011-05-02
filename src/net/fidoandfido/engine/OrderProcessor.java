@@ -25,6 +25,26 @@ public class OrderProcessor {
 
 	private static final int MARKET_MAKER_DELTA_PERCENT = 10;
 
+	private TraderDAO traderDAO;
+	private ShareParcelDAO shareParcelDAO;
+	private CompanyDAO companyDAO;
+	private OrderDAO orderDAO;
+	private TradeRecordDAO tradeRecordDAO;
+	private TraderEventDAO traderEventDAO;
+
+	private void initDAOs() {
+		traderDAO = new TraderDAO();
+		shareParcelDAO = new ShareParcelDAO();
+		companyDAO = new CompanyDAO();
+		orderDAO = new OrderDAO();
+		tradeRecordDAO = new TradeRecordDAO();
+		traderEventDAO = new TraderEventDAO();
+	}
+
+	public OrderProcessor() {
+		initDAOs();
+	}
+
 	/**
 	 * Given a new order, process it!
 	 * 
@@ -45,7 +65,7 @@ public class OrderProcessor {
 			}
 
 			// Now look for all active sell orders for this company.
-			Collection<Order> sellOrders = OrderDAO.getOpenOrders(Order.OrderType.SELL, buyOrder.getCompany());
+			Collection<Order> sellOrders = orderDAO.getOpenOrders(Order.OrderType.SELL, buyOrder.getCompany());
 			for (Order sellOrder : sellOrders) {
 				if (canMatchOrder(buyOrder, sellOrder)) {
 					executeTrade(buyOrder, sellOrder);
@@ -62,7 +82,7 @@ public class OrderProcessor {
 				return;
 			}
 			// Now look for all active sell orders for this company.
-			Collection<Order> buyOrders = OrderDAO.getOpenOrders(Order.OrderType.BUY, sellOrder.getCompany());
+			Collection<Order> buyOrders = orderDAO.getOpenOrders(Order.OrderType.BUY, sellOrder.getCompany());
 			for (Order buyOrder : buyOrders) {
 				if (canMatchOrder(buyOrder, sellOrder)) {
 					executeTrade(buyOrder, sellOrder);
@@ -76,7 +96,7 @@ public class OrderProcessor {
 		if (order.getRemainingShareCount() != 0) {
 			logger.info("Market maker attempting to trade");
 			// See if the MarketMaker wants to trade
-			Trader marketMaker = TraderDAO.getMarketMaker();
+			Trader marketMaker = traderDAO.getMarketMaker();
 			long offerPrice = order.getOfferPrice();
 			Company company = order.getCompany();
 			// Market maker will accept all reasonable offers --- and any offers
@@ -97,7 +117,7 @@ public class OrderProcessor {
 				if (order.getOrderType().equals(OrderType.BUY)) {
 					// If they are trying to buy, make sure we have some shares
 					// to sell.
-					ShareParcel mmHoldings = ShareParcelDAO.getHoldingsByTraderForCompany(marketMaker, company);
+					ShareParcel mmHoldings = shareParcelDAO.getHoldingsByTraderForCompany(marketMaker, company);
 					if (mmHoldings != null) {
 						// Make sure we have enough shares...
 						if (mmHoldings.getShareCount() <= shareCount && order.isAllowPartialOrder()) {
@@ -110,14 +130,14 @@ public class OrderProcessor {
 						if (shareCount != 0) {
 							logger.info("Market maker is selling some shares...");
 							marketMakerOrder = new Order(marketMaker, company, shareCount, offerPrice, OrderType.SELL);
-							OrderDAO.saveOrder(marketMakerOrder);
+							orderDAO.saveOrder(marketMakerOrder);
 						}
 					}
 				} else {
 					logger.info("Market maker is buying some shares....");
 					// Market maker can *always* buy shares :)
 					marketMakerOrder = new Order(marketMaker, company, shareCount, offerPrice, OrderType.BUY);
-					OrderDAO.saveOrder(marketMakerOrder);
+					orderDAO.saveOrder(marketMakerOrder);
 				}
 				if (marketMakerOrder != null) {
 					executeTrade(order, marketMakerOrder);
@@ -140,7 +160,7 @@ public class OrderProcessor {
 
 	private boolean validateSeller(Order sellOrder) {
 		Trader seller = sellOrder.getTrader();
-		ShareParcel parcel = ShareParcelDAO.getHoldingsByTraderForCompany(seller, sellOrder.getCompany());
+		ShareParcel parcel = shareParcelDAO.getHoldingsByTraderForCompany(seller, sellOrder.getCompany());
 		if (parcel == null) {
 			return false;
 		}
@@ -193,7 +213,7 @@ public class OrderProcessor {
 			return false;
 		}
 
-		ShareParcel sellerParcel = ShareParcelDAO.getHoldingsByTraderForCompany(sellOrder.getTrader(), sellOrder.getCompany());
+		ShareParcel sellerParcel = shareParcelDAO.getHoldingsByTraderForCompany(sellOrder.getTrader(), sellOrder.getCompany());
 
 		// Share count will be the minimum of the two order's remaining share
 		// count
@@ -207,27 +227,27 @@ public class OrderProcessor {
 		if (!buyer.isMarketMaker()) {
 			TraderEvent event = new TraderEvent(buyer, TraderEvent.BUY_SHARES_PAYMENT, date, buyOrder.getCompany(), shareCount, saleAmount * -1,
 					buyer.getCash(), buyer.getCash() - saleAmount);
-			TraderEventDAO.saveTraderEvent(event);
+			traderEventDAO.saveTraderEvent(event);
 		}
 		if (!seller.isMarketMaker()) {
 			TraderEvent event = new TraderEvent(seller, TraderEvent.SELL_SHARES_PAYMENT, date, buyOrder.getCompany(), shareCount, saleAmount, buyer.getCash(),
 					buyer.getCash() + saleAmount);
-			TraderEventDAO.saveTraderEvent(event);
+			traderEventDAO.saveTraderEvent(event);
 		}
 
 		buyer.takeCash(saleAmount);
 		seller.giveCash(saleAmount);
-		TraderDAO.saveTrader(seller);
-		TraderDAO.saveTrader(buyer);
+		traderDAO.saveTrader(seller);
+		traderDAO.saveTrader(buyer);
 
 		sellerParcel.removeShares(shareCount);
 		if (sellerParcel.getShareCount() == 0) {
-			ShareParcelDAO.deleteShareParcel(sellerParcel);
+			shareParcelDAO.deleteShareParcel(sellerParcel);
 		} else {
-			ShareParcelDAO.saveShareParcel(sellerParcel);
+			shareParcelDAO.saveShareParcel(sellerParcel);
 		}
 
-		ShareParcel buyerParcel = ShareParcelDAO.getHoldingsByTraderForCompany(buyer, buyOrder.getCompany());
+		ShareParcel buyerParcel = shareParcelDAO.getHoldingsByTraderForCompany(buyer, buyOrder.getCompany());
 
 		// Now - create the records for the buyer and seller.
 		Date executedDate = new Date();
@@ -249,11 +269,11 @@ public class OrderProcessor {
 		}
 
 		// DAO methods to save everything...
-		CompanyDAO.saveCompany(company);
-		ShareParcelDAO.saveShareParcel(buyerParcel);
-		TradeRecordDAO.saveTradeRecord(txRecord);
-		OrderDAO.saveOrder(sellOrder);
-		OrderDAO.saveOrder(buyOrder);
+		companyDAO.saveCompany(company);
+		shareParcelDAO.saveShareParcel(buyerParcel);
+		tradeRecordDAO.saveTradeRecord(txRecord);
+		orderDAO.saveOrder(sellOrder);
+		orderDAO.saveOrder(buyOrder);
 		logger.info("Trade executed!");
 		return true;
 	}

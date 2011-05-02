@@ -15,6 +15,12 @@ import org.hibernate.annotations.GenericGenerator;
 @Table(name = "StockExchangePeriod")
 public class StockExchangePeriod {
 
+	public static final String POOR_CONDITIONS = "Poor";
+	public static final String ADVERSE_CONDITIONS = "Adverse";
+	public static final String NEUTRAL_CONDITIONS = "Neutral";
+	public static final String STRONG_CONDITIONS = "Strong";
+	public static final String GOOD_CONDITIONS = "Good";
+
 	@Id
 	@Column(name = "stock_exchange_id")
 	@GeneratedValue(generator = "uuid")

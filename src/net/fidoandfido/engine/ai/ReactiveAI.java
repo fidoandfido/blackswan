@@ -12,13 +12,15 @@ public class ReactiveAI extends AITrader implements AITradeStrategy {
 
 	public static final String Name = "Reactive";
 
+	private PeriodPartInformationDAO periodPartInformationDAO = new PeriodPartInformationDAO();
+
 	@Override
 	public void performTrades(Trader trader) {
 		// Get recent events, and process in a naive reactionary way.
 		// If shares are overvalued, and we have them, sell them
 		// If shares are undervalued and we dont, buy them.
 
-		List<PeriodEvent> recentEvents = PeriodPartInformationDAO.getLatestEvents(20, new Date());
+		List<PeriodEvent> recentEvents = periodPartInformationDAO.getLatestEvents(20, new Date());
 
 		for (PeriodEvent periodEvent : recentEvents) {
 			Company company = periodEvent.getCompany();

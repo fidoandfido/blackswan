@@ -13,7 +13,8 @@
 <%@page session="true" %>
 <%	
 	HibernateUtil.beginTransaction();
-	UserSession userSession = UserSessionDAO.getUserSessionBySessionId(request.getSession().getId());
+	UserSessionDAO userSessionDAO = new UserSessionDAO();
+	UserSession userSession = userSessionDAO.getUserSessionBySessionId(request.getSession().getId());
 
 	User user = null;
 	Trader trader = null;

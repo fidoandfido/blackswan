@@ -7,7 +7,7 @@ import net.fidoandfido.model.AppStatus;
 import org.hibernate.Session;
 
 public class AppStatusDAO {
-	public static AppStatus getStatus() {
+	public AppStatus getStatus() {
 		AppStatus status;
 		Session session = HibernateUtil.getSession();
 		List<?> statusList = session.createCriteria(AppStatus.class).list();
@@ -23,7 +23,7 @@ public class AppStatusDAO {
 		return status;
 	}
 
-	public static void saveStatus(AppStatus appStatus) {
+	public void saveStatus(AppStatus appStatus) {
 		Session session = HibernateUtil.getSession();
 		session.saveOrUpdate(appStatus);
 	}

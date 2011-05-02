@@ -59,13 +59,16 @@ public class ItemStoreServlet extends HttpServlet {
 	private boolean process(HttpServletRequest req, Trader trader) {
 
 		boolean success = false;
+		ReputationItemDAO reputationItemDAO = new ReputationItemDAO();
+		TraderEventDAO traderEventDAO = new TraderEventDAO();
+		TraderDAO traderDAO = new TraderDAO();
 
 		try {
 			String itemName = req.getParameter(ITEM_NAME);
 			long cost = Long.parseLong(req.getParameter(COST));
 			String buyOrSell = req.getParameter(BUY_OR_SELL);
 
-			ReputationItem item = ReputationItemDAO.getItem(itemName, cost);
+			ReputationItem item = reputationItemDAO.getItem(itemName, cost);
 
 			if (trader == null) {
 				logger.info("trader null");
@@ -83,8 +86,8 @@ public class ItemStoreServlet extends HttpServlet {
 					TraderEvent event = new TraderEvent(trader, "buy item", new Date(), item, cost, trader.getAvailableCash(), trader.getAvailableCash() - cost);
 					trader.takeCash(cost);
 					trader.addItem(item);
-					TraderEventDAO.saveTraderEvent(event);
-					TraderDAO.saveTrader(trader);
+					traderEventDAO.saveTraderEvent(event);
+					traderDAO.saveTrader(trader);
 					success = true;
 				} else {
 					logger.info("Trader failed to buy: " + trader.getName() + " -- " + item.getName() + " for: " + item.getCost());
@@ -97,8 +100,8 @@ public class ItemStoreServlet extends HttpServlet {
 							+ cost);
 					trader.giveCash(cost);
 					trader.removeItem(item);
-					TraderEventDAO.saveTraderEvent(event);
-					TraderDAO.saveTrader(trader);
+					traderEventDAO.saveTraderEvent(event);
+					traderDAO.saveTrader(trader);
 					success = true;
 				}
 			} else {

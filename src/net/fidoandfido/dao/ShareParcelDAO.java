@@ -12,13 +12,13 @@ import org.hibernate.criterion.Restrictions;
 
 public class ShareParcelDAO {
 
-	public static void saveShareParcel(ShareParcel shareParcel) {
+	public void saveShareParcel(ShareParcel shareParcel) {
 		Session session = HibernateUtil.getSession();
 		session.saveOrUpdate(shareParcel);
 	}
 
 	@SuppressWarnings("unchecked")
-	public static Iterable<ShareParcel> getHoldingsByCompany(Company company) {
+	public Iterable<ShareParcel> getHoldingsByCompany(Company company) {
 		Session session = HibernateUtil.getSession();
 		Criteria crit = session.createCriteria(ShareParcel.class);
 		crit.add(Restrictions.eq("company", company));
@@ -27,7 +27,7 @@ public class ShareParcelDAO {
 	}
 
 	@SuppressWarnings("unchecked")
-	public static Iterable<ShareParcel> getHoldingsByTrader(Trader trader) {
+	public Iterable<ShareParcel> getHoldingsByTrader(Trader trader) {
 		Session session = HibernateUtil.getSession();
 		Criteria crit = session.createCriteria(ShareParcel.class);
 		crit.add(Restrictions.eq("trader", trader));
@@ -35,12 +35,12 @@ public class ShareParcelDAO {
 		return results;
 	}
 
-	public static void deleteShareParcel(ShareParcel shareParcel) {
+	public void deleteShareParcel(ShareParcel shareParcel) {
 		Session session = HibernateUtil.getSession();
 		session.delete(shareParcel);
 	}
 
-	public static ShareParcel getHoldingsByTraderForCompany(Trader trader, Company company) {
+	public ShareParcel getHoldingsByTraderForCompany(Trader trader, Company company) {
 		Session session = HibernateUtil.getSession();
 		Criteria crit = session.createCriteria(ShareParcel.class);
 		crit.add(Restrictions.eq("company", company));

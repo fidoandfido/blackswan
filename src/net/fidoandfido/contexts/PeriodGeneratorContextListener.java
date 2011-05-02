@@ -17,7 +17,8 @@ public class PeriodGeneratorContextListener implements ServletContextListener {
 	@Override
 	public void contextInitialized(ServletContextEvent arg0) {
 		HibernateUtil.beginTransaction();
-		List<String> exchangeNames = StockExchangeDAO.getStockExchangeNameList();
+		StockExchangeDAO stockExchangeDAO = new StockExchangeDAO();
+		List<String> exchangeNames = stockExchangeDAO.getStockExchangeNameList();
 		HibernateUtil.commitTransaction();
 		for (String exchangeName : exchangeNames) {
 			PeriodGenerator periodGenerator = new PeriodGenerator(exchangeName);

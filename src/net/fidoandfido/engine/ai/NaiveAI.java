@@ -18,6 +18,8 @@ public class NaiveAI extends AITrader implements AITradeStrategy {
 
 	public static final String Name = "Naive";
 
+	private PeriodPartInformationDAO periodPartInformationDAO = new PeriodPartInformationDAO();
+
 	@Override
 	public String getName() {
 		// TODO Auto-generated method stub
@@ -26,7 +28,7 @@ public class NaiveAI extends AITrader implements AITradeStrategy {
 
 	@Override
 	public void performTrades(Trader trader) {
-		List<PeriodEvent> recentEvents = PeriodPartInformationDAO.getLatestEvents(20, new Date());
+		List<PeriodEvent> recentEvents = periodPartInformationDAO.getLatestEvents(20, new Date());
 		Set<Company> companiesProcessed = new HashSet<Company>();
 		for (PeriodEvent periodEvent : recentEvents) {
 			Company company = periodEvent.getCompany();

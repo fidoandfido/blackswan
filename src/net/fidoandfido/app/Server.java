@@ -15,7 +15,8 @@ public class Server {
 
 		// Start period generators
 		HibernateUtil.beginTransaction();
-		Iterable<StockExchange> exchanges = StockExchangeDAO.getStockExchangeList();
+		StockExchangeDAO stockExchangeDAO = new StockExchangeDAO();
+		Iterable<StockExchange> exchanges = stockExchangeDAO.getStockExchangeList();
 		for (StockExchange exchange : exchanges) {
 			new Thread(new PeriodGenerator(exchange.getName())).start();
 		}

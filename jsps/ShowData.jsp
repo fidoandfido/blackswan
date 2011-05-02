@@ -38,7 +38,8 @@
 			<h2 class="title">Traders</h2>
 			<div class="entry">
 <%
-	Iterable<Trader> traders = TraderDAO.getTraderList();
+	TraderDAO traderDAO = new TraderDAO();
+	Iterable<Trader> traders = traderDAO.getTraderList();
 		if (traders != null && traders.iterator().hasNext()) {
 %>
 				<ul><!-- List of traders -->
@@ -49,7 +50,8 @@
 					Trader Name: <%=currentTrader.getName()%><br/>
 					Trader cash: <%=currentTrader.getCash()%><br/>
 <%
-	Iterable<ShareParcel> holdings = ShareParcelDAO.getHoldingsByTrader(currentTrader);
+	ShareParcelDAO shareParcelDAO = new ShareParcelDAO();
+	Iterable<ShareParcel> holdings = shareParcelDAO.getHoldingsByTrader(currentTrader);
 		if (holdings != null && holdings.iterator().hasNext()) {
 %>
 					Holdings:<br>
@@ -93,7 +95,8 @@
 			<h2 class="title">Stock Exchanges</h2>
 			<div class="entry">
 <%
-	Collection<StockExchange> stockExhExchanges = StockExchangeDAO.getStockExchangeList();
+	StockExchangeDAO exchangeDAO = new StockExchangeDAO();
+	Collection<StockExchange> stockExhExchanges = exchangeDAO.getStockExchangeList();
 	if (stockExhExchanges != null && stockExhExchanges.size() != 0) {
 %>
 			<ul>
@@ -124,7 +127,8 @@
 			<h2 class="title">Companies</h2>
 			<div class="entry">
 <%
-	Collection<Company> companyList = CompanyDAO.getCompanyList();
+	CompanyDAO companyDAO = new CompanyDAO();
+	Collection<Company> companyList = companyDAO.getCompanyList();
 	if (companyList != null && companyList.size() != 0) {
 %>
 		<ul>

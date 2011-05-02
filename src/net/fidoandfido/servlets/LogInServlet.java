@@ -44,7 +44,8 @@ public class LogInServlet extends HttpServlet {
 		// Retrieve the user
 		String userName = req.getParameter(USER_NAME);
 		String password = req.getParameter(PASSWORD);
-		user = UserDAO.getUserByUsername(userName);
+		UserDAO userDAO = new UserDAO();
+		user = userDAO.getUserByUsername(userName);
 		if (user == null) {
 			// Invalid username
 			return false;
@@ -55,8 +56,9 @@ public class LogInServlet extends HttpServlet {
 			return false;
 		}
 
+		UserSessionDAO userSessionDAO = new UserSessionDAO();
 		// See if there is a userSession for the current connection.
-		UserSession userSession = UserSessionDAO.getUserSessionBySessionId(req.getSession().getId());
+		UserSession userSession = userSessionDAO.getUserSessionBySessionId(req.getSession().getId());
 		if (userSession == null || !userSession.getUser().equals(user)) {
 			userSession = new UserSession(user, req.getSession().getId());
 		} else {
@@ -64,7 +66,7 @@ public class LogInServlet extends HttpServlet {
 		}
 
 		HibernateUtil.beginTransaction();
-		UserSessionDAO.saveUserSession(userSession);
+		userSessionDAO.saveUserSession(userSession);
 		HibernateUtil.commitTransaction();
 
 		return true;

@@ -19,12 +19,13 @@ public class LogoutServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 
 	private void doLogout(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+		UserSessionDAO userSessionDAO = new UserSessionDAO();
 		HibernateUtil.beginTransaction();
 		User user = WebUtil.getCurrentUserBySession(req.getSession().getId());
 		if (user != null) {
-			UserSession userSession = UserSessionDAO.getUserSessionBySessionId(req.getSession().getId());
+			UserSession userSession = userSessionDAO.getUserSessionBySessionId(req.getSession().getId());
 			userSession.setActive(false);
-			UserSessionDAO.saveUserSession(userSession);
+			userSessionDAO.saveUserSession(userSession);
 		}
 		HibernateUtil.commitTransaction();
 		resp.sendRedirect("/myapp/Welcome.jsp");

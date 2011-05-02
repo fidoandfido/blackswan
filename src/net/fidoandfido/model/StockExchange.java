@@ -4,10 +4,13 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 import net.fidoandfido.engine.OrderProcessor;
 
+import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.CascadeType;
 import org.hibernate.annotations.GenericGenerator;
 
 @Entity
@@ -41,12 +44,18 @@ public class StockExchange {
 	@Column
 	private boolean updating = false;
 
+	@OneToOne
+	@Cascade(value = CascadeType.ALL)
+	private StockExchangePeriod currentPeriod;
+
 	public StockExchange() {
 		// Default constructor required for persistence
 	}
 
 	public StockExchange(String name, String description, int companyCount, String eventGeneratorName, long companyPeriodLength,
-			long primeInterestRateBasisPoints) {
+			long primeInterestRateBasisPoints)
+
+	{
 		super();
 		this.description = description;
 		this.name = name;
@@ -205,6 +214,21 @@ public class StockExchange {
 	 */
 	public void setUpdating(boolean updating) {
 		this.updating = updating;
+	}
+
+	/**
+	 * @return the currentPeriod
+	 */
+	public StockExchangePeriod getCurrentPeriod() {
+		return currentPeriod;
+	}
+
+	/**
+	 * @param currentPeriod
+	 *            the currentPeriod to set
+	 */
+	public void setCurrentPeriod(StockExchangePeriod currentPeriod) {
+		this.currentPeriod = currentPeriod;
 	}
 
 }

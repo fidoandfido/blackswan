@@ -14,6 +14,7 @@ import net.fidoandfido.dao.AppStatusDAO;
 import net.fidoandfido.dao.CompanyDAO;
 import net.fidoandfido.dao.CompanyPeriodReportDAO;
 import net.fidoandfido.dao.HibernateUtil;
+import net.fidoandfido.dao.OrderDAO;
 import net.fidoandfido.dao.ReputationItemDAO;
 import net.fidoandfido.dao.ShareParcelDAO;
 import net.fidoandfido.dao.StockExchangeDAO;
@@ -33,6 +34,7 @@ import net.fidoandfido.model.CompanyPeriodReport;
 import net.fidoandfido.model.ReputationItem;
 import net.fidoandfido.model.ShareParcel;
 import net.fidoandfido.model.StockExchange;
+import net.fidoandfido.model.StockExchangePeriod;
 import net.fidoandfido.model.Trader;
 import net.fidoandfido.model.User;
 
@@ -64,6 +66,28 @@ public class AppInitialiser {
 	private Map<String, StockExchange> exchangeMap = new HashMap<String, StockExchange>();
 	private Map<String, Trader> traderMap = new HashMap<String, Trader>();
 
+	private TraderDAO traderDAO;
+	private ShareParcelDAO shareParcelDAO;
+	private CompanyDAO companyDAO;
+	private OrderDAO orderDAO;
+	private CompanyPeriodReportDAO companyPeriodReportDAO;
+	private StockExchangeDAO stockExchangeDAO;
+	private AppStatusDAO appStatusDAO;
+	private UserDAO userDAO;
+	private ReputationItemDAO reputationItemDAO;
+
+	private void initDAOs() {
+		traderDAO = new TraderDAO();
+		shareParcelDAO = new ShareParcelDAO();
+		companyDAO = new CompanyDAO();
+		orderDAO = new OrderDAO();
+		stockExchangeDAO = new StockExchangeDAO();
+		appStatusDAO = new AppStatusDAO();
+		userDAO = new UserDAO();
+		reputationItemDAO = new ReputationItemDAO();
+		companyPeriodReportDAO = new CompanyPeriodReportDAO();
+	}
+
 	public static void main(String argv[]) {
 		System.out.println("Initialising application!");
 		HibernateUtil.connectToDB();
@@ -86,6 +110,7 @@ public class AppInitialiser {
 
 	public AppInitialiser() {
 		// Nothing to do here.
+		initDAOs();
 	}
 
 	/**
@@ -113,13 +138,13 @@ public class AppInitialiser {
 	}
 
 	private void updateStatus() {
-		AppStatus status = AppStatusDAO.getStatus();
+		AppStatus status = appStatusDAO.getStatus();
 		status.setStatus(AppStatus.INITIALISED);
-		AppStatusDAO.saveStatus(status);
+		appStatusDAO.saveStatus(status);
 	}
 
 	private boolean appNotInited() {
-		AppStatus status = AppStatusDAO.getStatus();
+		AppStatus status = appStatusDAO.getStatus();
 		if (AppStatus.INITIALISED.equals(status.getStatus())) {
 			return false;
 		}
@@ -128,9 +153,9 @@ public class AppInitialiser {
 
 	private void createAndSaveUsers() {
 		User andy = new User("andy", "andy", true);
-		UserDAO.saveUser(andy);
+		userDAO.saveUser(andy);
 		User asdf = new User("foo", "foo", false);
-		UserDAO.saveUser(asdf);
+		userDAO.saveUser(asdf);
 	}
 
 	private void createAndSaveTraders() throws IOException, SAXException {
@@ -142,13 +167,13 @@ public class AppInitialiser {
 		reader.parse(src);
 
 		marketMakerTrader = new Trader(MARKET_MAKER_NAME, MARKET_MAKER_START_CASH, true, true);
-		TraderDAO.saveTrader(marketMakerTrader);
+		traderDAO.saveTrader(marketMakerTrader);
 
 		// Now create the traders from the XML
 		for (Trader trader : traderParser.traderList) {
 			String name = trader.getName();
 			if (!traderMap.containsKey(name)) {
-				TraderDAO.saveTrader(trader);
+				traderDAO.saveTrader(trader);
 				traderMap.put(name, trader);
 			}
 		}
@@ -162,7 +187,7 @@ public class AppInitialiser {
 		reader.setContentHandler(itemParser);
 		reader.parse(src);
 		for (ReputationItem item : itemParser.itemList) {
-			ReputationItemDAO.saveItem(item);
+			reputationItemDAO.saveItem(item);
 		}
 
 	}
@@ -176,7 +201,12 @@ public class AppInitialiser {
 		for (StockExchange exchange : exchangeParser.exchangeList) {
 			String name = exchange.getName();
 			if (!exchangeMap.containsKey(name)) {
-				StockExchangeDAO.saveStockExchange(exchange);
+				Date periodStartDate = new Date();
+				Date endDate = new Date(periodStartDate.getTime() + exchange.getCompanyPeriodLength());
+				StockExchangePeriod firstPeriod = new StockExchangePeriod(exchange, periodStartDate, endDate, 0, exchange.getPrimeInterestRateBasisPoints(), 0,
+						0, StockExchangePeriod.NEUTRAL_CONDITIONS);
+				exchange.setCurrentPeriod(firstPeriod);
+				stockExchangeDAO.saveStockExchange(exchange);
 				exchangeMap.put(name, exchange);
 			}
 		}
@@ -193,25 +223,26 @@ public class AppInitialiser {
 		PeriodEventGenerator generator = new PeriodEventGenerator();
 
 		for (StockExchange exchange : exchangeMap.values()) {
+
 			for (int i = 0; i < exchange.getCompanyCount(); i++) {
 				Company company = getNewCompany();
 				company.setStockExchange(exchange);
-				CompanyDAO.saveCompany(company);
+				companyDAO.saveCompany(company);
 
 				CompanyPeriodReport periodReport = new CompanyPeriodReport(company, date, exchange.getCompanyPeriodLength(), 0);
 
 				// Set up the initial profit for the first period report
 				setInitialProft(periodReport, company);
 
-				CompanyPeriodReportDAO.savePeriodReport(periodReport);
+				companyPeriodReportDAO.savePeriodReport(periodReport);
 
 				generator.generateEvents(periodReport, company, exchange);
 
 				company.setCurrentPeriod(periodReport);
-				CompanyDAO.saveCompany(company);
+				companyDAO.saveCompany(company);
 
 				long currentShareCount = company.getOutstandingShares();
-				int traderCount = traderMap.size();
+				// int traderCount = traderMap.size();
 				// The market maker will get half of the shares to start off
 				// with, but will not
 				// be trading to make money, so eventually will not have many...
@@ -219,7 +250,7 @@ public class AppInitialiser {
 				long marketMakerCount = currentShareCount / 2;
 
 				ShareParcel mmShareParcel = new ShareParcel(marketMakerTrader, marketMakerCount, company);
-				ShareParcelDAO.saveShareParcel(mmShareParcel);
+				shareParcelDAO.saveShareParcel(mmShareParcel);
 
 				// To vary the portfolio, we will only be giving the shares to a
 				// small number of AIs
@@ -235,7 +266,7 @@ public class AppInitialiser {
 					int index = aiSelectorRandom.nextInt(traderList.size());
 					Trader traderToGetShares = traderList.get(index);
 					ShareParcel shareParcel = new ShareParcel(traderToGetShares, aiShareCount, company);
-					ShareParcelDAO.saveShareParcel(shareParcel);
+					shareParcelDAO.saveShareParcel(shareParcel);
 					traderList.remove(index);
 				}
 			}

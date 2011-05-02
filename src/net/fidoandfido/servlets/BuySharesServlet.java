@@ -28,8 +28,9 @@ public class BuySharesServlet extends HttpServlet {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see javax.servlet.http.HttpServlet#doPost(javax.servlet.http.HttpServletRequest,
-	 * javax.servlet.http.HttpServletResponse)
+	 * @see
+	 * javax.servlet.http.HttpServlet#doPost(javax.servlet.http.HttpServletRequest
+	 * , javax.servlet.http.HttpServletResponse)
 	 */
 	public static String TRADER_NAME_PARM = "trader_name";
 	public static String COMPANY_CODE_PARM = "company_code";
@@ -58,8 +59,8 @@ public class BuySharesServlet extends HttpServlet {
 			String companyCode = req.getParameter(COMPANY_CODE_PARM);
 			long shareCount = Long.parseLong(req.getParameter(SHARE_COUNT));
 			long offerPrice = Long.parseLong(req.getParameter(OFFER_PRICE));
-
-			Company company = CompanyDAO.getCompanyByCode(companyCode);
+			CompanyDAO companyDAO = new CompanyDAO();
+			Company company = companyDAO.getCompanyByCode(companyCode);
 
 			if (trader == null) {
 				return false;
@@ -72,7 +73,8 @@ public class BuySharesServlet extends HttpServlet {
 				return false;
 			}
 			Order buyOrder = new Order(trader, company, shareCount, offerPrice, Order.OrderType.BUY);
-			OrderDAO.saveOrder(buyOrder);
+			OrderDAO orderDAO = new OrderDAO();
+			orderDAO.saveOrder(buyOrder);
 			// Attempt to process the order...
 			StockExchange exchange = company.getStockExchange();
 			exchange.processOrder(buyOrder);

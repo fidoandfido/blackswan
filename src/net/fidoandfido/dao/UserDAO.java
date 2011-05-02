@@ -8,11 +8,11 @@ import org.hibernate.criterion.Restrictions;
 
 public class UserDAO {
 
-	public static void saveUser(User user) {
+	public void saveUser(User user) {
 		HibernateUtil.getSession().saveOrUpdate(user);
 	}
 
-	public static User getUserByUsername(String userName) {
+	public User getUserByUsername(String userName) {
 		Session session = HibernateUtil.getSession();
 		Criteria crit = session.createCriteria(User.class);
 		crit.add(Restrictions.eq("userName", userName));

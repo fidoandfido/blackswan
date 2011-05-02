@@ -26,8 +26,9 @@
 	boolean isAdmin = user == null ? false : user.isUserAdmin();
 
 	Trader trader = null;
+	TraderDAO traderDAO = new TraderDAO();
 	if (user != null) {
-		trader = TraderDAO.getTraderByUser(user);	
+		trader = traderDAO.getTraderByUser(user);	
 	}
 	Date currentDate = new Date();
 

@@ -35,8 +35,14 @@ public class AppDataLister {
 	}
 
 	public void writeData() {
+		TraderDAO traderDAO = new TraderDAO();
+		ShareParcelDAO shareParcelDAO = new ShareParcelDAO();
+		CompanyDAO companyDAO = new CompanyDAO();
+		OrderDAO orderDAO = new OrderDAO();
+		StockExchangeDAO stockExchangeDAO = new StockExchangeDAO();
+
 		System.out.println("Writing data!");
-		List<Trader> traderList = TraderDAO.getTraderList();
+		List<Trader> traderList = traderDAO.getTraderList();
 		System.out.println("Retrieved " + traderList.size() + " traders.");
 		for (Trader trader : traderList) {
 			System.out.println("---");
@@ -45,19 +51,19 @@ public class AppDataLister {
 			System.out.println("Is AI: " + trader.isAITrader());
 			System.out.println("Is market maker: " + trader.isMarketMaker());
 			System.out.println("HOLDINGS");
-			Iterable<ShareParcel> holdings = ShareParcelDAO.getHoldingsByTrader(trader);
+			Iterable<ShareParcel> holdings = shareParcelDAO.getHoldingsByTrader(trader);
 			for (ShareParcel shareParcel : holdings) {
 				System.out.println("--> " + shareParcel.getShareCount() + " of " + shareParcel.getCompany().getName());
 			}
 		}
 
 		System.out.println("--------------------");
-		List<StockExchange> exchangeList = StockExchangeDAO.getStockExchangeList();
+		List<StockExchange> exchangeList = stockExchangeDAO.getStockExchangeList();
 		for (StockExchange stockExchange : exchangeList) {
 			System.out.println(stockExchange.toString());
 		}
 
-		List<Company> companyList = CompanyDAO.getCompanyList();
+		List<Company> companyList = companyDAO.getCompanyList();
 		for (Company company : companyList) {
 			System.out.println();
 			System.out.println("---");
@@ -95,7 +101,7 @@ public class AppDataLister {
 			System.out.println(company.getCode() + " -- " + company.getName() + " -- " + company.getLastTradePrice());
 		}
 
-		List<Order> orderList = OrderDAO.getAllOrders();
+		List<Order> orderList = orderDAO.getAllOrders();
 		for (Order order : orderList) {
 			System.out.println("ORDER -- " + order.getOrderType());
 			System.out.println(order.getTrader().getName());

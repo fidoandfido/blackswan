@@ -14,13 +14,13 @@ import org.hibernate.criterion.Restrictions;
 
 public class OrderDAO {
 
-	public static void saveOrder(Order order) {
+	public void saveOrder(Order order) {
 		Session session = HibernateUtil.getSession();
 		session.saveOrUpdate(order);
 	}
 
 	@SuppressWarnings("unchecked")
-	public static Collection<Order> getOpenOrders(OrderType type, Company company) {
+	public Collection<Order> getOpenOrders(OrderType type, Company company) {
 		Session session = HibernateUtil.getSession();
 		Criteria crit = session.createCriteria(Order.class);
 		crit.add(Restrictions.eq("company", company));
@@ -31,7 +31,7 @@ public class OrderDAO {
 	}
 
 	@SuppressWarnings("unchecked")
-	public static List<Order> getAllOrders() {
+	public List<Order> getAllOrders() {
 		Session session = HibernateUtil.getSession();
 		Criteria crit = session.createCriteria(Order.class);
 		return crit.list();

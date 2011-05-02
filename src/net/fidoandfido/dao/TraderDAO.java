@@ -11,13 +11,13 @@ import org.hibernate.criterion.Restrictions;
 
 public class TraderDAO {
 
-	public static void saveTrader(Trader trader) {
+	public void saveTrader(Trader trader) {
 		Session session = HibernateUtil.getSession();
 		session.saveOrUpdate(trader);
 
 	}
 
-	public static Trader getMarketMaker() {
+	public Trader getMarketMaker() {
 		Session session = HibernateUtil.getSession();
 		Criteria crit = session.createCriteria(Trader.class);
 		crit.add(Restrictions.eq("isMarketMaker", true));
@@ -29,21 +29,21 @@ public class TraderDAO {
 	}
 
 	@SuppressWarnings("unchecked")
-	public static List<Trader> getTraderList() {
+	public List<Trader> getTraderList() {
 		Session session = HibernateUtil.getSession();
 		Criteria crit = session.createCriteria(Trader.class);
 		List<Trader> results = crit.list();
 		return results;
 	}
 
-	public static Trader getTraderByName(String name) {
+	public Trader getTraderByName(String name) {
 		Session session = HibernateUtil.getSession();
 		Criteria crit = session.createCriteria(Trader.class);
 		crit.add(Restrictions.eq("name", name));
 		return (Trader) crit.uniqueResult();
 	}
 
-	public static Trader getTraderByUser(User user) {
+	public Trader getTraderByUser(User user) {
 		Session session = HibernateUtil.getSession();
 		Criteria crit = session.createCriteria(Trader.class);
 		crit.add(Restrictions.eq("user", user));
@@ -51,7 +51,7 @@ public class TraderDAO {
 
 	}
 
-	public static List<Trader> getAITraderList() {
+	public List<Trader> getAITraderList() {
 		Session session = HibernateUtil.getSession();
 		Criteria crit = session.createCriteria(Trader.class);
 		crit.add(Restrictions.eq("isAITrader", Boolean.TRUE));

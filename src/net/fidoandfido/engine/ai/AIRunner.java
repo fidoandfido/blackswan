@@ -27,6 +27,8 @@ public class AIRunner implements Runnable {
 
 	private boolean running = true;
 
+	private TraderDAO traderDAO = new TraderDAO();
+
 	// Seeded (as always!)
 	private Random aiSelector = new Random(17);
 
@@ -63,7 +65,7 @@ public class AIRunner implements Runnable {
 			logger.info("AIRunner - processing");
 			HibernateUtil.beginTransaction();
 			AIStrategyFactory aiFactory = new AIStrategyFactory();
-			List<Trader> aiTraders = TraderDAO.getAITraderList();
+			List<Trader> aiTraders = traderDAO.getAITraderList();
 			for (Trader trader : aiTraders) {
 				logger.info("AIRunner - removing outstanding orders: " + trader.getName());
 				List<Order> closedOrders = OrderDAO.getClosedOrdersByTrader(trader);
@@ -74,7 +76,7 @@ public class AIRunner implements Runnable {
 			HibernateUtil.commitTransaction();
 
 			HibernateUtil.beginTransaction();
-			aiTraders = TraderDAO.getAITraderList();
+			aiTraders = traderDAO.getAITraderList();
 			// for (Trader trader : aiTraders) {
 			// AITradeStrategy strategy =
 			// aiFactory.getStrategyByName(trader.getAiStrategyName());

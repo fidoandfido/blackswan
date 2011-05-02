@@ -17,6 +17,9 @@ public abstract class AITrader {
 
 	Logger logger = Logger.getLogger(getClass());
 
+	private OrderDAO orderDAO = new OrderDAO();
+	private ShareParcelDAO shareParcelDAO = new ShareParcelDAO();
+
 	private static final long MAX_BUY_COUNT = 2000;
 
 	private static final int VERY_GOOD_BUY_RATE = 10;
@@ -55,13 +58,13 @@ public abstract class AITrader {
 			List<Order> openOrders = OrderDAO.getOpenOrdersByTrader(trader, company);
 			for (Order order : openOrders) {
 				order.setActive(false);
-				OrderDAO.saveOrder(order);
+				orderDAO.saveOrder(order);
 			}
 
 			logger.info("ai: " + trader.getAiStrategyName() + "(" + trader.getName() + ") buys " + shareCount + " of " + company.getName() + " at "
 					+ offerPrice);
 			Order buyOrder = new Order(trader, company, shareCount, offerPrice, Order.OrderType.BUY);
-			OrderDAO.saveOrder(buyOrder);
+			orderDAO.saveOrder(buyOrder);
 			// Attempt to process the order...
 			StockExchange exchange = company.getStockExchange();
 			exchange.processOrder(buyOrder);
@@ -69,7 +72,7 @@ public abstract class AITrader {
 	}
 
 	protected void sell(Trader trader, Company company, boolean veryBad) {
-		ShareParcel parcel = ShareParcelDAO.getHoldingsByTraderForCompany(trader, company);
+		ShareParcel parcel = shareParcelDAO.getHoldingsByTraderForCompany(trader, company);
 		if (parcel != null) {
 			// We are going to sell all our shares!
 			long shareCount = veryBad ? parcel.getShareCount() : parcel.getShareCount() / 2;
@@ -92,12 +95,12 @@ public abstract class AITrader {
 			List<Order> openOrders = OrderDAO.getOpenOrdersByTrader(trader, company);
 			for (Order order : openOrders) {
 				order.setActive(false);
-				OrderDAO.saveOrder(order);
+				orderDAO.saveOrder(order);
 			}
 			logger.info("ai: " + trader.getAiStrategyName() + "(" + trader.getName() + ") sells " + shareCount + " of " + company.getName() + " at "
 					+ askingPrice);
 			Order sellOrder = new Order(trader, company, shareCount, askingPrice, Order.OrderType.SELL);
-			OrderDAO.saveOrder(sellOrder);
+			orderDAO.saveOrder(sellOrder);
 
 			// Attempt to process the order...
 			StockExchange exchange = company.getStockExchange();

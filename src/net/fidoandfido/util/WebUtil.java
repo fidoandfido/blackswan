@@ -8,7 +8,8 @@ import net.fidoandfido.model.UserSession;
 public class WebUtil {
 
 	public static User getCurrentUserBySession(String sessionId) {
-		UserSession userSession = UserSessionDAO.getUserSessionBySessionId(sessionId);
+		UserSessionDAO userSessionDAO = new UserSessionDAO();
+		UserSession userSession = userSessionDAO.getUserSessionBySessionId(sessionId);
 		if (userSession != null && userSession.isActive()) {
 			return userSession.getUser();
 		}

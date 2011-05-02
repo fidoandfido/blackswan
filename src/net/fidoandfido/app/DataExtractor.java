@@ -3,13 +3,17 @@ package net.fidoandfido.app;
 import java.util.Date;
 import java.util.List;
 
+import net.fidoandfido.dao.AppStatusDAO;
 import net.fidoandfido.dao.CompanyDAO;
 import net.fidoandfido.dao.CompanyPeriodReportDAO;
 import net.fidoandfido.dao.HibernateUtil;
 import net.fidoandfido.dao.OrderDAO;
+import net.fidoandfido.dao.ReputationItemDAO;
 import net.fidoandfido.dao.RumourDAO;
+import net.fidoandfido.dao.ShareParcelDAO;
 import net.fidoandfido.dao.StockExchangeDAO;
 import net.fidoandfido.dao.TraderDAO;
+import net.fidoandfido.dao.UserDAO;
 import net.fidoandfido.model.Company;
 import net.fidoandfido.model.CompanyPeriodReport;
 import net.fidoandfido.model.Order;
@@ -19,6 +23,34 @@ import net.fidoandfido.model.Trader;
 import net.fidoandfido.util.WebPageUtil;
 
 public class DataExtractor {
+
+	private TraderDAO traderDAO;
+	private ShareParcelDAO shareParcelDAO;
+	private CompanyDAO companyDAO;
+	private OrderDAO orderDAO;
+	private CompanyPeriodReportDAO companyPeriodReportDAO;
+	private StockExchangeDAO stockExchangeDAO;
+	private AppStatusDAO appStatusDAO;
+	private UserDAO userDAO;
+	private ReputationItemDAO reputationItemDAO;
+	private RumourDAO rumourDAO;
+
+	private void initDAOs() {
+		traderDAO = new TraderDAO();
+		shareParcelDAO = new ShareParcelDAO();
+		companyDAO = new CompanyDAO();
+		orderDAO = new OrderDAO();
+		stockExchangeDAO = new StockExchangeDAO();
+		appStatusDAO = new AppStatusDAO();
+		userDAO = new UserDAO();
+		reputationItemDAO = new ReputationItemDAO();
+		companyPeriodReportDAO = new CompanyPeriodReportDAO();
+		rumourDAO = new RumourDAO();
+	}
+
+	public DataExtractor() {
+		initDAOs();
+	}
 
 	public static void main(String argv[]) {
 
@@ -30,10 +62,10 @@ public class DataExtractor {
 	}
 
 	public void writeData() {
-		List<StockExchange> stockExchangeList = StockExchangeDAO.getStockExchangeList();
+		List<StockExchange> stockExchangeList = stockExchangeDAO.getStockExchangeList();
 		for (StockExchange stockExchange : stockExchangeList) {
 			System.out.println("Showing companies for stock exchange: " + stockExchange.getName());
-			Iterable<Company> companies = CompanyDAO.getCompaniesByExchange(stockExchange);
+			Iterable<Company> companies = companyDAO.getCompaniesByExchange(stockExchange);
 			for (Company company : companies) {
 				System.out.println(company.getName());
 			}
@@ -42,14 +74,14 @@ public class DataExtractor {
 	}
 
 	public void blbo() {
-		Company company = CompanyDAO.getCompanyByCode("ONMO");
+		Company company = companyDAO.getCompanyByCode("ONMO");
 
 		CompanyPeriodReport periodReport = company.getCurrentPeriod();
 
 	}
 
 	public void ruma() {
-		List<PeriodRumour> rumours = RumourDAO.getLatestRumours(10, new Date());
+		List<PeriodRumour> rumours = rumourDAO.getLatestRumours(10, new Date());
 		for (PeriodRumour rumour : rumours) {
 			System.out.println("rumour: " + rumour.getCompany().getName() + " --- " + rumour.getMessage());
 		}
@@ -57,10 +89,10 @@ public class DataExtractor {
 
 	public void bass() {
 
-		List<StockExchange> stockExchangeList = StockExchangeDAO.getStockExchangeList();
+		List<StockExchange> stockExchangeList = stockExchangeDAO.getStockExchangeList();
 		for (StockExchange stockExchange : stockExchangeList) {
 			System.out.println("Showing period reports for stock exchange: " + stockExchange.getName());
-			List<CompanyPeriodReport> cprList = CompanyPeriodReportDAO.getPeriodPerpotListByExchange(stockExchange);
+			List<CompanyPeriodReport> cprList = companyPeriodReportDAO.getPeriodPerpotListByExchange(stockExchange);
 			int rumourCount = 0;
 			for (CompanyPeriodReport companyPeriodReport : cprList) {
 				if (companyPeriodReport.getPeriodRumourList().size() > 0) {
@@ -78,7 +110,7 @@ public class DataExtractor {
 	}
 
 	public void bar() {
-		List<Trader> traderList = TraderDAO.getAITraderList();
+		List<Trader> traderList = traderDAO.getAITraderList();
 		for (Trader trader : traderList) {
 			List<Order> closedOrders = OrderDAO.getClosedOrdersByTrader(trader);
 			for (Order order : closedOrders) {
@@ -90,9 +122,9 @@ public class DataExtractor {
 	}
 
 	public void foo() {
-		Company company = CompanyDAO.getCompanyList().get(0);
+		Company company = companyDAO.getCompanyList().get(0);
 
-		List<CompanyPeriodReport> reportList = CompanyPeriodReportDAO.getPeriodPerpotListForCompany(company);
+		List<CompanyPeriodReport> reportList = companyPeriodReportDAO.getPeriodPerpotListForCompany(company);
 		System.out.println("Report list length:" + reportList.size());
 
 		for (CompanyPeriodReport companyPeriodReport : reportList) {

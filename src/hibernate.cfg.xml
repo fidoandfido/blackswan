@@ -59,6 +59,7 @@
         <mapping class="net.fidoandfido.model.PeriodEvent"/>
         <mapping class="net.fidoandfido.model.PeriodRumour"/>
         <mapping class="net.fidoandfido.model.StockExchange"/>
+        <mapping class="net.fidoandfido.model.StockExchangePeriod"/>
         <mapping class="net.fidoandfido.model.Trader"/>
         <mapping class="net.fidoandfido.model.Order"/>
         <mapping class="net.fidoandfido.model.ShareParcel"/>

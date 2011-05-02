@@ -30,8 +30,9 @@ public class SellSharesServlet extends HttpServlet {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see javax.servlet.http.HttpServlet#doPost(javax.servlet.http.HttpServletRequest,
-	 * javax.servlet.http.HttpServletResponse)
+	 * @see
+	 * javax.servlet.http.HttpServlet#doPost(javax.servlet.http.HttpServletRequest
+	 * , javax.servlet.http.HttpServletResponse)
 	 */
 	public static String COMPANY_CODE_PARM = "company_code";
 	public static String SHARE_COUNT = "share_count";
@@ -58,8 +59,8 @@ public class SellSharesServlet extends HttpServlet {
 			String companyCode = req.getParameter(COMPANY_CODE_PARM);
 			long shareCount = Long.parseLong(req.getParameter(SHARE_COUNT));
 			long askingPrice = Long.parseLong(req.getParameter(ASKING_PRICE));
-
-			Company company = CompanyDAO.getCompanyByCode(companyCode);
+			CompanyDAO companyDAO = new CompanyDAO();
+			Company company = companyDAO.getCompanyByCode(companyCode);
 
 			if (trader == null) {
 				logger.info("trader null");
@@ -75,7 +76,8 @@ public class SellSharesServlet extends HttpServlet {
 				return false;
 			}
 			Order sellOrder = new Order(trader, company, shareCount, askingPrice, Order.OrderType.SELL);
-			OrderDAO.saveOrder(sellOrder);
+			OrderDAO orderDAO = new OrderDAO();
+			orderDAO.saveOrder(sellOrder);
 
 			// Attempt to process the order...
 			StockExchange exchange = company.getStockExchange();
@@ -88,7 +90,8 @@ public class SellSharesServlet extends HttpServlet {
 
 	private boolean validateOrder(Trader trader, Company company, long shareCount) {
 		// Get holdings of this company by this trader...
-		ShareParcel shareParcel = ShareParcelDAO.getHoldingsByTraderForCompany(trader, company);
+		ShareParcelDAO shareParcelDAO = new ShareParcelDAO();
+		ShareParcel shareParcel = shareParcelDAO.getHoldingsByTraderForCompany(trader, company);
 		long holdingCount = 0;
 		if (shareParcel != null) {
 			holdingCount = holdingCount + shareParcel.getShareCount();

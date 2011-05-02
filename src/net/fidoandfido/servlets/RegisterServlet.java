@@ -27,6 +27,9 @@ public class RegisterServlet extends HttpServlet {
 
 	@Override
 	public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+		TraderDAO traderDAO = new TraderDAO();
+		UserDAO userDAO = new UserDAO();
+		UserSessionDAO userSessionDAO = new UserSessionDAO();
 		HibernateUtil.beginTransaction();
 		User user = WebUtil.getCurrentUserBySession(req.getSession().getId());
 		if (user != null) {
@@ -35,8 +38,8 @@ public class RegisterServlet extends HttpServlet {
 			if (traderName != null && !traderName.isEmpty()) {
 				Trader trader = new Trader(user, traderName, DEFAULT_TRADER_START_CASH);
 				user.setTrader(trader);
-				TraderDAO.saveTrader(trader);
-				UserDAO.saveUser(user);
+				traderDAO.saveTrader(trader);
+				userDAO.saveUser(user);
 			}
 			resp.sendRedirect("/myapp/Trader.jsp");
 		} else {
@@ -50,10 +53,10 @@ public class RegisterServlet extends HttpServlet {
 				user = new User(userName, password, false);
 				Trader trader = new Trader(user, traderName, DEFAULT_TRADER_START_CASH);
 				user.setTrader(trader);
-				UserDAO.saveUser(user);
-				TraderDAO.saveTrader(trader);
+				userDAO.saveUser(user);
+				traderDAO.saveTrader(trader);
 				UserSession userSession = new UserSession(user, req.getSession().getId());
-				UserSessionDAO.saveUserSession(userSession);
+				userSessionDAO.saveUserSession(userSession);
 			}
 			resp.sendRedirect("/myapp/Welcome.jsp");
 		}

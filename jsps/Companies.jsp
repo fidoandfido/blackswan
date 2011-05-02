@@ -25,13 +25,17 @@
 	boolean isAdmin = user == null ? false : user.isUserAdmin();
 
 	Trader trader = null;
+	TraderDAO traderDAO = new TraderDAO();
 	if (user != null) {
-		trader = TraderDAO.getTraderByUser(user);	
+		trader = traderDAO.getTraderByUser(user);	
 	}
+	
+	CompanyDAO companyDAO = new CompanyDAO();
+	
 	Company company = null;
 	String companyCode = request.getParameter(Constants.COMPANY_CODE_PARM);
 	if (companyCode != null) {
-		company = CompanyDAO.getCompanyByCode(companyCode);
+		company = companyDAO.getCompanyByCode(companyCode);
 	}
 	Date currentDate = new Date();
 %>
@@ -197,10 +201,11 @@ to access (or create) your trader profile.</p>
 
 <%			
 		} else {
-			Collection<StockExchange> exchangeList = StockExchangeDAO.getStockExchangeList();
+			StockExchangeDAO stockExchangeDAO = new StockExchangeDAO();
+			Collection<StockExchange> exchangeList = stockExchangeDAO.getStockExchangeList();
 			// List all the companies
 			for (StockExchange exchange : exchangeList) {
-				Iterable<Company> companyList = CompanyDAO.getCompaniesByExchange(exchange);
+				Iterable<Company> companyList = companyDAO.getCompaniesByExchange(exchange);
 				if (companyList != null && companyList.iterator().hasNext()) {
 %>
 			<div class="post">

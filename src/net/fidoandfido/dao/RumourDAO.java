@@ -10,12 +10,12 @@ import org.hibernate.Session;
 
 public class RumourDAO {
 
-	public static void saveRumour(PeriodRumour rumour) {
+	public void saveRumour(PeriodRumour rumour) {
 		Session session = HibernateUtil.getSession();
 		session.saveOrUpdate(rumour);
 	}
 
-	public static List<PeriodRumour> getLatestRumours(int count, Date date) {
+	public List<PeriodRumour> getLatestRumours(int count, Date date) {
 		Session session = HibernateUtil.getSession();
 		Query query = session.createQuery("from PeriodRumour r where r.dateInformationAvailable < :date order by r.dateInformationAvailable desc");
 		query.setParameter("date", date);

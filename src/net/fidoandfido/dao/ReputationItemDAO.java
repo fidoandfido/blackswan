@@ -11,7 +11,7 @@ import org.hibernate.criterion.Restrictions;
 
 public class ReputationItemDAO {
 
-	public static void saveItem(ReputationItem item) {
+	public void saveItem(ReputationItem item) {
 		Session session = HibernateUtil.getSession();
 		session.save(item);
 	}
@@ -24,7 +24,7 @@ public class ReputationItemDAO {
 		return crit.list();
 	}
 
-	public static ReputationItem getItem(String name, long cost) {
+	public ReputationItem getItem(String name, long cost) {
 		Session session = HibernateUtil.getSession();
 		Criteria crit = session.createCriteria(ReputationItem.class);
 		crit.add(Restrictions.eq("name", name));

@@ -7,12 +7,9 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import net.fidoandfido.dao.CompanyDAO;
 import net.fidoandfido.dao.HibernateUtil;
 import net.fidoandfido.dao.OrderDAO;
-import net.fidoandfido.model.Company;
 import net.fidoandfido.model.Order;
-import net.fidoandfido.model.StockExchange;
 import net.fidoandfido.model.Trader;
 import net.fidoandfido.util.WebUtil;
 
@@ -28,10 +25,12 @@ public class CancelOrderServlet extends HttpServlet {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see javax.servlet.http.HttpServlet#doPost(javax.servlet.http.HttpServletRequest,
-	 * javax.servlet.http.HttpServletResponse)
+	 * @see
+	 * javax.servlet.http.HttpServlet#doPost(javax.servlet.http.HttpServletRequest
+	 * , javax.servlet.http.HttpServletResponse)
 	 */
 	public static String ID_PARM = "order_id";
+
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		logger.info("Cancelling order servlet starting.");
@@ -66,7 +65,8 @@ public class CancelOrderServlet extends HttpServlet {
 				return false;
 			}
 			order.setActive(false);
-			OrderDAO.saveOrder(order);
+			OrderDAO orderDAO = new OrderDAO();
+			orderDAO.saveOrder(order);
 		} catch (Exception e) {
 			logger.error("Exception thrown in cancel order: " + e.getMessage());
 			return false;

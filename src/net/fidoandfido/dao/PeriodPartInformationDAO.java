@@ -10,20 +10,20 @@ import org.hibernate.Session;
 
 public class PeriodPartInformationDAO {
 
-	public static void savePeriodPartInformation(PeriodEvent info) {
+	public void savePeriodPartInformation(PeriodEvent info) {
 		Session session = HibernateUtil.getSession();
 		session.saveOrUpdate(info);
 	}
 
 	@SuppressWarnings("unchecked")
-	public static List<PeriodEvent> getLatestEvents(int i, Date date) {
+	public List<PeriodEvent> getLatestEvents(int i, Date date) {
 
 		Session session = HibernateUtil.getSession();
 		Query query = session.createQuery("from PeriodEvent p where p.dateInformationAvailable < :date order by p.dateInformationAvailable desc");
 		query.setParameter("date", date);
 		query.setFirstResult(0);
 		query.setMaxResults(i);
-		
+
 		return query.list();
 	}
 

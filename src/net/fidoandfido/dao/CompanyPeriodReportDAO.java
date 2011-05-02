@@ -11,12 +11,12 @@ import org.hibernate.Session;
 
 public class CompanyPeriodReportDAO {
 
-	public static void savePeriodReport(CompanyPeriodReport periodReport) {
+	public void savePeriodReport(CompanyPeriodReport periodReport) {
 		Session session = HibernateUtil.getSession();
 		session.saveOrUpdate(periodReport);
 	}
 
-	public static List<CompanyPeriodReport> getPeriodPerpotListForCompany(Company company) {
+	public List<CompanyPeriodReport> getPeriodPerpotListForCompany(Company company) {
 		Session session = HibernateUtil.getSession();
 		Query query = session.createQuery("from CompanyPeriodReport where company = :company order by generation");
 		query.setParameter("company", company);
@@ -24,11 +24,11 @@ public class CompanyPeriodReportDAO {
 
 	}
 
-	public static List<CompanyPeriodReport> getPeriodPerpotListByExchange(StockExchange stockExchange) {
+	public List<CompanyPeriodReport> getPeriodPerpotListByExchange(StockExchange stockExchange) {
 		return getPeriodPerpotListByExchange(stockExchange, 0);
 	}
 
-	public static List<CompanyPeriodReport> getPeriodPerpotListByExchange(StockExchange stockExchange, int generation) {
+	public List<CompanyPeriodReport> getPeriodPerpotListByExchange(StockExchange stockExchange, int generation) {
 		Session session = HibernateUtil.getSession();
 		Query query = session.createQuery("from CompanyPeriodReport where company.stockExchange = :exchange and generation = :generation");
 		query.setParameter("exchange", stockExchange);

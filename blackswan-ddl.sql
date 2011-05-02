@@ -5,11 +5,11 @@
 
     alter table Company 
         drop 
-        foreign key FK9BDFD45D3AD658EE;
+        foreign key FK9BDFD45D912EEC1A;
 
     alter table Company 
         drop 
-        foreign key FK9BDFD45D912EEC1A;
+        foreign key FK9BDFD45D3AD658EE;
 
     alter table CompanyPeriodReport 
         drop 
@@ -66,6 +66,14 @@
     alter table ShareParcel 
         drop 
         foreign key FK611540A879C9A78F;
+
+    alter table StockExchange 
+        drop 
+        foreign key FK4B98A3399F79C876;
+
+    alter table StockExchangePeriod 
+        drop 
+        foreign key FK26DDF65A385AE894;
 
     alter table TradeOrder 
         drop 
@@ -141,6 +149,8 @@
 
     drop table if exists StockExchange;
 
+    drop table if exists StockExchangePeriod;
+
     drop table if exists TradeOrder;
 
     drop table if exists TradeRecord;
@@ -172,9 +182,9 @@
         lastTradePrice bigint,
         lastTradeChange bigint,
         previousDividend bigint,
+        previous_period varchar(255),
         current_period varchar(255),
         stock_exchange_id varchar(255),
-        previous_period varchar(255),
         primary key (company_id)
     );
 
@@ -236,8 +246,8 @@
         runningExpenses bigint,
         runningInterest bigint,
         announcementType varchar(255),
-        company_period_report varchar(255),
         company_id varchar(255),
+        company_period_report varchar(255),
         primary key (period_event_id)
     );
 
@@ -250,8 +260,8 @@
         message varchar(255),
         eventType integer,
         forecastType varchar(255),
-        company_period_report varchar(255),
         company_id varchar(255),
+        company_period_report varchar(255),
         primary key (period_rumour_id)
     );
 
@@ -282,8 +292,8 @@
     create table ShareParcel (
         share_parcel_id varchar(255) not null,
         shareCount bigint,
-        company_company_id varchar(255),
         trader_trader_id varchar(255),
+        company_company_id varchar(255),
         primary key (share_parcel_id)
     );
 
@@ -302,6 +312,22 @@
         companyPeriodLength bigint,
         primeInterestRateBasisPoints bigint,
         updating bit,
+        currentPeriod_stock_exchange_id varchar(255),
+        primary key (stock_exchange_id)
+    );
+
+    create table StockExchangePeriod (
+        stock_exchange_id varchar(255) not null,
+        interestRateBasisPoints bigint,
+        revenueRateDelta bigint,
+        expenseRateDelta bigint,
+        economicConditions varchar(255),
+        startDate datetime,
+        minimumEndDate datetime,
+        closeDate datetime,
+        open bit,
+        generation bigint,
+        stockExchange_stock_exchange_id varchar(255),
         primary key (stock_exchange_id)
     );
 
@@ -316,8 +342,8 @@
         executed bit,
         dateExecuted datetime,
         orderType integer,
-        company varchar(255),
         trader_id varchar(255),
+        company varchar(255),
         primary key (order_id)
     );
 
@@ -326,8 +352,8 @@
         shareCount bigint,
         sharePrice bigint,
         date datetime,
-        buyer_trader_id varchar(255),
         company_company_id varchar(255),
+        buyer_trader_id varchar(255),
         seller_trader_id varchar(255),
         primary key (trade_record_id)
     );
@@ -352,8 +378,8 @@
         amountTransferred bigint,
         startingCash bigint,
         endingCash bigint,
-        trader_trader_id varchar(255),
         item_reputation_item_id varchar(255),
+        trader_trader_id varchar(255),
         company_company_id varchar(255),
         primary key (trader_id)
     );
@@ -380,16 +406,16 @@
         references CompanyPeriodReport (company_period_report_id);
 
     alter table Company 
-        add index FK9BDFD45D3AD658EE (previous_period), 
-        add constraint FK9BDFD45D3AD658EE 
-        foreign key (previous_period) 
-        references CompanyPeriodReport (company_period_report_id);
-
-    alter table Company 
         add index FK9BDFD45D912EEC1A (stock_exchange_id), 
         add constraint FK9BDFD45D912EEC1A 
         foreign key (stock_exchange_id) 
         references StockExchange (stock_exchange_id);
+
+    alter table Company 
+        add index FK9BDFD45D3AD658EE (previous_period), 
+        add constraint FK9BDFD45D3AD658EE 
+        foreign key (previous_period) 
+        references CompanyPeriodReport (company_period_report_id);
 
     alter table CompanyPeriodReport 
         add index FKF12227522B724E8D (company_id), 
@@ -474,6 +500,18 @@
         add constraint FK611540A879C9A78F 
         foreign key (company_company_id) 
         references Company (company_id);
+
+    alter table StockExchange 
+        add index FK4B98A3399F79C876 (currentPeriod_stock_exchange_id), 
+        add constraint FK4B98A3399F79C876 
+        foreign key (currentPeriod_stock_exchange_id) 
+        references StockExchangePeriod (stock_exchange_id);
+
+    alter table StockExchangePeriod 
+        add index FK26DDF65A385AE894 (stockExchange_stock_exchange_id), 
+        add constraint FK26DDF65A385AE894 
+        foreign key (stockExchange_stock_exchange_id) 
+        references StockExchange (stock_exchange_id);
 
     alter table TradeOrder 
         add index FKE5BBC06A96A002ED (company), 

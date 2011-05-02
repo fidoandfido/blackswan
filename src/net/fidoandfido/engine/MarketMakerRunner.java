@@ -25,12 +25,19 @@ public class MarketMakerRunner implements Runnable {
 
 	private boolean running = true;
 
+	private TraderDAO traderDAO;
+	private ShareParcelDAO shareParcelDAO;
+	private OrderDAO orderDAO;
+
 	public MarketMakerRunner() {
-		timeout = DEFUALT_TIMEOUT;
+		this(DEFUALT_TIMEOUT);
 	}
 
 	public MarketMakerRunner(long timeout) {
 		this.timeout = timeout;
+		traderDAO = new TraderDAO();
+		shareParcelDAO = new ShareParcelDAO();
+		orderDAO = new OrderDAO();
 	}
 
 	@Override
@@ -77,13 +84,13 @@ public class MarketMakerRunner implements Runnable {
 	public void process() {
 		logger.info("Market maker - Processing.");
 		// Check if there are any open orders...
-		Trader marketMaker = TraderDAO.getMarketMaker();
+		Trader marketMaker = traderDAO.getMarketMaker();
 		List<Order> openOrders = OrderDAO.getOpenOrders();
 		for (Order order : openOrders) {
 			if (order.getTrader().equals(marketMaker)) {
 				// This is an old order... inactive it!
 				order.setActive(false);
-				OrderDAO.saveOrder(order);
+				orderDAO.saveOrder(order);
 				continue;
 			}
 			long offerPrice = order.getOfferPrice();
@@ -111,7 +118,7 @@ public class MarketMakerRunner implements Runnable {
 			if (order.getOrderType().equals(OrderType.BUY)) {
 				// If they are trying to buy, make sure we have some shares to
 				// sell!
-				ShareParcel mmHoldings = ShareParcelDAO.getHoldingsByTraderForCompany(marketMaker, company);
+				ShareParcel mmHoldings = shareParcelDAO.getHoldingsByTraderForCompany(marketMaker, company);
 				if (mmHoldings == null) {
 					continue;
 				}
@@ -130,7 +137,7 @@ public class MarketMakerRunner implements Runnable {
 				marketMakerOrder = new Order(marketMaker, company, shareCount, offerPrice, OrderType.BUY);
 			}
 			logger.trace("saving market maker order");
-			OrderDAO.saveOrder(marketMakerOrder);
+			orderDAO.saveOrder(marketMakerOrder);
 			processor.processOrder(marketMakerOrder);
 		}
 		logger.info("Processing complete.");
