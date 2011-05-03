@@ -2,6 +2,7 @@ package net.fidoandfido.engine.profitmodifers;
 
 import net.fidoandfido.engine.event.EventData;
 import net.fidoandfido.model.Company;
+import net.fidoandfido.model.CompanyPeriodReport;
 import net.fidoandfido.util.Constants.EventType;
 
 public class ConstantModifier implements EventProfitModifier {
@@ -16,7 +17,7 @@ public class ConstantModifier implements EventProfitModifier {
 	 * .Constants.EventType, long)
 	 */
 	@Override
-	public EventData adjustProfit(EventType eventType, EventData data, Company company, long eventCount) {
+	public EventData adjustProfit(EventType eventType, EventData data, Company company, CompanyPeriodReport companyPeriodReport, long eventCount) {
 		// Dont actually adjust the profit :)
 		return data;
 	}
@@ -29,18 +30,6 @@ public class ConstantModifier implements EventProfitModifier {
 	@Override
 	public String getName() {
 		return NAME;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * net.fidoandfido.engine.ProfitModifier#setVolatility(net.fidoandfido.engine
-	 * .ProfitModifier.Volatility)
-	 */
-	@Override
-	public void setVolatility(Volatility volatility) {
-		// Ignore it!
 	}
 
 }

@@ -215,10 +215,12 @@ to access (or create) your trader profile.</p>
 					<tr>
 					<td>Company</td>
 					<td>Code</td>
+					<td>Share<br/>Book<br/>value</td>
+					<td>Earning<br/>per<br/>share</td>
+					<td>Dividend</td>
 					<td>Last Trade</td>
 					<td>Change</td>
 					<td></td>
-					<td>Prev. Dividend</td>
 					</tr>
 
 <%
@@ -228,6 +230,9 @@ to access (or create) your trader profile.</p>
 					<tr>
 					<td><a href="Companies.jsp?<%= Constants.COMPANY_CODE_PARM %>=<%=currentCompany.getCode()%>"><%= currentCompany.getName() %></a></td>
 					<td><%= currentCompany.getCode() %></td>
+					<td><%= WebPageUtil.formatCurrency(currentCompany.getShareBookValue()) %></td>
+					<td><%= WebPageUtil.formatCurrency(currentCompany.getPreviousEarningPerShare()) %></td>
+					<td><%= WebPageUtil.formatCurrency(currentCompany.getPreviousDividend()) %></td>
 					<td><%= WebPageUtil.formatCurrency(currentCompany.getLastTradePrice()) %></td>
 					<td><%= WebPageUtil.formatCurrency(currentCompany.getLastTradeChange()) %></td>
 					<td><% if (currentCompany.getLastTradeChange() > 0) { %>
@@ -237,7 +242,6 @@ to access (or create) your trader profile.</p>
 						<% } else if (currentCompany.getLastTradeChange() == 0) { %>
 						<img src="/myapp/images/flat-line.png"/>
 						<% }  %></td>
-					<td><%= WebPageUtil.formatCurrency(currentCompany.getPreviousDividend()) %></td>
 					</tr>
 <%	
 					}

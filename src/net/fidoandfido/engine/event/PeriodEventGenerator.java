@@ -28,7 +28,7 @@ public class PeriodEventGenerator {
 	// These will be thrown away!
 	Map<String, SectorNewsEvent> sectorEventMap = new HashMap<String, SectorNewsEvent>();
 
-	private static final int PERIOD_PART_COUNT = 5;
+	private static final int PERIOD_PART_COUNT = 4;
 	private static final int FIRST_QUARTER_PART_INDEX = 0;
 	private static final int SECOND_QUARTER_PART_INDEX = 1;
 	private static final int THIRD_QUARTER_PART_INDEX = 2;
@@ -38,6 +38,11 @@ public class PeriodEventGenerator {
 	public static final String SECOND_QUARTER = "Second quarter forecast";
 	public static final String THIRD_QUARTER = "Third quarter forecast";
 	public static final String FOURTH_QUARTER = "Fourth quarter forecast";
+
+	public static final int AGE_PROBABILITY_RANGE = 100;
+	public static final int GOLDEN_AGE_HIT = 99;
+	public static final int DARK_AGE_HIT = 98;
+	public static final int AGE_LENGTH = 4;
 
 	private PeriodPartInformationDAO periodPartInformationDAO;
 	private CompanyPeriodReportDAO companyPeriodReportDAO;
@@ -52,7 +57,25 @@ public class PeriodEventGenerator {
 		rumourDAO = new RumourDAO();
 	}
 
+	Random enterAnAgeRandom = new Random(17);
+
 	public void generateEvents(CompanyPeriodReport periodReport, Company company, StockExchange stockExchange) {
+
+		// Check to see if we are in a golden age / battler age.
+		// If not, roll the dice to see if we go into one!
+		if (company.getRemainingPeriodsOfDarkAge() > 0) {
+			company.decrementRemainingPeriodsOfDarkAge();
+		} else if (company.getRemainingPeriodsOfGoldenAge() > 0) {
+			company.decrementRemainingPeriodsOfGoldenAge();
+		} else {
+			// We weren't in any age, see if we go in one now...
+			int enterAge = enterAnAgeRandom.nextInt(AGE_PROBABILITY_RANGE);
+			if (enterAge == DARK_AGE_HIT) {
+				company.setRemainingPeriodsOfDarkAge(AGE_LENGTH);
+			} else if (enterAge == GOLDEN_AGE_HIT) {
+				company.setRemainingPeriodsOfGoldenAge(AGE_LENGTH);
+			}
+		}
 
 		// Create a long term sector outlook...
 		String sectorName = company.getSector();
@@ -100,7 +123,7 @@ public class PeriodEventGenerator {
 		// //////////////////////////////////////////////
 		// First quarter sector outlook - decided by sector.
 
-		eventData = profitModifier.adjustProfit(sectorEvent.getFirstEventType(), eventData, company, 4);
+		eventData = profitModifier.adjustProfit(sectorEvent.getFirstEventType(), eventData, company, periodReport, PERIOD_PART_COUNT);
 		Date firstQuarterDate = (getDateWithinPeriod(periodReport, PERIOD_PART_COUNT, FIRST_QUARTER_PART_INDEX, true));
 		PeriodEvent firstQuarterEvent = new PeriodEvent(company, periodReport, firstQuarterDate, getMessage(sectorEvent.getFirstEventType()),
 				sectorEvent.getFirstEventType(), FIRST_QUARTER);
@@ -114,9 +137,21 @@ public class PeriodEventGenerator {
 		// //////////////////////////////////////////////
 		// Second quarter outlook
 		EventType secondQuarterEvent = eventGenerator.getNextEventType();
+
+		if (company.getRemainingPeriodsOfDarkAge() > 0) {
+			if (secondQuarterEvent == EventType.GOOD || secondQuarterEvent == EventType.GREAT || secondQuarterEvent == EventType.EXTRAORDINARY) {
+				secondQuarterEvent = EventType.AVERAGE;
+			}
+		}
+		if (company.getRemainingPeriodsOfGoldenAge() > 0) {
+			if (secondQuarterEvent == EventType.POOR || secondQuarterEvent == EventType.TERRIBLE || secondQuarterEvent == EventType.CATASTROPHIC) {
+				secondQuarterEvent = EventType.AVERAGE;
+			}
+		}
+
 		String longTermCompanyMessage = getMessage(secondQuarterEvent);
 		Date longTermCompanyDate = getDateWithinPeriod(periodReport, PERIOD_PART_COUNT, SECOND_QUARTER_PART_INDEX, true);
-		eventData = profitModifier.adjustProfit(secondQuarterEvent, eventData, company, 4);
+		eventData = profitModifier.adjustProfit(secondQuarterEvent, eventData, company, periodReport, PERIOD_PART_COUNT);
 
 		PeriodEvent secondQuarterInformation = new PeriodEvent(company, periodReport, longTermCompanyDate, longTermCompanyMessage, secondQuarterEvent,
 				SECOND_QUARTER);
@@ -129,7 +164,7 @@ public class PeriodEventGenerator {
 
 		// //////////////////////////////////////////////
 		// third quarter outlook
-		eventData = profitModifier.adjustProfit(sectorEvent.getSecondEventType(), eventData, company, 4);
+		eventData = profitModifier.adjustProfit(sectorEvent.getSecondEventType(), eventData, company, periodReport, PERIOD_PART_COUNT);
 		Date thirdQuarterDate = getDateWithinPeriod(periodReport, PERIOD_PART_COUNT, THIRD_QUARTER_PART_INDEX, true);
 
 		PeriodEvent thirdQuarterInformation = new PeriodEvent(company, periodReport, thirdQuarterDate, getMessage(sectorEvent.getSecondEventType()),
@@ -143,12 +178,24 @@ public class PeriodEventGenerator {
 		// //////////////////////////////////////////////
 		// Fourth quarter outlook
 		Date shortTermCompanyDate = getDateWithinPeriod(periodReport, PERIOD_PART_COUNT, FOURTH_QUARTER_PART_INDEX, true);
-		EventType shortTermCompanyEventType = eventGenerator.getNextEventType();
-		String shortTermCompanyMessage = getMessage(shortTermCompanyEventType);
-		eventData = profitModifier.adjustProfit(shortTermCompanyEventType, eventData, company, 4);
+		EventType fourthQuarterEvent = eventGenerator.getNextEventType();
 
-		PeriodEvent shortTermCompanyInformation = new PeriodEvent(company, periodReport, shortTermCompanyDate, shortTermCompanyMessage,
-				shortTermCompanyEventType, FOURTH_QUARTER);
+		if (company.getRemainingPeriodsOfDarkAge() > 0) {
+			if (fourthQuarterEvent == EventType.GOOD || fourthQuarterEvent == EventType.GREAT || fourthQuarterEvent == EventType.EXTRAORDINARY) {
+				fourthQuarterEvent = EventType.AVERAGE;
+			}
+		}
+		if (company.getRemainingPeriodsOfGoldenAge() > 0) {
+			if (fourthQuarterEvent == EventType.POOR || fourthQuarterEvent == EventType.TERRIBLE || fourthQuarterEvent == EventType.CATASTROPHIC) {
+				fourthQuarterEvent = EventType.AVERAGE;
+			}
+		}
+
+		String shortTermCompanyMessage = getMessage(fourthQuarterEvent);
+		eventData = profitModifier.adjustProfit(fourthQuarterEvent, eventData, company, periodReport, PERIOD_PART_COUNT);
+
+		PeriodEvent shortTermCompanyInformation = new PeriodEvent(company, periodReport, shortTermCompanyDate, shortTermCompanyMessage, fourthQuarterEvent,
+				FOURTH_QUARTER);
 
 		shortTermCompanyInformation.setData(eventData);
 		periodPartInformationDAO.savePeriodPartInformation(shortTermCompanyInformation);

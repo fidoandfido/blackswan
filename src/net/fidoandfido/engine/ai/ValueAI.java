@@ -47,8 +47,8 @@ public class ValueAI extends AITrader implements AITradeStrategy {
 
 			long sharePrice = company.getLastTradePrice();
 			long expectedEarning = company.getExpectedEarningsPerShare();
-			long priceToEarningsRate = sharePrice / expectedEarning * 100;
-			if (priceToEarningsRate > (company.getPrimeInterestRate() / 100)) {
+			long priceToEarningsRate = (expectedEarning / sharePrice) * 100;
+			if (priceToEarningsRate > (company.getPrimeInterestRateBasisPoints() / 100)) {
 				// This one is a buy!
 				buy(trader, company, false);
 			} else {

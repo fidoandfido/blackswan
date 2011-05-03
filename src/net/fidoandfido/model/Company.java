@@ -152,6 +152,25 @@ public class Company {
 	@Column
 	private long previousDividend = 0;
 
+	// @Column
+	// private long previousProfit = 0;
+
+	/**
+	 * Indicate how many periods (if any) this company has left of a golden age.
+	 * 
+	 * Small chance each period a company may enter a golden age; this is set by
+	 * the period generator.
+	 * 
+	 * Period event generators *may* use this to override the default event
+	 * types for the company. (They also may ignore it)
+	 * 
+	 */
+	@Column
+	private long remainingPeriodsOfGoldenAge = 0;
+
+	@Column
+	private long remainingPeriodsOfDarkAge = 0;
+
 	public Company() {
 		// Default constructor for persistence
 	}
@@ -234,9 +253,9 @@ public class Company {
 		return true;
 	}
 
-	public long getPrimeInterestRate() {
+	public long getPrimeInterestRateBasisPoints() {
 		if (stockExchange != null) {
-			return getStockExchange().getPrimeInterestRate();
+			return getStockExchange().getPrimeInterestRateBasisPoints();
 		}
 		return 0;
 	}
@@ -244,6 +263,14 @@ public class Company {
 	public long getExpectedEarningsPerShare() {
 		long profit = currentPeriod.getStartingExpectedProfit();
 		return (profit / outstandingShares);
+	}
+
+	public long getPreviousEarningPerShare() {
+		return getPreviousProfit() / outstandingShares;
+	}
+
+	public long getShareBookValue() {
+		return ((assetValue - debtValue) / outstandingShares);
 	}
 
 	public long getPreviousProfit() {
@@ -589,6 +616,44 @@ public class Company {
 	 */
 	public void setMinimumDividend(long minimumDividendRate) {
 		this.minimumDividend = minimumDividendRate;
+	}
+
+	/**
+	 * @return the remainingPeriodsOfGoldenAge
+	 */
+	public long getRemainingPeriodsOfGoldenAge() {
+		return remainingPeriodsOfGoldenAge;
+	}
+
+	public void decrementRemainingPeriodsOfGoldenAge() {
+		this.remainingPeriodsOfGoldenAge--;
+	}
+
+	/**
+	 * @param remainingPeriodsOfGoldenAge
+	 *            the remainingPeriodsOfGoldenAge to set
+	 */
+	public void setRemainingPeriodsOfGoldenAge(long remainingPeriodsOfGoldenAge) {
+		this.remainingPeriodsOfGoldenAge = remainingPeriodsOfGoldenAge;
+	}
+
+	/**
+	 * @return the remainingPeriodsOfBattlerAge
+	 */
+	public long getRemainingPeriodsOfDarkAge() {
+		return remainingPeriodsOfDarkAge;
+	}
+
+	public void decrementRemainingPeriodsOfDarkAge() {
+		this.remainingPeriodsOfDarkAge--;
+	}
+
+	/**
+	 * @param remainingPeriodsOfBattlerAge
+	 *            the remainingPeriodsOfBattlerAge to set
+	 */
+	public void setRemainingPeriodsOfDarkAge(long remainingPeriodsOfDarkAge) {
+		this.remainingPeriodsOfDarkAge = remainingPeriodsOfDarkAge;
 	}
 
 }

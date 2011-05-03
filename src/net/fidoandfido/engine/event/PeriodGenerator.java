@@ -7,12 +7,14 @@ import net.fidoandfido.dao.CompanyPeriodReportDAO;
 import net.fidoandfido.dao.HibernateUtil;
 import net.fidoandfido.dao.ShareParcelDAO;
 import net.fidoandfido.dao.StockExchangeDAO;
+import net.fidoandfido.dao.StockExchangePeriodDAO;
 import net.fidoandfido.dao.TraderDAO;
 import net.fidoandfido.dao.TraderEventDAO;
 import net.fidoandfido.model.Company;
 import net.fidoandfido.model.CompanyPeriodReport;
 import net.fidoandfido.model.ShareParcel;
 import net.fidoandfido.model.StockExchange;
+import net.fidoandfido.model.StockExchangePeriod;
 import net.fidoandfido.model.Trader;
 import net.fidoandfido.model.TraderEvent;
 
@@ -34,21 +36,24 @@ public class PeriodGenerator implements Runnable {
 	private ShareParcelDAO shareParcelDAO;
 	private CompanyDAO companyDAO;
 	private StockExchangeDAO stockExchangeDAO;
+	private StockExchangePeriodDAO stockExchangePeriodDAO;
 	private TraderEventDAO traderEventDAO;
+	private CompanyPeriodReportDAO companyPeriodReportDAO;
 
 	private void initDAOs() {
 		traderDAO = new TraderDAO();
 		shareParcelDAO = new ShareParcelDAO();
 		companyDAO = new CompanyDAO();
 		stockExchangeDAO = new StockExchangeDAO();
+		stockExchangePeriodDAO = new StockExchangePeriodDAO();
 		traderEventDAO = new TraderEventDAO();
+		companyPeriodReportDAO = new CompanyPeriodReportDAO();
 	}
 
 	private final String exchangeName;
 	private final long periodLength;
 
 	private boolean running = true;
-	private CompanyPeriodReportDAO companyPeriodReportDAO;
 
 	public PeriodGenerator(String exchangeName) {
 		initDAOs();
@@ -95,15 +100,33 @@ public class PeriodGenerator implements Runnable {
 			return;
 		}
 		Date currentDate = new Date();
+		logger.info("Date: " + currentDate);
+
+		// Check if this is before the end date of the current stockExchange
+		// period.
+		StockExchangePeriod previousPeriod = exchange.getCurrentPeriod();
+		if (currentDate.before(previousPeriod.getMinimumEndDate())) {
+			// Too soon for a new period!
+			logger.info("Too soon to generate a new period for " + exchangeName);
+			return;
+		}
+		previousPeriod.close(currentDate);
+		stockExchangePeriodDAO.save(previousPeriod);
+
+		Date minimumEndDate = new Date(currentDate.getTime() + exchange.getCompanyPeriodLength());
+
+		// Update the stock exchange period.
+		StockExchangePeriod currentPeriod = new StockExchangePeriod(previousPeriod, currentDate, minimumEndDate);
+
+		exchange.setCurrentPeriod(currentPeriod);
 
 		// Get the current period for the stock exchange.
-		logger.info("Date: " + currentDate);
 		// Create a period event generator...
 		PeriodEventGenerator generator = new PeriodEventGenerator();
 		Iterable<Company> companyList = companyDAO.getCompaniesByExchange(exchange);
 		for (Company company : companyList) {
 			logger.info("Updating company: " + company.getName());
-			// Create a new company report entry. Somehow...
+			// Create a new company report entry..
 			CompanyPeriodReport currentPeriodReport = company.getCurrentPeriod();
 
 			long generation = 0;
@@ -127,8 +150,8 @@ public class PeriodGenerator implements Runnable {
 
 			// Calculate the expected return based on the current asset/debt and
 			// so on.
-			long primeInterestRateBasisPoints = company.getPrimeInterestRate();
-			long expectedExpenses = company.getDefaultExpenseRate() * company.getAssetValue() / 100;
+			long primeInterestRateBasisPoints = company.getPrimeInterestRateBasisPoints();
+			long expectedExpenses = (company.getDefaultExpenseRate()) * company.getAssetValue() / 100;
 			long expectedRevenues = company.getDefaultRevenueRate() * company.getAssetValue() / 100;
 			long expectedInterest = company.getDebtValue() * primeInterestRateBasisPoints / 10000;
 			long expectedProfit = expectedRevenues - expectedExpenses - expectedInterest;
@@ -140,6 +163,7 @@ public class PeriodGenerator implements Runnable {
 			newPeriodReport.setStartingExpectedInterest(expectedInterest);
 
 			companyPeriodReportDAO.savePeriodReport(newPeriodReport);
+
 			generator.generateEvents(newPeriodReport, company, exchange);
 			company.setCurrentPeriod(newPeriodReport);
 			companyDAO.saveCompany(company);

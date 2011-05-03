@@ -39,7 +39,7 @@ public class StockExchange {
 	private long companyPeriodLength;
 
 	@Column
-	private long primeInterestRateBasisPoints;
+	private long defaultPrimeInterestRateBasisPoints;
 
 	@Column
 	private boolean updating = false;
@@ -53,7 +53,7 @@ public class StockExchange {
 	}
 
 	public StockExchange(String name, String description, int companyCount, String eventGeneratorName, long companyPeriodLength,
-			long primeInterestRateBasisPoints)
+			long defaultPrimeInterestRateBasisPoints)
 
 	{
 		super();
@@ -62,13 +62,23 @@ public class StockExchange {
 		this.companyCount = companyCount;
 		this.eventGeneratorName = eventGeneratorName;
 		this.companyPeriodLength = companyPeriodLength;
-		this.primeInterestRateBasisPoints = primeInterestRateBasisPoints;
+		this.defaultPrimeInterestRateBasisPoints = defaultPrimeInterestRateBasisPoints;
 	}
 
 	@Override
 	public String toString() {
 		// TODO Auto-generated method stub
 		return name + " -> Company count: " + companyCount + " -- " + description;
+	}
+
+	/**
+	 * @return the primeInterestRateBasisPoints
+	 */
+	public long getPrimeInterestRateBasisPoints() {
+		if (currentPeriod != null) {
+			return currentPeriod.getInterestRateBasisPointsDelta() + defaultPrimeInterestRateBasisPoints;
+		}
+		return defaultPrimeInterestRateBasisPoints;
 	}
 
 	/**
@@ -162,21 +172,6 @@ public class StockExchange {
 	}
 
 	/**
-	 * @return the primeInterestRate
-	 */
-	public long getPrimeInterestRate() {
-		return primeInterestRateBasisPoints;
-	}
-
-	/**
-	 * @param primeInterestRate
-	 *            the primeInterestRate to set
-	 */
-	public void setPrimeInterestRate(long primeInterestRate) {
-		this.primeInterestRateBasisPoints = primeInterestRate;
-	}
-
-	/**
 	 * Process an order.
 	 * 
 	 * @param buyOrder
@@ -184,21 +179,6 @@ public class StockExchange {
 	public void processOrder(Order buyOrder) {
 		OrderProcessor processor = new OrderProcessor();
 		processor.processOrder(buyOrder);
-	}
-
-	/**
-	 * @return the primeInterestRateBasisPoints
-	 */
-	public long getPrimeInterestRateBasisPoints() {
-		return primeInterestRateBasisPoints;
-	}
-
-	/**
-	 * @param primeInterestRateBasisPoints
-	 *            the primeInterestRateBasisPoints to set
-	 */
-	public void setPrimeInterestRateBasisPoints(long primeInterestRateBasisPoints) {
-		this.primeInterestRateBasisPoints = primeInterestRateBasisPoints;
 	}
 
 	/**

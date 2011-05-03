@@ -1,9 +1,11 @@
 package net.fidoandfido.engine.profitmodifers;
 
+import java.util.Date;
 import java.util.Random;
 
 import net.fidoandfido.engine.event.EventData;
 import net.fidoandfido.model.Company;
+import net.fidoandfido.model.CompanyPeriodReport;
 import net.fidoandfido.model.StockExchange;
 import net.fidoandfido.util.Constants.EventType;
 import net.fidoandfido.util.WebPageUtil;
@@ -19,18 +21,16 @@ public class LinearProfitModifier implements EventProfitModifier {
 
 	public static final String NAME = "linear";
 
-	Volatility volatility = Volatility.MODERATE;
-
 	Random randomModifier = new Random();
 
 	// @Override
 	@Override
-	public EventData adjustProfit(EventType eventType, EventData eventData, Company company, long eventCount) {
-		// To begin with, lets get what should, in the perfect world, be the
-		// stats for this company.
-		long interestPaid = company.getPrimeInterestRate() * company.getDebtValue() / 10000 / eventCount;
-		long revenue = company.getAssetValue() * company.getDefaultRevenueRate() / 100 / eventCount;
-		long expenses = company.getAssetValue() * company.getDefaultExpenseRate() / 100 / eventCount;
+	public EventData adjustProfit(EventType eventType, EventData eventData, Company company, CompanyPeriodReport companyPeriodReport, long eventCount) {
+		// Work out how much the company should, ideally, be earning/paying for
+		// this period part.
+		long interestPaid = companyPeriodReport.getStartingExpectedInterest() / eventCount;
+		long revenue = companyPeriodReport.getStartingExpectedRevenue() / eventCount;
+		long expenses = companyPeriodReport.getStartingExpectedExpenses() / eventCount;
 
 		// Now simply modify these based on the event type.
 		switch (eventType) {
@@ -94,11 +94,6 @@ public class LinearProfitModifier implements EventProfitModifier {
 		return NAME;
 	}
 
-	@Override
-	public void setVolatility(Volatility volatility) {
-		this.volatility = volatility;
-	}
-
 	public static void main(String argv[]) {
 		System.out.println("MODIFY - Linear Style!");
 
@@ -112,13 +107,17 @@ public class LinearProfitModifier implements EventProfitModifier {
 		Company company = new Company("Foobar Enterprises", "fbe", assets, debts, shareCount, "sector", "", dividendRate, revenueRate, expenseRate);
 		company.setStockExchange(exchange);
 
-		long primeInterestRateBasisPoints = company.getPrimeInterestRate();
+		long primeInterestRateBasisPoints = company.getPrimeInterestRateBasisPoints();
 		// So now we have the initial profit, extrapolate back to work out the
 		// interest, expenses and revenue
+		CompanyPeriodReport companyPeriodReport = new CompanyPeriodReport(company, new Date(), 1000, 0);
 		long expenses = company.getDefaultExpenseRate() * company.getAssetValue() / 100 / 4;
 		long revenues = company.getDefaultRevenueRate() * company.getAssetValue() / 100 / 4;
 		long interest = company.getDebtValue() * primeInterestRateBasisPoints / 10000 / 4;
 		long profit = revenues - expenses - interest;
+		companyPeriodReport.setStartingExpectedExpenses(expenses);
+		companyPeriodReport.setStartingExpectedInterest(interest);
+		companyPeriodReport.setStartingExpectedRevenue(revenues);
 		EventData initialData = new EventData(profit, expenses, revenues, interest);
 		LinearProfitModifier modifier = new LinearProfitModifier();
 
@@ -133,7 +132,7 @@ public class LinearProfitModifier implements EventProfitModifier {
 
 		System.out.println("Default revenue rate on assets: " + company.getDefaultRevenueRate());
 		System.out.println("Default expense rate on assets: " + company.getDefaultExpenseRate());
-		System.out.println("Stock exchange interest rate: " + exchange.getPrimeInterestRate());
+		System.out.println("Stock exchange interest rate: " + exchange.getPrimeInterestRateBasisPoints());
 
 		System.out.println("DEFAULT EARNINGS - PER QUARTER THEN PER YEAR");
 		System.out.println("Profit\t\trevenue\t\texpenses\tinterest\tEarning/share\tDividend");
@@ -146,7 +145,7 @@ public class LinearProfitModifier implements EventProfitModifier {
 			System.out.println("Profit\t\trevenue\t\texpenses\tinterest\tEarning/share\tDividend");
 			for (int i = 0; i < 10; i++) {
 				EventData eventData = initialData;
-				eventData = modifier.adjustProfit(eventType, eventData, company, 4);
+				eventData = modifier.adjustProfit(eventType, eventData, company, companyPeriodReport, 4);
 				printData(company, eventData);
 			}
 		}

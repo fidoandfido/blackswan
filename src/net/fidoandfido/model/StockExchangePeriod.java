@@ -31,7 +31,7 @@ public class StockExchangePeriod {
 	private StockExchange stockExchange;
 
 	@Column
-	private long interestRateBasisPoints = 0;
+	private long interestRateBasisPointsDelta = 0;
 
 	@Column
 	private long revenueRateDelta = 0;
@@ -68,11 +68,24 @@ public class StockExchangePeriod {
 		this.startDate = startDate;
 		this.minimumEndDate = minimumEndDate;
 		this.generation = generation;
-		this.interestRateBasisPoints = interestRateBasisPoints;
+		this.interestRateBasisPointsDelta = interestRateBasisPointsDelta;
 		this.revenueRateDelta = revenueRateDelta;
 		this.expenseRateDelta = expenseRateDelta;
 		this.economicConditions = economicConditions;
 		this.open = true;
+	}
+
+	public StockExchangePeriod(StockExchangePeriod currentPeriod, Date startDate, Date minimumEndDate) {
+		this.stockExchange = currentPeriod.stockExchange;
+		this.startDate = startDate;
+		this.minimumEndDate = minimumEndDate;
+		this.generation = currentPeriod.generation + 1;
+		this.interestRateBasisPointsDelta = currentPeriod.interestRateBasisPointsDelta;
+		this.revenueRateDelta = currentPeriod.revenueRateDelta;
+		this.expenseRateDelta = currentPeriod.expenseRateDelta;
+		this.economicConditions = currentPeriod.economicConditions;
+		this.open = true;
+
 	}
 
 	public void close(Date dateClosed) {
@@ -111,18 +124,18 @@ public class StockExchangePeriod {
 	}
 
 	/**
-	 * @return the interestRateBasisPoints
+	 * @return the interestRateBasisPointsDelta
 	 */
-	public long getInterestRateBasisPoints() {
-		return interestRateBasisPoints;
+	public long getInterestRateBasisPointsDelta() {
+		return interestRateBasisPointsDelta;
 	}
 
 	/**
-	 * @param interestRateBasisPoints
-	 *            the interestRateBasisPoints to set
+	 * @param interestRateBasisPointsDelta
+	 *            the interestRateBasisPointsDelta to set
 	 */
-	public void setInterestRateBasisPoints(long interestRateBasisPoints) {
-		this.interestRateBasisPoints = interestRateBasisPoints;
+	public void setInterestRateBasisPointsDelta(long interestRateBasisPointsDelta) {
+		this.interestRateBasisPointsDelta = interestRateBasisPointsDelta;
 	}
 
 	/**

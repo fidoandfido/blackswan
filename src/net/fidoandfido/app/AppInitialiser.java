@@ -277,7 +277,7 @@ public class AppInitialiser {
 	private void setInitialProft(CompanyPeriodReport periodReport, Company company) {
 		// Set initial profit - made up of revenue, expenses, and interest.
 		// So, our initial profit should be double the prime interest rate.
-		long primeInterestRateBasisPoints = company.getStockExchange().getPrimeInterestRate();
+		long primeInterestRateBasisPoints = company.getStockExchange().getPrimeInterestRateBasisPoints();
 		// So now we have the initial profit, extrapolate back to work out the
 		// interest, expenses and revenue
 		long expenses = company.getDefaultExpenseRate() * company.getAssetValue() / 100; // WTF?
