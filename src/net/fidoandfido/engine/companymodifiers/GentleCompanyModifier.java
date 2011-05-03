@@ -7,6 +7,7 @@ import net.fidoandfido.util.WebPageUtil;
 
 public class GentleCompanyModifier implements CompanyModifier {
 
+	public static final String NAME = "GENTLE_COMPANY_MODIFIER";
 	public static long MAX_REVENUE_RATE = 25;
 	public static long MIN_REVENUE_RATE = 8;
 

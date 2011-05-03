@@ -125,13 +125,13 @@ public class Company {
 	 * Default rate the company earns revenue (as a percentage of asset value)
 	 */
 	@Column
-	private long defaultRevenueRate;
+	private long revenueRate;
 
 	/**
 	 * Default rate the company has expenses (as a percentage of asset value)
 	 */
 	@Column
-	private long defaultExpenseRate;
+	private long expenseRate;
 
 	// STATS
 	/**
@@ -185,8 +185,8 @@ public class Company {
 		this.sector = sector;
 		this.profitModifierName = profitModifierName;
 		this.dividendRate = dividendRate;
-		this.defaultRevenueRate = defaultRevenueRate;
-		this.defaultExpenseRate = defaultExpenseRate;
+		this.revenueRate = defaultRevenueRate;
+		this.expenseRate = defaultExpenseRate;
 	}
 
 	/*
@@ -351,6 +351,10 @@ public class Company {
 	 */
 	public void setDebtValue(long debtValue) {
 		this.debtValue = debtValue;
+	}
+
+	public void incrementDebtValue(long modifier) {
+		debtValue += modifier;
 	}
 
 	/**
@@ -576,31 +580,39 @@ public class Company {
 	/**
 	 * @return the defaultRevenueRate
 	 */
-	public long getDefaultRevenueRate() {
-		return defaultRevenueRate;
+	public long getRevenueRate() {
+		return revenueRate;
 	}
 
 	/**
 	 * @param defaultRevenueRate
 	 *            the defaultRevenueRate to set
 	 */
-	public void setDefaultRevenueRate(long defaultRevenueRate) {
-		this.defaultRevenueRate = defaultRevenueRate;
+	public void setRevenueRate(long defaultRevenueRate) {
+		this.revenueRate = defaultRevenueRate;
+	}
+
+	public void modifyRevenueRate(long modifier) {
+		this.revenueRate += modifier;
 	}
 
 	/**
 	 * @return the defaultExpenseRate
 	 */
-	public long getDefaultExpenseRate() {
-		return defaultExpenseRate;
+	public long getExpenseRate() {
+		return expenseRate;
 	}
 
 	/**
 	 * @param defaultExpenseRate
 	 *            the defaultExpenseRate to set
 	 */
-	public void setDefaultExpenseRate(long defaultExpenseRate) {
-		this.defaultExpenseRate = defaultExpenseRate;
+	public void setExpenseRate(long defaultExpenseRate) {
+		this.expenseRate = defaultExpenseRate;
+	}
+
+	public void modifyExpenseRate(long modifier) {
+		this.expenseRate += modifier;
 	}
 
 	/**

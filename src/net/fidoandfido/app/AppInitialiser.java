@@ -280,8 +280,8 @@ public class AppInitialiser {
 		long primeInterestRateBasisPoints = company.getStockExchange().getPrimeInterestRateBasisPoints();
 		// So now we have the initial profit, extrapolate back to work out the
 		// interest, expenses and revenue
-		long expenses = company.getDefaultExpenseRate() * company.getAssetValue() / 100; // WTF?
-		long revenues = company.getDefaultRevenueRate() * company.getAssetValue() / 100;
+		long expenses = company.getExpenseRate() * company.getAssetValue() / 100; // WTF?
+		long revenues = company.getRevenueRate() * company.getAssetValue() / 100;
 		long interest = company.getDebtValue() * primeInterestRateBasisPoints / 10000;
 		long profit = revenues - expenses - interest;
 

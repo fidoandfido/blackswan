@@ -97,7 +97,7 @@ public class LinearProfitModifier implements EventProfitModifier {
 	public static void main(String argv[]) {
 		System.out.println("MODIFY - Linear Style!");
 
-		StockExchange exchange = new StockExchange("ASX", "asx", 1, "asdf", 0, 500);
+		StockExchange exchange = new StockExchange("ASX", "asx", 1, "asdf", 0, 500, "", "");
 		long assets = 100000000;
 		long debts = 50000000;
 		long shareCount = 100000;
@@ -111,8 +111,8 @@ public class LinearProfitModifier implements EventProfitModifier {
 		// So now we have the initial profit, extrapolate back to work out the
 		// interest, expenses and revenue
 		CompanyPeriodReport companyPeriodReport = new CompanyPeriodReport(company, new Date(), 1000, 0);
-		long expenses = company.getDefaultExpenseRate() * company.getAssetValue() / 100 / 4;
-		long revenues = company.getDefaultRevenueRate() * company.getAssetValue() / 100 / 4;
+		long expenses = company.getExpenseRate() * company.getAssetValue() / 100 / 4;
+		long revenues = company.getRevenueRate() * company.getAssetValue() / 100 / 4;
 		long interest = company.getDebtValue() * primeInterestRateBasisPoints / 10000 / 4;
 		long profit = revenues - expenses - interest;
 		companyPeriodReport.setStartingExpectedExpenses(expenses);
@@ -130,8 +130,8 @@ public class LinearProfitModifier implements EventProfitModifier {
 		System.out.println("Share count: " + company.getOutstandingShares());
 		System.out.println("Share value (of equity):" + (WebPageUtil.formatCurrency(company.getCapitalisation() / company.getOutstandingShares())));
 
-		System.out.println("Default revenue rate on assets: " + company.getDefaultRevenueRate());
-		System.out.println("Default expense rate on assets: " + company.getDefaultExpenseRate());
+		System.out.println("Default revenue rate on assets: " + company.getRevenueRate());
+		System.out.println("Default expense rate on assets: " + company.getExpenseRate());
 		System.out.println("Stock exchange interest rate: " + exchange.getPrimeInterestRateBasisPoints());
 
 		System.out.println("DEFAULT EARNINGS - PER QUARTER THEN PER YEAR");

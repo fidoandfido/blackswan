@@ -211,7 +211,11 @@ to access (or create) your trader profile.</p>
 			<div class="post">
 				<h2 class="title">Companies on <%= exchange.getName() %> (Showing <%= exchange.getCompanyCount() %> entries)</h2>
 				<div class="entry">
+				Stock Exchange Conditions: <%= exchange.getCurrentPeriod().getEconomicConditions() %><p>
+				Stock Exchange Prime Interest Rate: <%= exchange.getPrimeInterestRateBasisPoints() +  exchange.getCurrentPeriod().getInterestRateBasisPointsDelta() %> Basis points.			
+				
 					<table>
+					<thead>
 					<tr>
 					<td>Company</td>
 					<td>Code</td>
@@ -221,7 +225,8 @@ to access (or create) your trader profile.</p>
 					<td>Last Trade</td>
 					<td>Change</td>
 					<td></td>
-					</tr>
+					<tr>
+					</thead>
 
 <%
 					for (Company currentCompany : companyList) {

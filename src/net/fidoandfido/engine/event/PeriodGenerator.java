@@ -10,6 +10,10 @@ import net.fidoandfido.dao.StockExchangeDAO;
 import net.fidoandfido.dao.StockExchangePeriodDAO;
 import net.fidoandfido.dao.TraderDAO;
 import net.fidoandfido.dao.TraderEventDAO;
+import net.fidoandfido.engine.companymodifiers.CompanyModiferFactory;
+import net.fidoandfido.engine.companymodifiers.CompanyModifier;
+import net.fidoandfido.engine.economicmodfiers.EconomicModifier;
+import net.fidoandfido.engine.economicmodfiers.EconomicModifierFactory;
 import net.fidoandfido.model.Company;
 import net.fidoandfido.model.CompanyPeriodReport;
 import net.fidoandfido.model.ShareParcel;
@@ -118,7 +122,12 @@ public class PeriodGenerator implements Runnable {
 		// Update the stock exchange period.
 		StockExchangePeriod currentPeriod = new StockExchangePeriod(previousPeriod, currentDate, minimumEndDate);
 
+		EconomicModifier economicModifier = EconomicModifierFactory.getEconomicModifier(exchange.getEconomicModifierName());
+		economicModifier.modifiyExchangePeriod(currentPeriod, previousPeriod);
+
 		exchange.setCurrentPeriod(currentPeriod);
+
+		CompanyModifier companyModifier = CompanyModiferFactory.getCompanyModifier(exchange.getCompanyModifierName());
 
 		// Get the current period for the stock exchange.
 		// Create a period event generator...
@@ -146,14 +155,19 @@ public class PeriodGenerator implements Runnable {
 				company.setPreviousPeriodReport(currentPeriodReport);
 			}
 
+			// Update the company based on the exchange provided company stat
+			// modifier
+			companyModifier.modifyCompanyRates(company);
+			companyModifier.modifyCompanyDebts(company);
+
 			CompanyPeriodReport newPeriodReport = new CompanyPeriodReport(company, currentDate, exchange.getCompanyPeriodLength(), generation + 1);
 
 			// Calculate the expected return based on the current asset/debt and
 			// so on.
 			long primeInterestRateBasisPoints = company.getPrimeInterestRateBasisPoints();
-			long expectedExpenses = (company.getDefaultExpenseRate()) * company.getAssetValue() / 100;
-			long expectedRevenues = company.getDefaultRevenueRate() * company.getAssetValue() / 100;
-			long expectedInterest = company.getDebtValue() * primeInterestRateBasisPoints / 10000;
+			long expectedExpenses = (company.getExpenseRate() + currentPeriod.getExpenseRateDelta()) * company.getAssetValue() / 100;
+			long expectedRevenues = (company.getRevenueRate() + currentPeriod.getRevenueRateDelta()) * company.getAssetValue() / 100;
+			long expectedInterest = (company.getDebtValue()) * primeInterestRateBasisPoints / 10000;
 			long expectedProfit = expectedRevenues - expectedExpenses - expectedInterest;
 
 			// Set the expected profit data for the year.

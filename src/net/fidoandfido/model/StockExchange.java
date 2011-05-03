@@ -42,6 +42,12 @@ public class StockExchange {
 	private long defaultPrimeInterestRateBasisPoints;
 
 	@Column
+	private String economicModifierName = "";
+
+	@Column
+	private String companyModifierName = "";
+
+	@Column
 	private boolean updating = false;
 
 	@OneToOne
@@ -53,7 +59,7 @@ public class StockExchange {
 	}
 
 	public StockExchange(String name, String description, int companyCount, String eventGeneratorName, long companyPeriodLength,
-			long defaultPrimeInterestRateBasisPoints)
+			long defaultPrimeInterestRateBasisPoints, String economicModifierName, String companyModifierName)
 
 	{
 		super();
@@ -63,6 +69,8 @@ public class StockExchange {
 		this.eventGeneratorName = eventGeneratorName;
 		this.companyPeriodLength = companyPeriodLength;
 		this.defaultPrimeInterestRateBasisPoints = defaultPrimeInterestRateBasisPoints;
+		this.economicModifierName = economicModifierName;
+		this.companyModifierName = companyModifierName;
 	}
 
 	@Override
@@ -209,6 +217,51 @@ public class StockExchange {
 	 */
 	public void setCurrentPeriod(StockExchangePeriod currentPeriod) {
 		this.currentPeriod = currentPeriod;
+	}
+
+	/**
+	 * @return the modifierName
+	 */
+	public String getEconomicModifierName() {
+		return economicModifierName;
+	}
+
+	/**
+	 * @param modifierName
+	 *            the modifierName to set
+	 */
+	public void setEconomicModifierName(String modifierName) {
+		this.economicModifierName = modifierName;
+	}
+
+	/**
+	 * @return the defaultPrimeInterestRateBasisPoints
+	 */
+	public long getDefaultPrimeInterestRateBasisPoints() {
+		return defaultPrimeInterestRateBasisPoints;
+	}
+
+	/**
+	 * @param defaultPrimeInterestRateBasisPoints
+	 *            the defaultPrimeInterestRateBasisPoints to set
+	 */
+	public void setDefaultPrimeInterestRateBasisPoints(long defaultPrimeInterestRateBasisPoints) {
+		this.defaultPrimeInterestRateBasisPoints = defaultPrimeInterestRateBasisPoints;
+	}
+
+	/**
+	 * @return the companyModifierName
+	 */
+	public String getCompanyModifierName() {
+		return companyModifierName;
+	}
+
+	/**
+	 * @param companyModifierName
+	 *            the companyModifierName to set
+	 */
+	public void setCompanyModifierName(String companyModifierName) {
+		this.companyModifierName = companyModifierName;
 	}
 
 }
