@@ -12,7 +12,7 @@ import net.fidoandfido.model.Trader;
 
 import org.apache.log4j.Logger;
 
-public class ValueAI extends AITrader implements AITradeStrategy {
+public class ValueAI extends AITrader {
 
 	public static final String Name = "Value";
 	Logger logger = Logger.getLogger(getClass());
@@ -47,7 +47,7 @@ public class ValueAI extends AITrader implements AITradeStrategy {
 
 			long sharePrice = company.getLastTradePrice();
 			long expectedEarning = company.getExpectedEarningsPerShare();
-			long priceToEarningsRate = (expectedEarning / sharePrice) * 100;
+			long priceToEarningsRate = (expectedEarning * 100 / sharePrice);
 			if (priceToEarningsRate > (company.getPrimeInterestRateBasisPoints() / 100)) {
 				// This one is a buy!
 				buy(trader, company, false);

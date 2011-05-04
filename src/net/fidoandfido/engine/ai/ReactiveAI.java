@@ -8,7 +8,7 @@ import net.fidoandfido.model.Company;
 import net.fidoandfido.model.PeriodEvent;
 import net.fidoandfido.model.Trader;
 
-public class ReactiveAI extends AITrader implements AITradeStrategy {
+public class ReactiveAI extends AITrader {
 
 	public static final String Name = "Reactive";
 

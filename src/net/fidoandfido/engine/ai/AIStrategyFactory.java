@@ -2,7 +2,7 @@ package net.fidoandfido.engine.ai;
 
 public class AIStrategyFactory {
 
-	public AITradeStrategy getStrategyByName(String strategyName) {
+	public AITrader getStrategyByName(String strategyName) {
 		if (NaiveAI.Name.equals(strategyName)) {
 			return new NaiveAI();
 		}

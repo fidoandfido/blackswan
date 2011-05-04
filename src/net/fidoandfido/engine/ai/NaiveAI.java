@@ -12,7 +12,7 @@ import net.fidoandfido.model.Trader;
 
 import org.apache.log4j.Logger;
 
-public class NaiveAI extends AITrader implements AITradeStrategy {
+public class NaiveAI extends AITrader {
 
 	Logger logger = Logger.getLogger(getClass());
 

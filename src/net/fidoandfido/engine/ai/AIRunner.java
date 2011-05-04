@@ -91,9 +91,9 @@ public class AIRunner implements Runnable {
 			for (int i = 0; i < AI_TRADE_COUNT; i++) {
 				int index = aiSelector.nextInt(localList.size());
 				Trader trader = localList.get(index);
-				AITradeStrategy strategy = aiFactory.getStrategyByName(trader.getAiStrategyName());
-				logger.info("AIRunner - Performing trades: " + trader.getName() + " -- " + trader.getAiStrategyName() + " -- " + strategy.getName());
-				strategy.performTrades(trader);
+				AITrader aiTrader = aiFactory.getStrategyByName(trader.getAiStrategyName());
+				logger.info("AIRunner - Performing trades: " + trader.getName() + " -- " + aiTrader.getName());
+				aiTrader.performTrades(trader);
 				localList.remove(index);
 			}
 			HibernateUtil.commitTransaction();
