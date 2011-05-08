@@ -21,6 +21,7 @@ import net.fidoandfido.model.StockExchange;
 import net.fidoandfido.model.StockExchangePeriod;
 import net.fidoandfido.model.Trader;
 import net.fidoandfido.model.TraderEvent;
+import net.fidoandfido.util.ServerUtil;
 
 import org.apache.log4j.Logger;
 
@@ -76,9 +77,15 @@ public class PeriodGenerator implements Runnable {
 			start();
 			HibernateUtil.commitTransaction();
 
-			HibernateUtil.beginTransaction();
-			generatePeriod();
-			HibernateUtil.commitTransaction();
+			try {
+				HibernateUtil.beginTransaction();
+				generatePeriod();
+				HibernateUtil.commitTransaction();
+			} catch (Exception e) {
+				logger.error("Exception generating period for exchange: " + exchangeName);
+				ServerUtil.logError(logger, e);
+				HibernateUtil.rollbackTransaction();
+			}
 
 			HibernateUtil.beginTransaction();
 			finish();
@@ -96,6 +103,19 @@ public class PeriodGenerator implements Runnable {
 		}
 	}
 
+	/**
+	 * Generate a period for the named stock exhange for this generator.
+	 * 
+	 * This method will handle all of it's own transactions, since the process
+	 * is quite complex.
+	 * 
+	 * Basically, a transaction will start, and then the session context will be
+	 * cleared and flushed at the end of each company to ensure caches don't get
+	 * too big.
+	 * 
+	 * A single transaction will be used to ensure that any exceptions trigger a
+	 * roll back (rather than some parts already being committed!)
+	 */
 	public void generatePeriod() {
 		// Start a period. This will initialise companies reporting.
 		logger.info("Generating period reports: Retrieving exchange");
@@ -133,7 +153,10 @@ public class PeriodGenerator implements Runnable {
 		// Create a period event generator...
 		PeriodEventGenerator generator = new PeriodEventGenerator();
 		Iterable<Company> companyList = companyDAO.getCompaniesByExchange(exchange);
+
+		HibernateUtil.clearAndFlush();
 		for (Company company : companyList) {
+			company = CompanyDAO.getCompanyById(company.getId());
 			logger.info("Updating company: " + company.getName());
 			// Create a new company report entry..
 			CompanyPeriodReport currentPeriodReport = company.getCurrentPeriod();
@@ -157,6 +180,8 @@ public class PeriodGenerator implements Runnable {
 
 			// Update the company based on the exchange provided company stat
 			// modifier
+			splitStocks(company);
+
 			companyModifier.modifyCompanyRates(company);
 			companyModifier.modifyCompanyDebts(company);
 
@@ -181,8 +206,31 @@ public class PeriodGenerator implements Runnable {
 			generator.generateEvents(newPeriodReport, company, exchange);
 			company.setCurrentPeriod(newPeriodReport);
 			companyDAO.saveCompany(company);
+			HibernateUtil.clearAndFlush();
 		}
 		return;
+	}
+
+	private void splitStocks(Company company) {
+		if (company.getLastTradePrice() > company.getStockExchange().getMaxSharePrice()) {
+			// Time to split the stock!
+			// Rounding not a huge issue - the market will correct the price
+			// anyhow :)
+			long newPrice = company.getLastTradePrice() / 2;
+			long outstandingShares = company.getOutstandingShares() * 2;
+			// Now get all share parcels and update the price (and reduce the
+			// effective purchase price)
+			ShareParcelDAO shareParcelDAO = new ShareParcelDAO();
+			Iterable<ShareParcel> shareParcels = shareParcelDAO.getHoldingsByCompany(company);
+			for (ShareParcel shareParcel : shareParcels) {
+				long previousShareCount = shareParcel.getShareCount();
+				shareParcel.setShareCount(previousShareCount * 2);
+				long previousAveragePrice = shareParcel.getPurchasePrice();
+				shareParcel.setPurchasePrice(previousAveragePrice / 2);
+				shareParcelDAO.saveShareParcel(shareParcel);
+			}
+
+		}
 	}
 
 	private void distributeDividends(CompanyPeriodReport currentPeriodReport) {

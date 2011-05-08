@@ -31,10 +31,13 @@ public class HibernateUtil {
 		}
 	}
 
-	// public static void connectToDB(Map<String, String> connectionProperties) throws ConnectionException {
-	// String driverName = connectionProperties.get(HibernateDataAccessManager.DATABASE_DRIVER_NAME);
+	// public static void connectToDB(Map<String, String> connectionProperties)
+	// throws ConnectionException {
+	// String driverName =
+	// connectionProperties.get(HibernateDataAccessManager.DATABASE_DRIVER_NAME);
 	//
-	// String connectionString = connectionProperties.get(HibernateDataAccessManager.DATABASE_CONNECTION_STRING);
+	// String connectionString =
+	// connectionProperties.get(HibernateDataAccessManager.DATABASE_CONNECTION_STRING);
 	// connectionString = substitute(connectionString, "${host}",
 	// connectionProperties.get(HibernateDataAccessManager.DATABASE_HOSTNAME));
 	// connectionString = substitute(connectionString, "${database}",
@@ -72,8 +75,10 @@ public class HibernateUtil {
 	// configuration.setProperty("hibernate.c3p0.timeout", "300");
 	// configuration.setProperty("hibernate.c3p0.max_statements", "50");
 	// configuration.setProperty("hibernate.c3p0.idle_test_period", "3000");
-	// configuration.setProperty("hibernate.cache.use_second_level_cache", "false");
-	// configuration.setProperty("hibernate.cache.provider_class", "org.hibernate.cache.NoCacheProvider");
+	// configuration.setProperty("hibernate.cache.use_second_level_cache",
+	// "false");
+	// configuration.setProperty("hibernate.cache.provider_class",
+	// "org.hibernate.cache.NoCacheProvider");
 	//
 	// sessionFactory = configuration.buildSessionFactory();
 	//
@@ -83,8 +88,9 @@ public class HibernateUtil {
 	// }
 
 	/**
-	 * This method is called to completely close a connection with the database. It is used in testing to allow a single
-	 * test case object or even a single unit test method to close connections in preparation for clearing the
+	 * This method is called to completely close a connection with the database.
+	 * It is used in testing to allow a single test case object or even a single
+	 * unit test method to close connections in preparation for clearing the
 	 * databases.
 	 * 
 	 * Any pending transactions will be rolled back.
@@ -97,8 +103,8 @@ public class HibernateUtil {
 	}
 
 	/**
-	 * Return the thread for the current session. If no thread is open, it will return null. Sessions can only be opened
-	 * by beginning a transaction
+	 * Return the thread for the current session. If no thread is open, it will
+	 * return null. Sessions can only be opened by beginning a transaction
 	 */
 	public static Session getSession() throws HibernateException {
 		return threadSession.get();
@@ -107,7 +113,8 @@ public class HibernateUtil {
 	/**
 	 * Return the session for the current thread.
 	 * 
-	 * If no session exists then create a new session for this thread, and add it to the threadSession field.
+	 * If no session exists then create a new session for this thread, and add
+	 * it to the threadSession field.
 	 * 
 	 * @return
 	 */
@@ -123,8 +130,9 @@ public class HibernateUtil {
 	}
 
 	/**
-	 * This method is a convenience method to ensure that the session for the current thread is closed. This should be
-	 * called after a thread has completed any persistence work.
+	 * This method is a convenience method to ensure that the session for the
+	 * current thread is closed. This should be called after a thread has
+	 * completed any persistence work.
 	 */
 	private static void closeSession() {
 		try {
@@ -151,8 +159,9 @@ public class HibernateUtil {
 	}
 
 	/**
-	 * Commit the current transaction. Note, this will close the current session. This should be called after each unit
-	 * of work (including retreival of information!)
+	 * Commit the current transaction. Note, this will close the current
+	 * session. This should be called after each unit of work (including
+	 * retreival of information!)
 	 */
 	public static void commitTransaction() {
 		Transaction tx = threadTransaction.get();
@@ -165,7 +174,8 @@ public class HibernateUtil {
 			rollbackTransaction();
 		}
 		// For good measure, we will close the session here.
-		// A new session will be created as needed, but this will handle query resource management - no more dangling
+		// A new session will be created as needed, but this will handle query
+		// resource management - no more dangling
 		// queries!
 		closeSession();
 	}
@@ -183,5 +193,11 @@ public class HibernateUtil {
 		} finally {
 			closeSession();
 		}
+	}
+
+	public static void clearAndFlush() {
+		Session session = getSession();
+		session.clear();
+		session.flush();
 	}
 }

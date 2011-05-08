@@ -50,6 +50,12 @@ public class StockExchange {
 	@Column
 	private boolean updating = false;
 
+	/**
+	 * Maximum price a share can be before it is split 2-1.
+	 */
+	@Column
+	private long maxSharePrice = 0;
+
 	@OneToOne
 	@Cascade(value = CascadeType.ALL)
 	private StockExchangePeriod currentPeriod;
@@ -59,7 +65,7 @@ public class StockExchange {
 	}
 
 	public StockExchange(String name, String description, int companyCount, String eventGeneratorName, long companyPeriodLength,
-			long defaultPrimeInterestRateBasisPoints, String economicModifierName, String companyModifierName)
+			long defaultPrimeInterestRateBasisPoints, String economicModifierName, String companyModifierName, long maxSharePrice)
 
 	{
 		super();
@@ -71,6 +77,7 @@ public class StockExchange {
 		this.defaultPrimeInterestRateBasisPoints = defaultPrimeInterestRateBasisPoints;
 		this.economicModifierName = economicModifierName;
 		this.companyModifierName = companyModifierName;
+		this.maxSharePrice = maxSharePrice;
 	}
 
 	@Override
@@ -262,6 +269,21 @@ public class StockExchange {
 	 */
 	public void setCompanyModifierName(String companyModifierName) {
 		this.companyModifierName = companyModifierName;
+	}
+
+	/**
+	 * @return the maxSharePrice
+	 */
+	public long getMaxSharePrice() {
+		return maxSharePrice;
+	}
+
+	/**
+	 * @param maxSharePrice
+	 *            the maxSharePrice to set
+	 */
+	public void setMaxSharePrice(long maxSharePrice) {
+		this.maxSharePrice = maxSharePrice;
 	}
 
 }

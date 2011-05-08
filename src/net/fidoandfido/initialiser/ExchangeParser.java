@@ -24,6 +24,7 @@ public class ExchangeParser extends DefaultHandler {
 	private static final String STARTING_INTEREST = "interest-rate";
 	private static final String ECONOMIC_MODIFIER_NAME = "economic-modifier";
 	private static final String COMPANY_MODIFIER_NAME = "company-modifier";
+	private static final String MAX_SHARE_PRICE_ATTRIB = "max-share-price";
 
 	@Override
 	public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
@@ -35,6 +36,7 @@ public class ExchangeParser extends DefaultHandler {
 			String periodLengthString = attributes.getValue(PERIOD_LENGTH_ATTRIB);
 			String economicModifierName = attributes.getValue(ECONOMIC_MODIFIER_NAME);
 			String companyModifierName = attributes.getValue(COMPANY_MODIFIER_NAME);
+			long maxSharePrice = Long.parseLong(attributes.getValue(MAX_SHARE_PRICE_ATTRIB));
 
 			long interestRate = Long.parseLong(attributes.getValue(STARTING_INTEREST));
 			long periodLength = Constants.DEFAULT_PERIOD_LENGTH_IN_MILLIS;
@@ -47,7 +49,7 @@ public class ExchangeParser extends DefaultHandler {
 			// EventGenerator generator =
 			// EventGeneratorFactory.getGeneratorByName(eventGeneratorName);
 			StockExchange stockExchange = new StockExchange(name, description, companyCount, eventGeneratorName, periodLength, interestRate,
-					economicModifierName, companyModifierName);
+					economicModifierName, companyModifierName, maxSharePrice);
 			exchangeList.add(stockExchange);
 		}
 	}

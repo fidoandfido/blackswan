@@ -97,7 +97,7 @@ public class LinearProfitModifier implements EventProfitModifier {
 	public static void main(String argv[]) {
 		System.out.println("MODIFY - Linear Style!");
 
-		StockExchange exchange = new StockExchange("ASX", "asx", 1, "asdf", 0, 500, "", "");
+		StockExchange exchange = new StockExchange("ASX", "asx", 1, "asdf", 0, 500, "", "", 10000);
 		long assets = 100000000;
 		long debts = 50000000;
 		long shareCount = 100000;
