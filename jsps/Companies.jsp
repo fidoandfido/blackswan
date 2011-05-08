@@ -246,8 +246,8 @@ to access (or create) your trader profile.</p>
 			<div class="post">
 				<h2 class="title">Companies on <%= exchange.getName() %> (Showing <%= exchange.getCompanyCount() %> entries)</h2>
 				<div class="entry">
-				Stock Exchange Conditions: <%= exchange.getCurrentPeriod().getEconomicConditions() %><p>
-				Stock Exchange Prime Interest Rate: <%= exchange.getPrimeInterestRateBasisPoints() +  exchange.getCurrentPeriod().getInterestRateBasisPointsDelta() %> Basis points.			
+				Current Economic Conditions: <%= exchange.getCurrentPeriod().getEconomicConditions() %><p>
+				Prime Interest Rate: <%=  ( exchange.getPrimeInterestRateBasisPoints() +  exchange.getCurrentPeriod().getInterestRateBasisPointsDelta() ) / 100 %> %			
 				
 					<table>
 					<thead>
@@ -257,6 +257,7 @@ to access (or create) your trader profile.</p>
 					<td>Share<br/>Book<br/>value</td>
 					<td>Earning<br/>per<br/>share</td>
 					<td>Dividend</td>
+					<td></td>
 					<td>Last Trade</td>
 					<td>Change</td>
 					<td></td>
@@ -273,7 +274,8 @@ to access (or create) your trader profile.</p>
 					<td><%= WebPageUtil.formatCurrency(currentCompany.getShareBookValue()) %></td>
 					<td><%= WebPageUtil.formatCurrency(currentCompany.getPreviousEarningPerShare()) %></td>
 					<td><%= WebPageUtil.formatCurrency(currentCompany.getPreviousDividend()) %></td>
-					<td><%= WebPageUtil.formatCurrency(currentCompany.getLastTradePrice()) %></td>
+					<td></td>
+					<td><b><%= WebPageUtil.formatCurrency(currentCompany.getLastTradePrice()) %></b></td>
 					<td><%= WebPageUtil.formatCurrency(currentCompany.getLastTradeChange()) %></td>
 					<td><% if (currentCompany.getLastTradeChange() > 0) { %>
 						<img src="/myapp/images/arrow-up.png"/>

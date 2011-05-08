@@ -99,49 +99,55 @@ public class OrderProcessor {
 			Trader marketMaker = traderDAO.getMarketMaker();
 			long offerPrice = order.getOfferPrice();
 			Company company = order.getCompany();
+			Trader trader = order.getTrader();
 			// Market maker will accept all reasonable offers --- and any offers
 			// from ai :)
-			long maxDelta = company.getLastTradePrice() / MARKET_MAKER_DELTA_PERCENT;
-			if (maxDelta == 0) {
-				maxDelta = 1;
-			}
-			long delta = offerPrice - company.getLastTradePrice();
-			if (delta < 0) {
-				delta = delta * -1;
-			}
 
-			if (delta <= maxDelta || order.getTrader().isAITrader()) {
-				// Okay, the price is close enough, lets keep going
-				long shareCount = order.getRemainingShareCount();
-				Order marketMakerOrder = null;
+			if (!trader.isAITrader()) {
 				if (order.getOrderType().equals(OrderType.BUY)) {
-					// If they are trying to buy, make sure we have some shares
-					// to sell.
-					ShareParcel mmHoldings = shareParcelDAO.getHoldingsByTraderForCompany(marketMaker, company);
-					if (mmHoldings != null) {
-						// Make sure we have enough shares...
-						if (mmHoldings.getShareCount() <= shareCount && order.isAllowPartialOrder()) {
-							// Not enough - buy as many as we can...
-							shareCount = mmHoldings.getShareCount();
-						} else if (mmHoldings.getShareCount() <= shareCount) {
-							// Not enough, and no partial buying allowed!
-							shareCount = 0;
-						}
-						if (shareCount != 0) {
-							logger.info("Market maker is selling some shares...");
-							marketMakerOrder = new Order(marketMaker, company, shareCount, offerPrice, OrderType.SELL);
-							orderDAO.saveOrder(marketMakerOrder);
-						}
+					// For humans, to buy the offer price must be at least the
+					// last market trade
+					if (offerPrice < company.getLastTradePrice()) {
+						return;
 					}
 				} else {
-					logger.info("Market maker is buying some shares....");
-					// Market maker can *always* buy shares :)
-					marketMakerOrder = new Order(marketMaker, company, shareCount, offerPrice, OrderType.BUY);
-					orderDAO.saveOrder(marketMakerOrder);
+					// For humans, to sell the offer price must be at most the
+					// last market trade
+					if (offerPrice > company.getLastTradePrice()) {
+						return;
+					}
 				}
-				if (marketMakerOrder != null) {
-					executeTrade(order, marketMakerOrder);
+			}
+			// Okay, the price is close enough, lets keep going
+			long shareCount = order.getRemainingShareCount();
+			Order marketMakerOrder = null;
+			if (order.getOrderType().equals(OrderType.BUY)) {
+				// If they are trying to buy, make sure we have some shares
+				// to sell.
+				ShareParcel mmHoldings = shareParcelDAO.getHoldingsByTraderForCompany(marketMaker, company);
+				if (mmHoldings != null) {
+					// Make sure we have enough shares...
+					if (mmHoldings.getShareCount() <= shareCount && order.isAllowPartialOrder()) {
+						// Not enough - buy as many as we can...
+						shareCount = mmHoldings.getShareCount();
+					} else if (mmHoldings.getShareCount() <= shareCount) {
+						// Not enough, and no partial buying allowed!
+						shareCount = 0;
+					}
+					if (shareCount != 0) {
+						logger.info("Market maker is selling some shares...");
+						marketMakerOrder = new Order(marketMaker, company, shareCount, offerPrice, OrderType.SELL);
+						orderDAO.saveOrder(marketMakerOrder);
+					}
 				}
+			} else {
+				logger.info("Market maker is buying some shares....");
+				// Market maker can *always* buy shares :)
+				marketMakerOrder = new Order(marketMaker, company, shareCount, offerPrice, OrderType.BUY);
+				orderDAO.saveOrder(marketMakerOrder);
+			}
+			if (marketMakerOrder != null) {
+				executeTrade(order, marketMakerOrder);
 			}
 		}
 	}
@@ -263,9 +269,9 @@ public class OrderProcessor {
 		setOrderExecuted(buyOrder, executedDate);
 
 		if (buyerParcel == null) {
-			buyerParcel = new ShareParcel(buyer, shareCount, buyOrder.getCompany());
+			buyerParcel = new ShareParcel(buyer, shareCount, buyOrder.getCompany(), buyOrder.getOfferPrice());
 		} else {
-			buyerParcel.addShares(shareCount);
+			buyerParcel.addShares(shareCount, buyOrder.getOfferPrice());
 		}
 
 		// DAO methods to save everything...

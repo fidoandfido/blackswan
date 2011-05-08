@@ -83,7 +83,8 @@ ShareParcelDAO shareParcelDAO = new ShareParcelDAO();
 			Company: <a href="Companies.jsp?<%= Constants.COMPANY_CODE_PARM %>=<%=companyCode%>"><%= companyName %></a><br/>
 			Share count: <%= shareParcel.getShareCount() %><br/>
 			Last traded price: <%= WebPageUtil.formatCurrency(shareParcel.getCompany().getLastTradePrice()) %><br/>
-			Market Value: <%= WebPageUtil.formatCurrency(marketValue)  %><br/>
+			Purchase price (averaged):  <%= WebPageUtil.formatCurrency(shareParcel.getPurchasePrice())  %><br/>
+			Current Market Value: <%= WebPageUtil.formatCurrency(marketValue)  %><br/>
 			
 			Buy More Shares: (Max buying power at market rate: <%= trader.getAvailableCash() / shareParcel.getCompany().getLastTradePrice() %>)<br/>
 			<form action="/myapp/buyshares" method="post">

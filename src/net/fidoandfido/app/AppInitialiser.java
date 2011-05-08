@@ -249,7 +249,7 @@ public class AppInitialiser {
 				// hopefully!
 				long marketMakerCount = currentShareCount / 2;
 
-				ShareParcel mmShareParcel = new ShareParcel(marketMakerTrader, marketMakerCount, company);
+				ShareParcel mmShareParcel = new ShareParcel(marketMakerTrader, marketMakerCount, company, company.getShareBookValue());
 				shareParcelDAO.saveShareParcel(mmShareParcel);
 
 				// To vary the portfolio, we will only be giving the shares to a
@@ -265,7 +265,7 @@ public class AppInitialiser {
 				for (int j = 0; j < AIS_TO_GET_SHARES; j++) {
 					int index = aiSelectorRandom.nextInt(traderList.size());
 					Trader traderToGetShares = traderList.get(index);
-					ShareParcel shareParcel = new ShareParcel(traderToGetShares, aiShareCount, company);
+					ShareParcel shareParcel = new ShareParcel(traderToGetShares, aiShareCount, company, company.getShareBookValue());
 					shareParcelDAO.saveShareParcel(shareParcel);
 					traderList.remove(index);
 				}
@@ -303,7 +303,7 @@ public class AppInitialiser {
 
 		// If we are prefixable, *always* add a prefix if we are not suffixable,
 		// otherwise add randomly.
-		if (body.prefixable && (!body.suffixable && usePrefixRandom.nextBoolean())) {
+		if (body.prefixable && (!body.suffixable || usePrefixRandom.nextBoolean())) {
 			prefixed = true;
 			CompanyNamePrefix prefix = prefixes.get(prefixRandom.nextInt(prefixes.size()));
 			while (prefix.value == null || prefix.value.equals(body.value)) {

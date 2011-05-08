@@ -93,25 +93,27 @@ public class MarketMakerRunner implements Runnable {
 				orderDAO.saveOrder(order);
 				continue;
 			}
+
 			long offerPrice = order.getOfferPrice();
 			Company company = order.getCompany();
-			// Will try to accept any order within... say... 10% of the current
-			// price.
-			long maxDelta = company.getLastTradePrice() / 10;
-			if (maxDelta == 0) {
-				maxDelta = 1;
+			// Will accept any order by an AI
+			Trader trader = order.getTrader();
+			if (!trader.isAITrader()) {
+				if (order.getOrderType().equals(OrderType.BUY)) {
+					// For humans, to buy the offer price must be at least the
+					// last market trade
+					if (offerPrice < company.getLastTradePrice()) {
+						continue;
+					}
+				} else {
+					// For humans, to sell the offer price must be at most the
+					// last market trade
+					if (offerPrice > company.getLastTradePrice()) {
+						continue;
+					}
+				}
 			}
 
-			// Get the delta (as a positive price)
-			long delta = offerPrice - company.getLastTradePrice();
-			if (delta < 0) {
-				delta = delta * -1;
-			}
-
-			if (delta > maxDelta) {
-				continue;
-			}
-			// Okay, the price is close enough, lets keep going
 			long shareCount = order.getRemainingShareCount();
 
 			Order marketMakerOrder;

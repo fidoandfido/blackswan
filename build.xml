@@ -109,7 +109,10 @@
 	</target>	
 	
 	<target name="deploy" depends="stop, remove, install, start">
-		</target>
+			</target>
+		
+	<target name="installandrun" depends="install, start">
+			</target>
 	
     <target name="install" description="Install application in Tomcat"
         depends="make_war">

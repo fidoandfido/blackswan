@@ -32,15 +32,19 @@ public class ShareParcel {
 	@ManyToOne
 	private Company company;
 
+	@Column
+	private long purchasePrice = 0;
+
 	public ShareParcel() {
 		// Default constructor required for persistence
 	}
 
-	public ShareParcel(Trader trader, long shareCount, Company company) {
+	public ShareParcel(Trader trader, long shareCount, Company company, long purchasePrice) {
 		super();
 		this.trader = trader;
 		this.shareCount = shareCount;
 		this.company = company;
+		this.purchasePrice = purchasePrice;
 	}
 
 	/**
@@ -96,6 +100,21 @@ public class ShareParcel {
 	}
 
 	/**
+	 * @return the purchasePrice
+	 */
+	public long getPurchasePrice() {
+		return purchasePrice;
+	}
+
+	/**
+	 * @param purchasePrice
+	 *            the purchasePrice to set
+	 */
+	public void setPurchasePrice(long purchasePrice) {
+		this.purchasePrice = purchasePrice;
+	}
+
+	/**
 	 * @param shareCount
 	 *            the shareCount to set
 	 */
@@ -107,8 +126,14 @@ public class ShareParcel {
 		this.shareCount -= sharesToRemove;
 	}
 
-	public void addShares(long sharesToAdd) {
+	public void addShares(long sharesToAdd, long price) {
+		long originalValue = shareCount * purchasePrice;
+		long newValue = (sharesToAdd * price) + originalValue;
+
 		this.shareCount += sharesToAdd;
+		// Update the purchased price.
+		purchasePrice = newValue / this.shareCount;
+
 	}
 
 }

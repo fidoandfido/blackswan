@@ -14,7 +14,6 @@ import net.fidoandfido.model.Order;
 import net.fidoandfido.model.ShareParcel;
 import net.fidoandfido.model.StockExchange;
 import net.fidoandfido.model.Trader;
-import net.fidoandfido.util.ServerUtil;
 
 import org.apache.log4j.Logger;
 
@@ -109,23 +108,25 @@ public class AISeller {
 
 			HibernateUtil.beginTransaction();
 			List<Trader> aiTraders = traderDAO.getAITraderList();
-
-			List<Company> companyList = companyDAO.getCompanyList();
-
+			HibernateUtil.commitTransaction();
 			for (Trader trader : aiTraders) {
-
+				HibernateUtil.beginTransaction();
+				// load the trader in the current hibernate context
+				trader = traderDAO.getTraderByName(trader.getName());
 				AITrader aiTrader = aiFactory.getStrategyByName(trader.getAiStrategyName());
 				aiTrader.setExecutor(new SellExecutor());
+				List<Company> companyList = companyDAO.getCompanyList();
 				for (Company company : companyList) {
 					aiTrader.sell(trader, company, true);
 				}
+				HibernateUtil.commitTransaction();
 			}
-			HibernateUtil.commitTransaction();
 			logger.info("AIRunner - processing complete");
 		} catch (Exception e) {
 			HibernateUtil.rollbackTransaction();
 			// logger.error("AI Runner - exception thrown! " + e.getMessage());
-			ServerUtil.logError(logger, e);
+			e.printStackTrace();
+			// ServerUtil.logError(logger, e);
 		} finally {
 			logger.info("AI runner - processing finished");
 		}

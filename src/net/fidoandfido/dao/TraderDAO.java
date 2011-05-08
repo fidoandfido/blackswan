@@ -14,7 +14,6 @@ public class TraderDAO {
 	public void saveTrader(Trader trader) {
 		Session session = HibernateUtil.getSession();
 		session.saveOrUpdate(trader);
-
 	}
 
 	public Trader getMarketMaker() {
