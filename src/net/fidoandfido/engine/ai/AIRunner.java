@@ -67,8 +67,10 @@ public class AIRunner implements Runnable {
 			AIStrategyFactory aiFactory = new AIStrategyFactory();
 			List<Trader> aiTraders = traderDAO.getAITraderList();
 			for (Trader trader : aiTraders) {
-				logger.info("AIRunner - removing outstanding orders: " + trader.getName());
-				List<Order> closedOrders = OrderDAO.getClosedOrdersByTrader(trader);
+				List<Order> closedOrders = OrderDAO.getOpenOrdersByTrader(trader);
+				if (closedOrders.size() > 0) {
+					logger.info("AIRunner - removing outstanding orders: " + trader.getName());
+				}
 				for (Order order : closedOrders) {
 					OrderDAO.deleteOrder(order);
 				}
