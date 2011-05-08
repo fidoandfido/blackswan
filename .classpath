@@ -5,7 +5,11 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="lib_tomcat/servlet-api.jar"/>
 	<classpathentry kind="lib" path="lib_hibernate/hibernate-annotations.jar"/>
-	<classpathentry kind="lib" path="lib_hibernate/hibernate3.jar"/>
+	<classpathentry kind="lib" path="lib_hibernate/hibernate3.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="file:/usr/local/java/hibernate-distribution-3.6.1.Final/documentation/javadocs/"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="lib" path="lib_hibernate/log4j-1.2.13.jar"/>
 	<classpathentry kind="lib" path="lib_hibernate/hibernate-jpa-2.0-api-1.0.0.Final.jar"/>
 	<classpathentry kind="lib" path="lib_hibernate/antlr-2.7.6.jar"/>

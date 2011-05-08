@@ -249,8 +249,8 @@
         runningExpenses bigint,
         runningInterest bigint,
         announcementType varchar(255),
-        company_id varchar(255),
         company_period_report varchar(255),
+        company_id varchar(255),
         primary key (period_event_id)
     );
 
@@ -263,8 +263,8 @@
         message varchar(255),
         eventType integer,
         forecastType varchar(255),
-        company_id varchar(255),
         company_period_report varchar(255),
+        company_id varchar(255),
         primary key (period_rumour_id)
     );
 
@@ -359,9 +359,9 @@
         shareCount bigint,
         sharePrice bigint,
         date datetime,
+        buyer_trader_id varchar(255),
         seller_trader_id varchar(255),
         company_company_id varchar(255),
-        buyer_trader_id varchar(255),
         primary key (trade_record_id)
     );
 
@@ -386,8 +386,8 @@
         startingCash bigint,
         endingCash bigint,
         company_company_id varchar(255),
-        item_reputation_item_id varchar(255),
         trader_trader_id varchar(255),
+        item_reputation_item_id varchar(255),
         primary key (trader_id)
     );
 
