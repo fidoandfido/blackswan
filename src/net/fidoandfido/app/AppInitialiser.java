@@ -291,48 +291,63 @@ public class AppInitialiser {
 		periodReport.setStartingExpectedProfit(profit);
 	}
 
+	// HashSets to ensure company name and code uniqueness.
+	private Set<String> codes = new HashSet<String>();
+	private Set<String> names = new HashSet<String>();
+
 	public Company getNewCompany() {
-		CompanyNameBody body = bodies.get(bodyRandom.nextInt(bodies.size()));
-		while (body.value == null) {
+		String name = "";
+		String code = "";
+		CompanyNameBody body = null;
+		boolean unique = false;
+
+		while (!unique) {
 			body = bodies.get(bodyRandom.nextInt(bodies.size()));
+			boolean prefixed = false;
+			code = body.code;
+			name = body.value;
+
+			// If we are prefixable, *always* add a prefix if we are not
+			// suffixable,
+			// otherwise add randomly.
+			if (body.prefixable && (!body.suffixable || usePrefixRandom.nextBoolean())) {
+				prefixed = true;
+				CompanyNamePrefix prefix = prefixes.get(prefixRandom.nextInt(prefixes.size()));
+				while (prefix.value.equals(body.value)) {
+					prefix = prefixes.get(prefixRandom.nextInt(prefixes.size()));
+				}
+				if (prefix.spaceAllowed && (!prefix.spaceOptional || useSpace.nextBoolean())) {
+					name = prefix.value + " " + body.value;
+				} else {
+					name = prefix.value + body.value;
+				}
+				code = prefix.code + code;
+			}
+
+			// If we are suffixable, always add if we don't have a prefix,
+			// otherwise
+			// add randomly.
+			if (body.suffixable && (!prefixed || suffixRandom.nextBoolean())) {
+				CompanyNameSuffix suffix = suffixes.get(suffixRandom.nextInt(suffixes.size()));
+				if (suffix.spaceAllowed && (!suffix.spaceOptional || useSpace.nextBoolean())) {
+					name = name + " " + suffix.value;
+				} else {
+					name = name + suffix.value;
+				}
+				code = code + suffix.code;
+			}
+			code = fixCode(code);
+			if (names.contains(name)) {
+				unique = false;
+			}
+			names.add(name);
 		}
 
-		boolean prefixed = false;
-		String name = body.value;
-		String code = body.code;
-
-		// If we are prefixable, *always* add a prefix if we are not suffixable,
-		// otherwise add randomly.
-		if (body.prefixable && (!body.suffixable || usePrefixRandom.nextBoolean())) {
-			prefixed = true;
-			CompanyNamePrefix prefix = prefixes.get(prefixRandom.nextInt(prefixes.size()));
-			while (prefix.value == null || prefix.value.equals(body.value)) {
-				prefix = prefixes.get(prefixRandom.nextInt(prefixes.size()));
-			}
-			if (prefix.spaceAllowed && (!prefix.spaceOptional || useSpace.nextBoolean())) {
-				name = prefix.value + " " + body.value;
-			} else {
-				name = prefix.value + body.value;
-			}
-			code = prefix.code + code;
-		}
-
-		// If we are suffixable, always add if we don't have a prefix, otherwise
-		// add randomly.
-		if (body.suffixable && (!prefixed || suffixRandom.nextBoolean())) {
-			CompanyNameSuffix suffix = suffixes.get(suffixRandom.nextInt(suffixes.size()));
-			if (suffix.spaceAllowed && (!suffix.spaceOptional || useSpace.nextBoolean())) {
-				name = name + " " + suffix.value;
-			} else {
-				name = name + suffix.value;
-			}
-			code = code + suffix.code;
-		}
-		code = fixCode(code);
-
+		// Can't be null - must drop through while loop at least once.
+		@SuppressWarnings("null")
 		String sector = body.sector;
 		String modifierName = body.strategy;
-
+		//
 		// At the moment, companies start out all the same.
 		// This should be tweaked!!!
 		long assets = /*			*/100000000; // formatting retarded for clarity!
@@ -353,8 +368,6 @@ public class AppInitialiser {
 		}
 		return company;
 	}
-
-	private Set<String> codes = new HashSet<String>();
 
 	private String fixCode(String originalCode) {
 		if (originalCode.length() < CODE_LENGTH) {
