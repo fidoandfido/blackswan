@@ -49,25 +49,11 @@
 				<li>
 					Trader Name: <%=currentTrader.getName()%><br/>
 					Trader cash: <%=currentTrader.getCash()%><br/>
+					
 <%
-	ShareParcelDAO shareParcelDAO = new ShareParcelDAO();
-	Iterable<ShareParcel> holdings = shareParcelDAO.getHoldingsByTrader(currentTrader);
-		if (holdings != null && holdings.iterator().hasNext()) {
+	if (currentTrader.isAITrader()) {
 %>
-					Holdings:<br>
-					<ul>
-<%
-	for (ShareParcel shareParcel : holdings) {
-%>
-						<li><%=shareParcel.getShareCount()%> of <%=shareParcel.getCompany().getName()%></li>
-<%
-	}
-%>	
-					</ul>
-<%
-	} else {
-%>
-					No Holdings.
+					AI Trader - Strategy: <%= currentTrader.getAiStrategyName() %><br/>
 <%
 	}
 %>
