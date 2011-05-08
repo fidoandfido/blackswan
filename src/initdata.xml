@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <data>
 
-<exchange name="ASX" company-count="200" event-generator="cyclicEvents" description="ASX: The big one." period-length-mins="60" interest-rate="500" economic-modifier="GENTLE_MODIFIER" company-modifier="GENTLE_COMPANY_MODIFIER" max-share-price="10000"/>
+<exchange name="ASX" company-count="200" event-generator="cyclicEvents" description="ASX: The big one." period-length-mins="2" interest-rate="500" economic-modifier="GENTLE_MODIFIER" company-modifier="GENTLE_COMPANY_MODIFIER" max-share-price="10000"/>
 <!--<exchange name="SX1" company-count="10" event-generator="cyclicEvents" description="The SX1 - Or stock exchange 1 - is a simple stock exchange where companies 'play by the rules'. It is a safe, black swan free exchange that anyone can get involved in." interest-rate="500"/>-->
 <!--<exchange name="MX" company-count="20" event-generator="cyclicEvents" description="The MX is the mining exchange. A little volatility here - mainly from companies that strike it big in their mines, and then lose it all if their mines run out." interest-rate="500"/>-->
 
@@ -50,62 +50,69 @@
 <prefix value="Kirby" space="yes" code="KB"/>
 <prefix value="Baxter" space="yes" code="BX"/>
 <prefix value="Red Dogs" space="yes" code="RD"/>
+<prefix value="Max" space="optional" code="MX"/>
 
 
-<body value="Printing" prefixable="yes" suffixable="yes" sector="logistics" code="PRI" strategy="linear" />
-<body value="Logistics" prefixable="yes" suffixable="yes" sector="logistics" code="LOG" strategy="linear" />
-<body value="Biotic" prefixable="yes" suffixable="yes" sector="pharmaceuticals" code="BIO" strategy="linear" />
-<body value="Inform" prefixable="yes" suffixable="yes" sector="IT" code="INF" strategy="linear" />
-<body value="Data" prefixable="yes" suffixable="yes" sector="IT" code="DAT" strategy="linear" />
-<body value="Solar" prefixable="yes" suffixable="yes" sector="aerospace" code="SOL" strategy="linear" />
-<body value="Energy" prefixable="yes" suffixable="yes" sector="energy" code="ENR" strategy="linear" />
+
+
 <body value="Aerospace" prefixable="yes" suffixable="no" sector="aerospace" code="AER" strategy="linear" />
+<body value="Apparel" prefixable="yes" suffixable="yes" sector="apparel" code="APP" strategy="linear" />
+<body value="Audio" prefixable="yes" suffixable="yes" sector="entertainment" code="AUD" strategy="linear" />
+<body value="Bank" prefixable="yes" suffixable="yes" sector="finance" code="BAN" strategy="linear" />
+<body value="Beverages" prefixable="yes" suffixable="yes" sector="produce" code="BEV" strategy="linear" />
+<body value="Biotic" prefixable="yes" suffixable="yes" sector="pharmaceuticals" code="BIO" strategy="linear" />
+<body value="Circuits" prefixable="yes" suffixable="yes" sector="IT" code="CIR" strategy="linear" />
+<body value="Data" prefixable="yes" suffixable="yes" sector="IT" code="DAT" strategy="linear" />
+<body value="Dyno" prefixable="yes" suffixable="yes" sector="manufacturing" code="DYN" strategy="linear" />
+<body value="Electro" prefixable="yes" suffixable="yes" sector="IT" code="ELE" strategy="linear" />
+<body value="Energy" prefixable="yes" suffixable="yes" sector="energy" code="ENR" strategy="linear" />
+<body value="Explorers" prefixable="yes" suffixable="yes" sector="resources" code="EXP" strategy="linear" />
+<body value="Exports" prefixable="yes" suffixable="yes" sector="logistics" code="EXP" strategy="linear" />
+<body value="Finance" prefixable="yes" suffixable="yes" sector="finance" code="BAN" strategy="linear" />
+<body value="Financial" prefixable="yes" suffixable="yes" sector="finance" code="FIN" strategy="linear" />
+<body value="Foods" prefixable="yes" suffixable="yes" sector="produce" code="FOD" strategy="linear" />
+<body value="Health" prefixable="yes" suffixable="yes" sector="logistics" code="HEA" strategy="linear" />
+<body value="Holdings" prefixable="yes" suffixable="yes" sector="finance" code="HOL" strategy="linear" />
+<body value="Imports" prefixable="yes" suffixable="yes" sector="logistics" code="IMP" strategy="linear" />
+<body value="Industrial" prefixable="yes" suffixable="yes" sector="manufacturing" code="IND" strategy="linear" />
+<body value="Inform" prefixable="yes" suffixable="yes" sector="IT" code="INF" strategy="linear" />
+<body value="Information" prefixable="yes" suffixable="yes" sector="IT" code="INF" strategy="linear" />
+<body value="Innovations" prefixable="yes" suffixable="yes" sector="manufacturing" code="INN" strategy="linear" />
+<body value="Insurance" prefixable="yes" suffixable="yes" sector="finance" code="INS" strategy="linear" />
+<body value="Laboratories" prefixable="yes" suffixable="yes" sector="research" code="LAB" strategy="linear" />
+<body value="Logistics" prefixable="yes" suffixable="yes" sector="logistics" code="LOG" strategy="linear" />
+<body value="Manufacturing" prefixable="yes" suffixable="yes" sector="manufacturing" code="MFG" strategy="linear" />
+<body value="Materials" prefixable="yes" suffixable="yes" sector="manufacturing" code="MAT" strategy="linear" />
+<body value="Med" prefixable="yes" suffixable="yes" sector="pharmaceuticals" code="MED" strategy="linear" />
+<body value="Media" prefixable="yes" suffixable="yes" sector="media" code="MDA" strategy="linear" />
+<body value="Medical" prefixable="yes" suffixable="yes" sector="pharmaceuticals" code="MDL" strategy="linear" />
+<body value="MicroSystems" prefixable="yes" suffixable="yes" sector="IT" code="MIC" strategy="linear" />
+<body value="Mining" prefixable="yes" suffixable="yes" sector="mining" code="MIN" strategy="linear" />
 <body value="Motors" prefixable="yes" suffixable="no" sector="motor vehicles" code="MOT" strategy="linear" />
 <body value="Nano" prefixable="yes" suffixable="yes" sector="manufacturing" code="NAN" strategy="linear" />
-<body value="Online" prefixable="yes" suffixable="yes" sector="IT" code="ONL" strategy="linear" />
-<body value="Circuits" prefixable="yes" suffixable="yes" sector="IT" code="CIR" strategy="linear" />
-<body value="Med" prefixable="yes" suffixable="yes" sector="pharmaceuticals" code="MED" strategy="linear" />
-<body value="Robotic" prefixable="yes" suffixable="yes" sector="manufacturing" code="ROB" strategy="linear" />
-<body value="Exports" prefixable="yes" suffixable="yes" sector="logistics" code="EXP" strategy="linear" />
-<body value="Security" prefixable="yes" suffixable="yes" sector="security" code="SEC" strategy="linear" />
-<body value="Systems" prefixable="yes" suffixable="yes" sector="IT" code="SYS" strategy="linear" />
-<body value="Financial" prefixable="yes" suffixable="yes" sector="finance" code="FIN" strategy="linear" />
-<body value="Industrial" prefixable="yes" suffixable="yes" sector="manufacturing" code="IND" strategy="linear" />
-<body value="Media" prefixable="yes" suffixable="yes" sector="media" code="MDA" strategy="linear" />
-<body value="Materials" prefixable="yes" suffixable="yes" sector="manufacturing" code="MAT" strategy="linear" />
-<body value="Foods" prefixable="yes" suffixable="yes" sector="produce" code="FOD" strategy="linear" />
-<body value="Networks" prefixable="yes" suffixable="yes" sector="IT" code="NET" strategy="linear" />
-<body value="Shipping" prefixable="yes" suffixable="yes" sector="logistics" code="SHP" strategy="linear" />
-<body value="Finance" prefixable="yes" suffixable="yes" sector="finance" code="BAN" strategy="linear" />
-<body value="Bank" prefixable="yes" suffixable="yes" sector="finance" code="BAN" strategy="linear" />
-<body value="Tools" prefixable="yes" suffixable="yes" sector="manufacturing" code="TLS" strategy="linear" />
-<body value="Medical" prefixable="yes" suffixable="yes" sector="pharmaceuticals" code="MDL" strategy="linear" />
-<body value="Publishing" prefixable="yes" suffixable="yes" sector="media" code="PBL" strategy="linear" />
-<body value="Audio" prefixable="yes" suffixable="yes" sector="entertainment" code="AUD" strategy="linear" />
-<body value="Health" prefixable="yes" suffixable="yes" sector="logistics" code="HEA" strategy="linear" />
-<body value="Imports" prefixable="yes" suffixable="yes" sector="logistics" code="IMP" strategy="linear" />
-<body value="Apparel" prefixable="yes" suffixable="yes" sector="apparel" code="APP" strategy="linear" />
-<body value="Petroleum" prefixable="yes" suffixable="yes" sector="resources" code="PET" strategy="linear" />
-<body value="Explorers" prefixable="yes" suffixable="yes" sector="resources" code="EXP" strategy="linear" />
-<body value="Studios" prefixable="yes" suffixable="yes" sector="entertainment" code="STU" strategy="linear" />
-<body value="Insurance" prefixable="yes" suffixable="yes" sector="finance" code="INS" strategy="linear" />
-<body value="MicroSystems" prefixable="yes" suffixable="yes" sector="IT" code="MIC" strategy="linear" />
-<body value="Software" prefixable="yes" suffixable="yes" sector="IT" code="SOF" strategy="linear" />
-<body value="Manufacturing" prefixable="yes" suffixable="yes" sector="manufacturing" code="MFG" strategy="linear" />
-<body value="Telecommunications" prefixable="yes" suffixable="yes" sector="IT" code="TLC" strategy="linear" />
-<body value="Innovations" prefixable="yes" suffixable="yes" sector="manufacturing" code="INN" strategy="linear" />
-<body value="Electro" prefixable="yes" suffixable="yes" sector="IT" code="ELE" strategy="linear" />
-<body value="Dyno" prefixable="yes" suffixable="yes" sector="manufacturing" code="DYN" strategy="linear" />
-<body value="Radio" prefixable="yes" suffixable="yes" sector="media" code="RAD" strategy="linear" />
 <body value="Network" prefixable="yes" suffixable="yes" sector="media" code="NET" strategy="linear" />
-<body value="Beverages" prefixable="yes" suffixable="yes" sector="produce" code="BEV" strategy="linear" />
-<body value="Sporting" prefixable="yes" suffixable="yes" sector="apparel" code="SPO" strategy="linear" />
-<body value="Laboratories" prefixable="yes" suffixable="yes" sector="research" code="LAB" strategy="linear" />
-<body value="Sky" prefixable="yes" suffixable="yes" sector="logistics" code="SKY" strategy="linear" />
-<body value="Mining" prefixable="yes" suffixable="yes" sector="mining" code="MIN" strategy="linear" />
-<body value="Resources" prefixable="yes" suffixable="yes" sector="resources" code="RES" strategy="linear" />
+<body value="Networks" prefixable="yes" suffixable="yes" sector="IT" code="NET" strategy="linear" />
+<body value="Robotic" prefixable="yes" suffixable="yes" sector="manufacturing" code="ROB" strategy="linear" />
+<body value="Online" prefixable="yes" suffixable="yes" sector="IT" code="ONL" strategy="linear" />
+<body value="Petroleum" prefixable="yes" suffixable="yes" sector="resources" code="PET" strategy="linear" />
+<body value="Printing" prefixable="yes" suffixable="yes" sector="logistics" code="PRI" strategy="linear" />
+<body value="Publishing" prefixable="yes" suffixable="yes" sector="media" code="PBL" strategy="linear" />
 <body value="Racing" prefixable="yes" suffixable="yes" sector="entertainment" code="RAC" strategy="linear" />
+<body value="Radio" prefixable="yes" suffixable="yes" sector="media" code="RAD" strategy="linear" />
+<body value="Resources" prefixable="yes" suffixable="yes" sector="resources" code="RES" strategy="linear" />
+<body value="Security" prefixable="yes" suffixable="yes" sector="security" code="SEC" strategy="linear" />
+<body value="Shipping" prefixable="yes" suffixable="yes" sector="logistics" code="SHP" strategy="linear" />
+<body value="Software" prefixable="yes" suffixable="yes" sector="IT" code="SOF" strategy="linear" />
+<body value="Solar" prefixable="yes" suffixable="yes" sector="aerospace" code="SOL" strategy="linear" />
+<body value="Sporting" prefixable="yes" suffixable="yes" sector="apparel" code="SPO" strategy="linear" />
+<body value="Sky" prefixable="yes" suffixable="yes" sector="logistics" code="SKY" strategy="linear" />
+<body value="Studios" prefixable="yes" suffixable="yes" sector="entertainment" code="STU" strategy="linear" />
+<body value="Systems" prefixable="yes" suffixable="yes" sector="IT" code="SYS" strategy="linear" />
+<body value="Telecommunications" prefixable="yes" suffixable="yes" sector="IT" code="TLC" strategy="linear" />
+<body value="Tools" prefixable="yes" suffixable="yes" sector="manufacturing" code="TLS" strategy="linear" />
 
+<suffix value="Consolidated" space="yes" code="CN"/>
+<suffix value="Group" space="yes" code="GP"/>
 <suffix value="United" space="yes" code="UN"/>
 <suffix value=".Com" space="no" code="CO"/>
 <suffix value="Corp" space="yes" code="CO"/>
@@ -115,7 +122,7 @@
 <suffix value="One" space="optional" code="ON"/>
 <suffix value="Research" space="yes" code="RS"/>
 <suffix value="USA" space="yes" code="US"/>
-<suffix value="Ltd." space="optional" code="LT"/>
+<suffix value="Ltd." space="yes" code="LT"/>
 <suffix value="Net" space="optional" code="NE"/>
 <suffix value="Tech" space="optional" code="TE"/>
 <suffix value="Labs" space="optional" code="LA"/>
