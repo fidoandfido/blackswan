@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <data>
 
-<exchange name="ASX" company-count="200" event-generator="cyclicEvents" description="ASX: The big one." period-length-mins="2" interest-rate="500" economic-modifier="GENTLE_MODIFIER" company-modifier="GENTLE_COMPANY_MODIFIER" max-share-price="10000"/>
+<exchange name="ASX" company-count="200" event-generator="cyclicEvents" description="ASX: The big one." period-length-mins="60" interest-rate="500" economic-modifier="GENTLE_MODIFIER" company-modifier="GENTLE_COMPANY_MODIFIER" max-share-price="10000"/>
+<exchange name="MX" company-count="100" event-generator="cyclicEvents" description="MX: Traditional mining exchange." period-length-mins="60" interest-rate="500" economic-modifier="GENTLE_MODIFIER" company-modifier="GENTLE_COMPANY_MODIFIER" max-share-price="10000"/>
 <!--<exchange name="SX1" company-count="10" event-generator="cyclicEvents" description="The SX1 - Or stock exchange 1 - is a simple stock exchange where companies 'play by the rules'. It is a safe, black swan free exchange that anyone can get involved in." interest-rate="500"/>-->
-<!--<exchange name="MX" company-count="20" event-generator="cyclicEvents" description="The MX is the mining exchange. A little volatility here - mainly from companies that strike it big in their mines, and then lose it all if their mines run out." interest-rate="500"/>-->
 
 <trader name="Fred" strategy="Value"/>
 <trader name="Wilma" strategy="LongTerm"/>
