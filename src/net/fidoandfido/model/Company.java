@@ -19,6 +19,10 @@ import org.hibernate.annotations.GenericGenerator;
 @Table(name = "Company")
 public class Company {
 
+	public static final String DEFAULT_COMPANY_STATUS = "Trading";
+	public static final String INSOLVENT_COMPANY_STATUS = "Insolvent";
+	public static final String UNLISTED_COMPANY_STATUS = "Unlisted";
+
 	@Id
 	@Column(name = "company_id")
 	@GeneratedValue(generator = "uuid")
@@ -171,6 +175,9 @@ public class Company {
 	@Column
 	private long remainingPeriodsOfDarkAge = 0;
 
+	@Column
+	private String companyStatus;
+
 	public Company() {
 		// Default constructor for persistence
 	}
@@ -187,6 +194,7 @@ public class Company {
 		this.dividendRate = dividendRate;
 		this.revenueRate = defaultRevenueRate;
 		this.expenseRate = defaultExpenseRate;
+		companyStatus = DEFAULT_COMPANY_STATUS;
 	}
 
 	/*
@@ -666,6 +674,21 @@ public class Company {
 	 */
 	public void setRemainingPeriodsOfDarkAge(long remainingPeriodsOfDarkAge) {
 		this.remainingPeriodsOfDarkAge = remainingPeriodsOfDarkAge;
+	}
+
+	/**
+	 * @return the companyStatus
+	 */
+	public String getCompanyStatus() {
+		return companyStatus;
+	}
+
+	/**
+	 * @param companyStatus
+	 *            the companyStatus to set
+	 */
+	public void setCompanyStatus(String companyStatus) {
+		this.companyStatus = companyStatus;
 	}
 
 }

@@ -6,7 +6,15 @@ import net.fidoandfido.dao.HibernateUtil;
 import net.fidoandfido.dao.StockExchangeDAO;
 import net.fidoandfido.engine.event.PeriodGenerator;
 
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
+
 public class GeneratePeriodApp {
+
+	static {
+		Logger logger = Logger.getRootLogger();
+		logger.setLevel(Level.INFO);
+	}
 
 	public static void main(String argv[]) {
 

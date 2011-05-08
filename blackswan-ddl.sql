@@ -5,11 +5,11 @@
 
     alter table Company 
         drop 
-        foreign key FK9BDFD45D3AD658EE;
+        foreign key FK9BDFD45D912EEC1A;
 
     alter table Company 
         drop 
-        foreign key FK9BDFD45D912EEC1A;
+        foreign key FK9BDFD45D3AD658EE;
 
     alter table CompanyPeriodReport 
         drop 
@@ -184,9 +184,10 @@
         previousDividend bigint,
         remainingPeriodsOfGoldenAge bigint,
         remainingPeriodsOfDarkAge bigint,
-        stock_exchange_id varchar(255),
-        current_period varchar(255),
+        companyStatus varchar(255),
         previous_period varchar(255),
+        current_period varchar(255),
+        stock_exchange_id varchar(255),
         primary key (company_id)
     );
 
@@ -262,8 +263,8 @@
         message varchar(255),
         eventType integer,
         forecastType varchar(255),
-        company_period_report varchar(255),
         company_id varchar(255),
+        company_period_report varchar(255),
         primary key (period_rumour_id)
     );
 
@@ -317,6 +318,7 @@
         economicModifierName varchar(255),
         companyModifierName varchar(255),
         updating bit,
+        maxSharePrice bigint,
         currentPeriod_stock_exchange_id varchar(255),
         primary key (stock_exchange_id)
     );
@@ -358,8 +360,8 @@
         sharePrice bigint,
         date datetime,
         seller_trader_id varchar(255),
-        buyer_trader_id varchar(255),
         company_company_id varchar(255),
+        buyer_trader_id varchar(255),
         primary key (trade_record_id)
     );
 
@@ -383,9 +385,9 @@
         amountTransferred bigint,
         startingCash bigint,
         endingCash bigint,
+        company_company_id varchar(255),
         item_reputation_item_id varchar(255),
         trader_trader_id varchar(255),
-        company_company_id varchar(255),
         primary key (trader_id)
     );
 
@@ -411,16 +413,16 @@
         references CompanyPeriodReport (company_period_report_id);
 
     alter table Company 
-        add index FK9BDFD45D3AD658EE (previous_period), 
-        add constraint FK9BDFD45D3AD658EE 
-        foreign key (previous_period) 
-        references CompanyPeriodReport (company_period_report_id);
-
-    alter table Company 
         add index FK9BDFD45D912EEC1A (stock_exchange_id), 
         add constraint FK9BDFD45D912EEC1A 
         foreign key (stock_exchange_id) 
         references StockExchange (stock_exchange_id);
+
+    alter table Company 
+        add index FK9BDFD45D3AD658EE (previous_period), 
+        add constraint FK9BDFD45D3AD658EE 
+        foreign key (previous_period) 
+        references CompanyPeriodReport (company_period_report_id);
 
     alter table CompanyPeriodReport 
         add index FKF12227522B724E8D (company_id), 

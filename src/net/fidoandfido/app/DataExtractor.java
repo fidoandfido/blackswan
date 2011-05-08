@@ -68,6 +68,10 @@ public class DataExtractor {
 			Iterable<Company> companies = companyDAO.getCompaniesByExchange(stockExchange);
 			for (Company company : companies) {
 				System.out.println(company.getName());
+				System.out.println("Shares: " + company.getOutstandingShares());
+				System.out.println("Share price: " + company.getLastTradePrice());
+				System.out.println("Last profit: " + company.getPreviousProfit());
+				System.out.println("Assets: " + company.getAssetValue());
 			}
 
 		}

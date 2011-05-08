@@ -29,14 +29,6 @@ public class PeriodGenerator implements Runnable {
 
 	Logger logger = Logger.getLogger(getClass());
 
-	public static void main(String argv[]) {
-		HibernateUtil.connectToDB();
-		PeriodGenerator generator = new PeriodGenerator("ASX");
-		HibernateUtil.beginTransaction();
-		generator.generatePeriod();
-		HibernateUtil.commitTransaction();
-	}
-
 	private TraderDAO traderDAO;
 	private ShareParcelDAO shareParcelDAO;
 	private CompanyDAO companyDAO;
@@ -131,7 +123,7 @@ public class PeriodGenerator implements Runnable {
 		StockExchangePeriod previousPeriod = exchange.getCurrentPeriod();
 		if (currentDate.before(previousPeriod.getMinimumEndDate())) {
 			// Too soon for a new period!
-			logger.info("Too soon to generate a new period for " + exchangeName);
+			logger.info("Too soon to generate a new period for " + exchangeName + " (Must be after: " + previousPeriod.getMinimumEndDate() + ")");
 			return;
 		}
 		previousPeriod.close(currentDate);
@@ -154,7 +146,6 @@ public class PeriodGenerator implements Runnable {
 		PeriodEventGenerator generator = new PeriodEventGenerator();
 		Iterable<Company> companyList = companyDAO.getCompaniesByExchange(exchange);
 
-		HibernateUtil.clearAndFlush();
 		for (Company company : companyList) {
 			company = CompanyDAO.getCompanyById(company.getId());
 			logger.info("Updating company: " + company.getName());
@@ -206,21 +197,26 @@ public class PeriodGenerator implements Runnable {
 			generator.generateEvents(newPeriodReport, company, exchange);
 			company.setCurrentPeriod(newPeriodReport);
 			companyDAO.saveCompany(company);
-			HibernateUtil.clearAndFlush();
 		}
 		return;
 	}
 
 	private void splitStocks(Company company) {
 		if (company.getLastTradePrice() > company.getStockExchange().getMaxSharePrice()) {
+			logger.info("Splitting stocks for company: " + company.getName());
 			// Time to split the stock!
 			// Rounding not a huge issue - the market will correct the price
 			// anyhow :)
 			long newPrice = company.getLastTradePrice() / 2;
+			company.setLastTradePrice(newPrice);
+
 			long outstandingShares = company.getOutstandingShares() * 2;
+			company.setOutstandingShares(outstandingShares);
+
+			companyDAO.saveCompany(company);
+
 			// Now get all share parcels and update the price (and reduce the
 			// effective purchase price)
-			ShareParcelDAO shareParcelDAO = new ShareParcelDAO();
 			Iterable<ShareParcel> shareParcels = shareParcelDAO.getHoldingsByCompany(company);
 			for (ShareParcel shareParcel : shareParcels) {
 				long previousShareCount = shareParcel.getShareCount();
@@ -276,7 +272,8 @@ public class PeriodGenerator implements Runnable {
 						for (ShareParcel parcel : parcels) {
 							Trader trader = parcel.getTrader();
 							long payment = dividend * parcel.getShareCount();
-							logger.info("Giving cash: " + payment + " to Trader: " + trader.getName());
+							// logger.trace("Giving cash: " + payment +
+							// " to Trader: " + trader.getName());
 							if (!trader.isMarketMaker()) {
 								TraderEvent event = new TraderEvent(trader, TraderEvent.DIVIDEND_PAYMENT, new Date(), parcel.getCompany(),
 										parcel.getShareCount(), payment, trader.getCash(), trader.getCash() + payment);
@@ -299,7 +296,7 @@ public class PeriodGenerator implements Runnable {
 							for (ShareParcel parcel : parcels) {
 								Trader trader = parcel.getTrader();
 								long payment = dividend * parcel.getShareCount();
-								logger.info("Giving cash: " + payment + " to Trader: " + trader.getName());
+								logger.debug("Giving cash: " + payment + " to Trader: " + trader.getName());
 								if (!trader.isMarketMaker()) {
 									TraderEvent event = new TraderEvent(trader, TraderEvent.DIVIDEND_PAYMENT, new Date(), parcel.getCompany(),
 											parcel.getShareCount(), payment, trader.getCash(), trader.getCash() + payment);
@@ -318,7 +315,7 @@ public class PeriodGenerator implements Runnable {
 
 	public void start() {
 		// Start a period. This will initialise companies reporting.
-		logger.info("Generating period reports: Retrieving exchange");
+		logger.info("Generating period reports: Starting exchange " + exchangeName);
 		StockExchange exchange = stockExchangeDAO.getStockExchangeByName(exchangeName);
 		if (exchange == null) {
 			return;
@@ -328,7 +325,7 @@ public class PeriodGenerator implements Runnable {
 
 	public void finish() {
 		// Start a period. This will initialise companies reporting.
-		logger.info("Generating period reports: Retrieving exchange");
+		logger.info("Generating period reports: finishing exchange " + exchangeName);
 		StockExchange exchange = stockExchangeDAO.getStockExchangeByName(exchangeName);
 		if (exchange == null) {
 			return;

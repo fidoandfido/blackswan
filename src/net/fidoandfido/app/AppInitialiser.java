@@ -337,10 +337,10 @@ public class AppInitialiser {
 				code = code + suffix.code;
 			}
 			code = fixCode(code);
-			if (names.contains(name)) {
-				unique = false;
+			if (!names.contains(name)) {
+				unique = true;
+				names.add(name);
 			}
-			names.add(name);
 		}
 
 		// Can't be null - must drop through while loop at least once.
