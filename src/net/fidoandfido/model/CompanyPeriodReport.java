@@ -59,6 +59,12 @@ public class CompanyPeriodReport {
 	@Column
 	private long startingDebt;
 
+	/**
+	 * Need this, since the company may have shares splitting
+	 */
+	@Column
+	private long outstandingShareCount;
+
 	// ///////////////////////
 	// List of 'forecasts'
 	// ///////////////////////
@@ -108,6 +114,7 @@ public class CompanyPeriodReport {
 		this.startDate = startDate;
 		this.startingAssets = company.getAssetValue();
 		this.startingDebt = company.getDebtValue();
+		this.outstandingShareCount = company.getOutstandingShares();
 		// Set the minimum end date to be the start date plus period length
 		// minus the period buffer.
 		this.minimumEndDate = new Date(startDate.getTime() + periodLength);
@@ -267,6 +274,21 @@ public class CompanyPeriodReport {
 	 */
 	public void setStartingDebt(long startingDebt) {
 		this.startingDebt = startingDebt;
+	}
+
+	/**
+	 * @return the outstandingShareCount
+	 */
+	public long getOutstandingShareCount() {
+		return outstandingShareCount;
+	}
+
+	/**
+	 * @param outstandingShareCount
+	 *            the outstandingShareCount to set
+	 */
+	public void setOutstandingShareCount(long outstandingShareCount) {
+		this.outstandingShareCount = outstandingShareCount;
 	}
 
 	/**

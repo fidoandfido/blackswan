@@ -36,4 +36,12 @@ public class CompanyPeriodReportDAO {
 		return query.list();
 	}
 
+	public List<CompanyPeriodReport> getRecentPeriodReportListByCompany(Company company, int i) {
+		Session session = HibernateUtil.getSession();
+		Query query = session.createQuery("from CompanyPeriodReport where company = :company order by generation desc");
+		query.setParameter("company", company);
+		query.setMaxResults(i);
+		return query.list();
+	}
+
 }

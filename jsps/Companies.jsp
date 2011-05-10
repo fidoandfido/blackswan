@@ -1,3 +1,18 @@
+<%@page import="net.fidoandfido.servlets.GraphServlet"%>
+<%@page import="java.text.SimpleDateFormat"%>
+<%@page import="org.jfree.chart.axis.DateAxis"%>
+<%@page import="org.jfree.chart.renderer.xy.XYLineAndShapeRenderer"%>
+<%@page import="org.jfree.chart.renderer.xy.XYItemRenderer"%>
+<%@page import="org.jfree.ui.RectangleInsets"%>
+<%@page import="org.jfree.chart.plot.XYPlot"%>
+<%@page import="java.awt.Color"%>
+<%@page import="org.jfree.chart.ChartFactory"%>
+<%@page import="org.jfree.chart.JFreeChart"%>
+<%@page import="net.fidoandfido.model.TradeRecord"%>
+<%@page import="net.fidoandfido.dao.TradeRecordDAO"%>
+<%@page import="org.jfree.data.time.Second"%>
+<%@page import="org.jfree.data.time.TimeSeriesCollection"%>
+<%@page import="org.jfree.data.time.TimeSeries"%>
 <%@page import="net.fidoandfido.model.StockExchange"%>
 <%@page import="net.fidoandfido.engine.event.PeriodEventGenerator"%>
 <%@page import="java.util.Map"%>
@@ -178,8 +193,71 @@ to access (or create) your trader profile.</p>
 				<input type="submit" value="Buy Shares" />
 				</form>
 
+<%
+				// And this is where we will put the chart!!! 
+		TimeSeries sharePrice = new TimeSeries("Traded Value");
+		TimeSeries bookValue = new TimeSeries("Book Value");
+		TimeSeries earningPerShare = new TimeSeries("Earning Per Share");
+		TimeSeriesCollection dataset = new TimeSeriesCollection();
+
+		CompanyPeriodReportDAO companyPeriodReportDAO = new CompanyPeriodReportDAO();
+		List<CompanyPeriodReport> reportList = companyPeriodReportDAO.getRecentPeriodReportListByCompany(company, 10);
+		for (CompanyPeriodReport report : reportList) {
+			earningPerShare.add(new Second(report.getStartDate()), report.getFinalProfit() / report.getOutstandingShareCount());
+			bookValue.add(new Second(report.getStartDate()), (report.getStartingAssets() - report.getStartingDebt()) / report.getOutstandingShareCount());
+			// expectedProfitSeries.add(new Year((int) report.getGeneration() +
+			// 2000), report.getStartingExpectedProfit());
+		}
+		TradeRecordDAO tradeRecordDAO = new TradeRecordDAO();
+		List<TradeRecord> recordList = tradeRecordDAO.getLastTradeRecords(company, 200);
+
+		for (TradeRecord record : recordList) {
+			sharePrice.addOrUpdate(new Second(record.getDate()), record.getSharePrice());
+			// expectedProfitSeries.add(new Year((int) report.getGeneration() +
+			// 2000), report.getStartingExpectedProfit());
+		}
+
+		dataset.addSeries(bookValue);
+		dataset.addSeries(sharePrice);
+		dataset.addSeries(earningPerShare);
+		
+
+		JFreeChart chart = ChartFactory.createTimeSeriesChart("Share Price", // title
+				"Date", // x-axis label
+				"Price (cents)", // y-axis label
+				dataset, // data
+				true, // create legend?
+				true, // generate tooltips?
+				false // generate URLs?
+				);
+
+		chart.setBackgroundPaint(Color.white);
+
+		XYPlot plot = (XYPlot) chart.getPlot();
+		plot.setBackgroundPaint(Color.lightGray);
+		plot.setDomainGridlinePaint(Color.white);
+		plot.setRangeGridlinePaint(Color.white);
+		plot.setAxisOffset(new RectangleInsets(5.0, 5.0, 5.0, 5.0));
+		plot.setDomainCrosshairVisible(true);
+		plot.setRangeCrosshairVisible(true);
+
+		XYItemRenderer r = plot.getRenderer();
+		if (r instanceof XYLineAndShapeRenderer) {
+			XYLineAndShapeRenderer renderer = (XYLineAndShapeRenderer) r;
+			renderer.setBaseShapesVisible(true);
+			renderer.setBaseShapesFilled(true);
+			renderer.setDrawSeriesLineAsPath(true);
+		}
+
+		DateAxis axis = (DateAxis) plot.getDomainAxis();
+		axis.setDateFormatOverride(new SimpleDateFormat("HH:mm:ss"));
+		
+		session.setAttribute(GraphServlet.CHART_ATTRIBUTE, chart);
+		
+%>
 				
-					
+				<img src="/myapp/graph"/>
+				
 				</div>
 			</div>	
 <%
