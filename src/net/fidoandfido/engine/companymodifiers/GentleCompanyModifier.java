@@ -24,7 +24,6 @@ public class GentleCompanyModifier implements CompanyModifier {
 	public static int CHANCE_OF_BORROW_OR_REPAY = 4;
 
 	public static long DEFAULT_LOAN = 50000000;
-
 	public static long MAX_DEBT = 1000000000;
 
 	/*
