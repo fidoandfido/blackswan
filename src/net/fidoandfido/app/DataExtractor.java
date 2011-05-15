@@ -59,6 +59,7 @@ public class DataExtractor {
 		HibernateUtil.beginTransaction();
 		DataExtractor dataExtractor = new DataExtractor();
 		dataExtractor.getUser("andy");
+		dataExtractor.getUser("Andy");
 		dataExtractor.getUser("Poultry");
 		// dataExtractor.writeData();
 		HibernateUtil.commitTransaction();
@@ -66,9 +67,13 @@ public class DataExtractor {
 
 	public void getUser(String userName) {
 		User user = userDAO.getUserByUsername(userName);
-		System.out.println("User name: " + user.getUserName());
-		System.out.println("Is admin? " + user.isUserAdmin());
-		System.out.println("Trader: " + user.getTrader());
+		if (user != null) {
+			System.out.println("User name: " + user.getUserName());
+			System.out.println("Is admin? " + user.isUserAdmin());
+			System.out.println("Trader: " + user.getTrader());
+		} else {
+			System.out.println("User is null.");
+		}
 	}
 
 	public void writeData() {
