@@ -50,15 +50,21 @@ public class RegisterServlet extends HttpServlet {
 			String password = req.getParameter(PASSWORD);
 
 			if (traderName != null && !traderName.isEmpty() && userName != null && !userName.isEmpty() && password != null && !password.isEmpty()) {
-				user = new User(userName, password, false);
-				Trader trader = new Trader(user, traderName, DEFAULT_TRADER_START_CASH);
-				user.setTrader(trader);
-				userDAO.saveUser(user);
-				traderDAO.saveTrader(trader);
-				UserSession userSession = new UserSession(user, req.getSession().getId());
-				userSessionDAO.saveUserSession(userSession);
+				// Lets see if this user exists already...
+				User existingUser = userDAO.getUserByUsername(userName);
+				if (existingUser != null) {
+					resp.sendRedirect("/myapp/Welcome.jsp?error=User%20already%20exists");
+				} else {
+					user = new User(userName, password, false);
+					Trader trader = new Trader(user, traderName, DEFAULT_TRADER_START_CASH);
+					user.setTrader(trader);
+					userDAO.saveUser(user);
+					traderDAO.saveTrader(trader);
+					UserSession userSession = new UserSession(user, req.getSession().getId());
+					userSessionDAO.saveUserSession(userSession);
+					resp.sendRedirect("/myapp/Welcome.jsp");
+				}
 			}
-			resp.sendRedirect("/myapp/Welcome.jsp");
 		}
 		HibernateUtil.commitTransaction();
 	}

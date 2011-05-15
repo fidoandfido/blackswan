@@ -17,7 +17,6 @@ public class UserDAO {
 		Criteria crit = session.createCriteria(User.class);
 		crit.add(Restrictions.eq("userName", userName));
 		return (User) crit.uniqueResult();
-
 	}
 
 }

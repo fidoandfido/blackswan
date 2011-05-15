@@ -20,6 +20,7 @@ import net.fidoandfido.model.Order;
 import net.fidoandfido.model.PeriodRumour;
 import net.fidoandfido.model.StockExchange;
 import net.fidoandfido.model.Trader;
+import net.fidoandfido.model.User;
 import net.fidoandfido.util.WebPageUtil;
 
 public class DataExtractor {
@@ -57,8 +58,17 @@ public class DataExtractor {
 		HibernateUtil.connectToDB();
 		HibernateUtil.beginTransaction();
 		DataExtractor dataExtractor = new DataExtractor();
-		dataExtractor.writeData();
+		dataExtractor.getUser("andy");
+		dataExtractor.getUser("Poultry");
+		// dataExtractor.writeData();
 		HibernateUtil.commitTransaction();
+	}
+
+	public void getUser(String userName) {
+		User user = userDAO.getUserByUsername(userName);
+		System.out.println("User name: " + user.getUserName());
+		System.out.println("Is admin? " + user.isUserAdmin());
+		System.out.println("Trader: " + user.getTrader());
 	}
 
 	public void writeData() {

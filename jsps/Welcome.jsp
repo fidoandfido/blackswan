@@ -79,6 +79,13 @@
 				<h2 class="title">Or register a new profile!</h2>
 				<div class="entry">
 				<p>Registration is quick and easy.</p>
+<%
+				if (request.getParameter("error") != null) {
+%>
+				<p><b><%= request.getParameter("error") %></b><p>	
+<%
+				}
+%>
 				<form action="/myapp/register" method="post">
 					<ul>
 						<li>User name:<input name="<%= RegisterServlet.USER_NAME%>"  cols="60"></input></li>
