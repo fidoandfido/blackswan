@@ -195,7 +195,7 @@ public class HibernateUtil {
 		}
 	}
 
-	public static void clearAndFlush() {
+	public static void flushAndClearSession() {
 		Session session = getSession();
 		session.flush();
 		session.clear();

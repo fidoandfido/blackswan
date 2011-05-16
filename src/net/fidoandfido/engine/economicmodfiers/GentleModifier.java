@@ -90,7 +90,7 @@ public class GentleModifier implements EconomicModifier {
 	}
 
 	public static void main(String argv[]) {
-		StockExchange stockExchange = new StockExchange("FOO", "foo", 1, "this", 0, 500, NAME, "", 10000);
+		StockExchange stockExchange = new StockExchange(null, "FOO", "foo", 1, "this", 0, 500, NAME, "", 10000);
 		GentleModifier modifier = new GentleModifier();
 
 		StockExchangePeriod previousPeriod = new StockExchangePeriod(stockExchange, null, null, 0, 0, 0, 0, NEUTRAL);

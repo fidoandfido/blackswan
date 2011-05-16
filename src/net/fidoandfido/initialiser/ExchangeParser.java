@@ -3,6 +3,7 @@ package net.fidoandfido.initialiser;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.fidoandfido.model.ExchangeGroup;
 import net.fidoandfido.model.StockExchange;
 import net.fidoandfido.util.Constants;
 
@@ -11,7 +12,8 @@ import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
 public class ExchangeParser extends DefaultHandler {
-	public List<StockExchange> exchangeList = new ArrayList<StockExchange>();
+
+	public List<ExchangeGroup> exchangeGroupList = new ArrayList<ExchangeGroup>();
 	// <exchange name="MX" company-count="10"
 	// description="The MX is the mining exchange. A little volatility here - mainly from companies that strike it big in their mines, and then lose it all if their mines run out."/>
 
@@ -25,20 +27,17 @@ public class ExchangeParser extends DefaultHandler {
 	private static final String ECONOMIC_MODIFIER_NAME = "economic-modifier";
 	private static final String COMPANY_MODIFIER_NAME = "company-modifier";
 	private static final String MAX_SHARE_PRICE_ATTRIB = "max-share-price";
+	private static final String EXCHANGE_GROUP_TAG = "exchange-group";
+
+	private ExchangeGroup currentExchangeGroup;
 
 	@Override
 	public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
-		if (localName.equals(EXCHANGE_TAG)) {
+		if (localName.equals(EXCHANGE_GROUP_TAG)) {
+
 			String name = attributes.getValue(NAME_ATTRIB);
 			String description = attributes.getValue(DESCRIPTION_ATTRIB);
-			int companyCount = Integer.parseInt(attributes.getValue(COMPANIES_ATTRIB));
-			String eventGeneratorName = attributes.getValue(EVENT_GENERATOR_NAME);
 			String periodLengthString = attributes.getValue(PERIOD_LENGTH_ATTRIB);
-			String economicModifierName = attributes.getValue(ECONOMIC_MODIFIER_NAME);
-			String companyModifierName = attributes.getValue(COMPANY_MODIFIER_NAME);
-			long maxSharePrice = Long.parseLong(attributes.getValue(MAX_SHARE_PRICE_ATTRIB));
-
-			long interestRate = Long.parseLong(attributes.getValue(STARTING_INTEREST));
 			long periodLength = Constants.DEFAULT_PERIOD_LENGTH_IN_MILLIS;
 			try {
 				periodLength = Long.parseLong(periodLengthString);
@@ -46,11 +45,25 @@ public class ExchangeParser extends DefaultHandler {
 			} catch (NumberFormatException nfe) {
 				// and ignore it.
 			}
-			// EventGenerator generator =
-			// EventGeneratorFactory.getGeneratorByName(eventGeneratorName);
-			StockExchange stockExchange = new StockExchange(name, description, companyCount, eventGeneratorName, periodLength, interestRate,
-					economicModifierName, companyModifierName, maxSharePrice);
-			exchangeList.add(stockExchange);
+			currentExchangeGroup = new ExchangeGroup(name, description, periodLength);
+			exchangeGroupList.add(currentExchangeGroup);
+		} else {
+
+			if (localName.equals(EXCHANGE_TAG)) {
+				String name = attributes.getValue(NAME_ATTRIB);
+				String description = attributes.getValue(DESCRIPTION_ATTRIB);
+				int companyCount = Integer.parseInt(attributes.getValue(COMPANIES_ATTRIB));
+				String eventGeneratorName = attributes.getValue(EVENT_GENERATOR_NAME);
+				String economicModifierName = attributes.getValue(ECONOMIC_MODIFIER_NAME);
+				String companyModifierName = attributes.getValue(COMPANY_MODIFIER_NAME);
+				long maxSharePrice = Long.parseLong(attributes.getValue(MAX_SHARE_PRICE_ATTRIB));
+				long interestRate = Long.parseLong(attributes.getValue(STARTING_INTEREST));
+				// EventGenerator generator =
+				// EventGeneratorFactory.getGeneratorByName(eventGeneratorName);
+				StockExchange stockExchange = new StockExchange(currentExchangeGroup, name, description, companyCount, eventGeneratorName,
+						currentExchangeGroup.getPeriodLength(), interestRate, economicModifierName, companyModifierName, maxSharePrice);
+				currentExchangeGroup.addExchange(stockExchange);
+			}
 		}
 	}
 }

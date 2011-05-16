@@ -13,6 +13,7 @@ import java.util.Set;
 import net.fidoandfido.dao.AppStatusDAO;
 import net.fidoandfido.dao.CompanyDAO;
 import net.fidoandfido.dao.CompanyPeriodReportDAO;
+import net.fidoandfido.dao.ExchangeGroupDAO;
 import net.fidoandfido.dao.HibernateUtil;
 import net.fidoandfido.dao.OrderDAO;
 import net.fidoandfido.dao.ReputationItemDAO;
@@ -31,6 +32,7 @@ import net.fidoandfido.initialiser.TraderParser;
 import net.fidoandfido.model.AppStatus;
 import net.fidoandfido.model.Company;
 import net.fidoandfido.model.CompanyPeriodReport;
+import net.fidoandfido.model.ExchangeGroup;
 import net.fidoandfido.model.ReputationItem;
 import net.fidoandfido.model.ShareParcel;
 import net.fidoandfido.model.StockExchange;
@@ -72,6 +74,7 @@ public class AppInitialiser {
 	private OrderDAO orderDAO;
 	private CompanyPeriodReportDAO companyPeriodReportDAO;
 	private StockExchangeDAO stockExchangeDAO;
+	private ExchangeGroupDAO exchangeGroupDAO;
 	private AppStatusDAO appStatusDAO;
 	private UserDAO userDAO;
 	private ReputationItemDAO reputationItemDAO;
@@ -86,6 +89,7 @@ public class AppInitialiser {
 		userDAO = new UserDAO();
 		reputationItemDAO = new ReputationItemDAO();
 		companyPeriodReportDAO = new CompanyPeriodReportDAO();
+		exchangeGroupDAO = new ExchangeGroupDAO();
 	}
 
 	public static void main(String argv[]) {
@@ -166,7 +170,7 @@ public class AppInitialiser {
 		reader.setContentHandler(traderParser);
 		reader.parse(src);
 
-		marketMakerTrader = new Trader(MARKET_MAKER_NAME, MARKET_MAKER_START_CASH, true, true);
+		marketMakerTrader = new Trader(MARKET_MAKER_NAME, MARKET_MAKER_START_CASH, true, MARKET_MAKER_NAME);
 		traderDAO.saveTrader(marketMakerTrader);
 
 		// Now create the traders from the XML
@@ -198,17 +202,20 @@ public class AppInitialiser {
 		reader.setContentHandler(exchangeParser);
 		InputSource src = new InputSource(this.getClass().getResourceAsStream("/initdata.xml"));
 		reader.parse(src);
-		for (StockExchange exchange : exchangeParser.exchangeList) {
-			String name = exchange.getName();
-			if (!exchangeMap.containsKey(name)) {
-				Date periodStartDate = new Date();
-				Date endDate = new Date(periodStartDate.getTime() + exchange.getCompanyPeriodLength());
-				StockExchangePeriod firstPeriod = new StockExchangePeriod(exchange, periodStartDate, endDate, 0, exchange.getPrimeInterestRateBasisPoints(), 0,
-						0, StockExchangePeriod.NEUTRAL_CONDITIONS);
-				exchange.setCurrentPeriod(firstPeriod);
-				stockExchangeDAO.saveStockExchange(exchange);
-				exchangeMap.put(name, exchange);
+		for (ExchangeGroup exchangeGroup : exchangeParser.exchangeGroupList) {
+			for (StockExchange exchange : exchangeGroup.getExchanges()) {
+				String name = exchange.getName();
+				if (!exchangeMap.containsKey(name)) {
+					Date periodStartDate = new Date();
+					Date endDate = new Date(periodStartDate.getTime() + exchange.getPeriodLength());
+					StockExchangePeriod firstPeriod = new StockExchangePeriod(exchange, periodStartDate, endDate, 0,
+							exchange.getPrimeInterestRateBasisPoints(), 0, 0, StockExchangePeriod.NEUTRAL_CONDITIONS);
+					exchange.setCurrentPeriod(firstPeriod);
+					stockExchangeDAO.saveStockExchange(exchange);
+					exchangeMap.put(name, exchange);
+				}
 			}
+			exchangeGroupDAO.saveExchangeGroup(exchangeGroup);
 		}
 	}
 
@@ -229,7 +236,7 @@ public class AppInitialiser {
 				company.setStockExchange(exchange);
 				companyDAO.saveCompany(company);
 
-				CompanyPeriodReport periodReport = new CompanyPeriodReport(company, date, exchange.getCompanyPeriodLength(), 0);
+				CompanyPeriodReport periodReport = new CompanyPeriodReport(company, date, exchange.getPeriodLength(), 0);
 
 				// Set up the initial profit for the first period report
 				setInitialProft(periodReport, company);

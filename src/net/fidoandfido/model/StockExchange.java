@@ -4,6 +4,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
@@ -36,7 +37,7 @@ public class StockExchange {
 	private String eventGeneratorName;
 
 	@Column
-	private long companyPeriodLength;
+	private long periodLength;
 
 	@Column
 	private long defaultPrimeInterestRateBasisPoints;
@@ -49,6 +50,9 @@ public class StockExchange {
 
 	@Column
 	private boolean updating = false;
+
+	@ManyToOne
+	private ExchangeGroup exchangeGroup;
 
 	/**
 	 * Maximum price a share can be before it is split 2-1.
@@ -64,16 +68,17 @@ public class StockExchange {
 		// Default constructor required for persistence
 	}
 
-	public StockExchange(String name, String description, int companyCount, String eventGeneratorName, long companyPeriodLength,
+	public StockExchange(ExchangeGroup exchangeGroup, String name, String description, int companyCount, String eventGeneratorName, long companyPeriodLength,
 			long defaultPrimeInterestRateBasisPoints, String economicModifierName, String companyModifierName, long maxSharePrice)
 
 	{
 		super();
-		this.description = description;
+		this.exchangeGroup = exchangeGroup;
 		this.name = name;
+		this.description = description;
 		this.companyCount = companyCount;
 		this.eventGeneratorName = eventGeneratorName;
-		this.companyPeriodLength = companyPeriodLength;
+		this.periodLength = companyPeriodLength;
 		this.defaultPrimeInterestRateBasisPoints = defaultPrimeInterestRateBasisPoints;
 		this.economicModifierName = economicModifierName;
 		this.companyModifierName = companyModifierName;
@@ -83,7 +88,7 @@ public class StockExchange {
 	@Override
 	public String toString() {
 		// TODO Auto-generated method stub
-		return name + " -> Company count: " + companyCount + " -- " + description;
+		return name + " -> Company count: " + companyCount + " -- " + description + " -- " + exchangeGroup.getName();
 	}
 
 	/**
@@ -174,16 +179,16 @@ public class StockExchange {
 	/**
 	 * @return the companyPeriodLength
 	 */
-	public long getCompanyPeriodLength() {
-		return companyPeriodLength;
+	public long getPeriodLength() {
+		return periodLength;
 	}
 
 	/**
 	 * @param companyPeriodLength
 	 *            the companyPeriodLength to set
 	 */
-	public void setCompanyPeriodLength(long companyPeriodLength) {
-		this.companyPeriodLength = companyPeriodLength;
+	public void setPeriodLength(long companyPeriodLength) {
+		this.periodLength = companyPeriodLength;
 	}
 
 	/**

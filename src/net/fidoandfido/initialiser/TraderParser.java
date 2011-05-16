@@ -35,8 +35,7 @@ public class TraderParser extends DefaultHandler {
 			String name = attributes.getValue(NAME_ATTRIB);
 			String strategy = attributes.getValue(AI_STRATEGY);
 			for (int i = 0; i < traderCount; i++) {
-				Trader trader = new Trader(name + i, AppInitialiser.TRADER_START_CASH, true, false);
-				trader.setAiStrategyName(strategy);
+				Trader trader = new Trader(name + i, AppInitialiser.TRADER_START_CASH, false, strategy);
 				traderList.add(trader);
 			}
 		}

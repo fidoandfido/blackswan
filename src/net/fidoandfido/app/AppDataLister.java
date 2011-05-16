@@ -3,6 +3,7 @@ package net.fidoandfido.app;
 import java.util.List;
 
 import net.fidoandfido.dao.CompanyDAO;
+import net.fidoandfido.dao.ExchangeGroupDAO;
 import net.fidoandfido.dao.HibernateUtil;
 import net.fidoandfido.dao.OrderDAO;
 import net.fidoandfido.dao.ReputationItemDAO;
@@ -11,6 +12,7 @@ import net.fidoandfido.dao.StockExchangeDAO;
 import net.fidoandfido.dao.TraderDAO;
 import net.fidoandfido.model.Company;
 import net.fidoandfido.model.CompanyPeriodReport;
+import net.fidoandfido.model.ExchangeGroup;
 import net.fidoandfido.model.Order;
 import net.fidoandfido.model.PeriodEvent;
 import net.fidoandfido.model.ReputationEffect;
@@ -40,6 +42,7 @@ public class AppDataLister {
 		CompanyDAO companyDAO = new CompanyDAO();
 		OrderDAO orderDAO = new OrderDAO();
 		StockExchangeDAO stockExchangeDAO = new StockExchangeDAO();
+		ExchangeGroupDAO exchangeGroupDAO = new ExchangeGroupDAO();
 
 		System.out.println("Writing data!");
 		List<Trader> traderList = traderDAO.getTraderList();
@@ -58,6 +61,11 @@ public class AppDataLister {
 		}
 
 		System.out.println("--------------------");
+		List<ExchangeGroup> exchangeGroupList = exchangeGroupDAO.getAllExchangeGroups();
+		for (ExchangeGroup group : exchangeGroupList) {
+			System.out.println("Exhange Group: " + group.getName());
+		}
+
 		List<StockExchange> exchangeList = stockExchangeDAO.getStockExchangeList();
 		for (StockExchange stockExchange : exchangeList) {
 			System.out.println(stockExchange.toString());

@@ -6,8 +6,8 @@ import java.util.Vector;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
+import net.fidoandfido.dao.ExchangeGroupDAO;
 import net.fidoandfido.dao.HibernateUtil;
-import net.fidoandfido.dao.StockExchangeDAO;
 import net.fidoandfido.engine.event.PeriodGenerator;
 
 public class PeriodGeneratorContextListener implements ServletContextListener {
@@ -17,13 +17,13 @@ public class PeriodGeneratorContextListener implements ServletContextListener {
 	@Override
 	public void contextInitialized(ServletContextEvent arg0) {
 		HibernateUtil.beginTransaction();
-		StockExchangeDAO stockExchangeDAO = new StockExchangeDAO();
-		List<String> exchangeNames = stockExchangeDAO.getStockExchangeNameList();
+		ExchangeGroupDAO stockExchangeDAO = new ExchangeGroupDAO();
+		List<String> groupNames = stockExchangeDAO.getExchangeGroupNameList();
 		HibernateUtil.commitTransaction();
-		for (String exchangeName : exchangeNames) {
-			PeriodGenerator periodGenerator = new PeriodGenerator(exchangeName);
+		for (String groupName : groupNames) {
+			PeriodGenerator periodGenerator = new PeriodGenerator(groupName);
 			Thread periodGeneratorThread = new Thread(periodGenerator);
-			periodGeneratorThread.setName("PERIOD_GENERATOR_THREAD_" + exchangeName);
+			periodGeneratorThread.setName("PERIOD_GENERATOR_THREAD_" + groupName);
 			periodGeneratorThread.start();
 			periodGeneratorList.add(periodGenerator);
 		}

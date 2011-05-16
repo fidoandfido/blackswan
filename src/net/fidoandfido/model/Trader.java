@@ -8,6 +8,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
@@ -46,26 +47,39 @@ public class Trader {
 	@ManyToMany
 	private Set<ReputationItem> reputationItems = new HashSet<ReputationItem>();
 
+	@ManyToOne
+	private ExchangeGroup group;
+
 	public Trader() {
 		// Default constructor required for persistence code.
 	}
 
-	public Trader(String name, long cash) {
-		this.name = name;
-		this.cash = cash;
-	}
-
+	/**
+	 * Used to create a new trader for a playing User by the application
+	 * 
+	 * @param user
+	 * @param name
+	 * @param cash
+	 */
 	public Trader(User user, String name, long cash) {
 		this.user = user;
 		this.name = name;
 		this.cash = cash;
 	}
 
-	public Trader(String name, long cash, boolean isAI, boolean isMarketMaker) {
+	/**
+	 * User to create a new AI trader in the application.
+	 * 
+	 * @param name
+	 * @param cash
+	 * @param isMarketMaker
+	 */
+	public Trader(String name, long cash, boolean isMarketMaker, String strategy) {
 		this.name = name;
 		this.cash = cash;
-		this.isAITrader = isAI;
+		this.isAITrader = true;
 		this.isMarketMaker = isMarketMaker;
+		this.aiStrategyName = strategy;
 	}
 
 	/*

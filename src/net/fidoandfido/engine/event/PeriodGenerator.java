@@ -4,6 +4,7 @@ import java.util.Date;
 
 import net.fidoandfido.dao.CompanyDAO;
 import net.fidoandfido.dao.CompanyPeriodReportDAO;
+import net.fidoandfido.dao.ExchangeGroupDAO;
 import net.fidoandfido.dao.HibernateUtil;
 import net.fidoandfido.dao.ShareParcelDAO;
 import net.fidoandfido.dao.StockExchangeDAO;
@@ -16,6 +17,7 @@ import net.fidoandfido.engine.economicmodfiers.EconomicModifier;
 import net.fidoandfido.engine.economicmodfiers.EconomicModifierFactory;
 import net.fidoandfido.model.Company;
 import net.fidoandfido.model.CompanyPeriodReport;
+import net.fidoandfido.model.ExchangeGroup;
 import net.fidoandfido.model.ShareParcel;
 import net.fidoandfido.model.StockExchange;
 import net.fidoandfido.model.StockExchangePeriod;
@@ -36,28 +38,30 @@ public class PeriodGenerator implements Runnable {
 	private StockExchangePeriodDAO stockExchangePeriodDAO;
 	private TraderEventDAO traderEventDAO;
 	private CompanyPeriodReportDAO companyPeriodReportDAO;
+	private ExchangeGroupDAO exchangeGroupDAO;
 
 	private void initDAOs() {
 		traderDAO = new TraderDAO();
 		shareParcelDAO = new ShareParcelDAO();
 		companyDAO = new CompanyDAO();
+		exchangeGroupDAO = new ExchangeGroupDAO();
 		stockExchangeDAO = new StockExchangeDAO();
 		stockExchangePeriodDAO = new StockExchangePeriodDAO();
 		traderEventDAO = new TraderEventDAO();
 		companyPeriodReportDAO = new CompanyPeriodReportDAO();
 	}
 
-	private final String exchangeName;
+	private final String groupName;
 	private final long periodLength;
 
 	private boolean running = true;
 
-	public PeriodGenerator(String exchangeName) {
+	public PeriodGenerator(String groupName) {
 		initDAOs();
-		this.exchangeName = exchangeName;
+		this.groupName = groupName;
 		HibernateUtil.beginTransaction();
-		StockExchange exchange = stockExchangeDAO.getStockExchangeByName(exchangeName);
-		this.periodLength = exchange.getCompanyPeriodLength();
+		ExchangeGroup exchangeGroup = exchangeGroupDAO.getExchangeGroupByName(groupName);
+		this.periodLength = exchangeGroup.getPeriodLength();
 		HibernateUtil.commitTransaction();
 	}
 
@@ -74,7 +78,7 @@ public class PeriodGenerator implements Runnable {
 				generatePeriod();
 				HibernateUtil.commitTransaction();
 			} catch (Exception e) {
-				logger.error("Exception generating period for exchange: " + exchangeName);
+				logger.error("Exception generating period for exchange group: " + groupName);
 				ServerUtil.logError(logger, e);
 				HibernateUtil.rollbackTransaction();
 			}
@@ -109,94 +113,111 @@ public class PeriodGenerator implements Runnable {
 	 * roll back (rather than some parts already being committed!)
 	 */
 	public void generatePeriod() {
+		Date currentDate = new Date();
+		generatePeriod(currentDate);
+	}
+
+	/**
+	 * Generate a period for a specific date
+	 * 
+	 * @param currentDate
+	 */
+	public void generatePeriod(Date currentDate) {
 		// Start a period. This will initialise companies reporting.
+
 		logger.info("Generating period reports: Retrieving exchange");
-		StockExchange exchange = stockExchangeDAO.getStockExchangeByName(exchangeName);
-		if (exchange == null) {
+		ExchangeGroup exchangeGroup = exchangeGroupDAO.getExchangeGroupByName(groupName);
+		if (exchangeGroup == null) {
 			return;
 		}
-		Date currentDate = new Date();
 		logger.info("Date: " + currentDate);
 
-		// Check if this is before the end date of the current stockExchange
-		// period.
-		StockExchangePeriod previousPeriod = exchange.getCurrentPeriod();
-		if (currentDate.before(previousPeriod.getMinimumEndDate())) {
-			// Too soon for a new period!
-			logger.info("Too soon to generate a new period for " + exchangeName + " (Must be after: " + previousPeriod.getMinimumEndDate() + ")");
-			return;
-		}
-		previousPeriod.close(currentDate);
-		stockExchangePeriodDAO.save(previousPeriod);
-
-		Date minimumEndDate = new Date(currentDate.getTime() + exchange.getCompanyPeriodLength());
-
-		// Update the stock exchange period.
-		StockExchangePeriod currentPeriod = new StockExchangePeriod(previousPeriod, currentDate, minimumEndDate);
-
-		EconomicModifier economicModifier = EconomicModifierFactory.getEconomicModifier(exchange.getEconomicModifierName());
-		economicModifier.modifiyExchangePeriod(currentPeriod, previousPeriod);
-
-		exchange.setCurrentPeriod(currentPeriod);
-
-		CompanyModifier companyModifier = CompanyModiferFactory.getCompanyModifier(exchange.getCompanyModifierName());
-
-		// Get the current period for the stock exchange.
-		// Create a period event generator...
-		PeriodEventGenerator generator = new PeriodEventGenerator();
-		Iterable<Company> companyList = companyDAO.getCompaniesByExchange(exchange);
-
-		for (Company company : companyList) {
-			company = CompanyDAO.getCompanyById(company.getId());
-			logger.info("Updating company: " + company.getName());
-			// Create a new company report entry..
-			CompanyPeriodReport currentPeriodReport = company.getCurrentPeriod();
-
-			long generation = 0;
-
-			if (currentPeriodReport != null) {
-				if (currentPeriodReport.getMinimumEndDate().after(currentDate)) {
-					// Can't end a period report before now...
-					// Do something about that...
-					logger.info("Too soon for company: " + company.getName() + " end date must be after: " + currentPeriodReport.getMinimumEndDate());
-					continue;
-				}
-				// Close this period off, distribute the dividends and save it.
-				generation = currentPeriodReport.getGeneration();
-				distributeDividends(currentPeriodReport);
-				currentPeriodReport.close(currentDate);
-				companyPeriodReportDAO.savePeriodReport(currentPeriodReport);
-				company.setPreviousPeriodReport(currentPeriodReport);
+		for (StockExchange exchange : exchangeGroup.getExchanges()) {
+			// Check if this is before the end date of the current stockExchange
+			// period.
+			StockExchangePeriod previousPeriod = exchange.getCurrentPeriod();
+			if (currentDate.before(previousPeriod.getMinimumEndDate())) {
+				// Too soon for a new period!
+				logger.info("Too soon to generate a new period for " + exchange.getName() + " in group: " + exchangeGroup.getName() + " (Must be after: "
+						+ previousPeriod.getMinimumEndDate() + ")");
+				return;
 			}
+			previousPeriod.close(currentDate);
+			stockExchangePeriodDAO.save(previousPeriod);
 
-			// Update the company based on the exchange provided company stat
-			// modifier
-			splitStocks(company);
+			Date minimumEndDate = new Date(currentDate.getTime() + exchange.getPeriodLength());
 
-			companyModifier.modifyCompanyRates(company);
-			companyModifier.modifyCompanyDebts(company);
+			// Update the stock exchange period.
+			StockExchangePeriod currentPeriod = new StockExchangePeriod(previousPeriod, currentDate, minimumEndDate);
 
-			CompanyPeriodReport newPeriodReport = new CompanyPeriodReport(company, currentDate, exchange.getCompanyPeriodLength(), generation + 1);
+			EconomicModifier economicModifier = EconomicModifierFactory.getEconomicModifier(exchange.getEconomicModifierName());
+			economicModifier.modifiyExchangePeriod(currentPeriod, previousPeriod);
 
-			// Calculate the expected return based on the current asset/debt and
-			// so on.
-			long primeInterestRateBasisPoints = company.getPrimeInterestRateBasisPoints();
-			long expectedExpenses = (company.getExpenseRate() + currentPeriod.getExpenseRateDelta()) * company.getAssetValue() / 100;
-			long expectedRevenues = (company.getRevenueRate() + currentPeriod.getRevenueRateDelta()) * company.getAssetValue() / 100;
-			long expectedInterest = (company.getDebtValue()) * primeInterestRateBasisPoints / 10000;
-			long expectedProfit = expectedRevenues - expectedExpenses - expectedInterest;
+			exchange.setCurrentPeriod(currentPeriod);
 
-			// Set the expected profit data for the year.
-			newPeriodReport.setStartingExpectedProfit(expectedProfit);
-			newPeriodReport.setStartingExpectedRevenue(expectedRevenues);
-			newPeriodReport.setStartingExpectedExpenses(expectedExpenses);
-			newPeriodReport.setStartingExpectedInterest(expectedInterest);
+			CompanyModifier companyModifier = CompanyModiferFactory.getCompanyModifier(exchange.getCompanyModifierName());
 
-			companyPeriodReportDAO.savePeriodReport(newPeriodReport);
+			// Get the current period for the stock exchange.
+			// Create a period event generator...
+			PeriodEventGenerator generator = new PeriodEventGenerator();
+			Iterable<Company> companyList = companyDAO.getCompaniesByExchange(exchange);
 
-			generator.generateEvents(newPeriodReport, company, exchange);
-			company.setCurrentPeriod(newPeriodReport);
-			companyDAO.saveCompany(company);
+			for (Company company : companyList) {
+				company = CompanyDAO.getCompanyById(company.getId());
+				logger.info("Updating company: " + company.getName());
+				// Create a new company report entry..
+				CompanyPeriodReport currentPeriodReport = company.getCurrentPeriod();
+
+				long generation = 0;
+
+				if (currentPeriodReport != null) {
+					if (currentPeriodReport.getMinimumEndDate().after(currentDate)) {
+						// Can't end a period report before now...
+						// Do something about that...
+						logger.info("Too soon for company: " + company.getName() + " end date must be after: " + currentPeriodReport.getMinimumEndDate());
+						continue;
+					}
+					// Close this period off, distribute the dividends and save
+					// it.
+					generation = currentPeriodReport.getGeneration();
+					distributeDividends(currentPeriodReport);
+					currentPeriodReport.close(currentDate);
+					companyPeriodReportDAO.savePeriodReport(currentPeriodReport);
+					company.setPreviousPeriodReport(currentPeriodReport);
+				}
+
+				// Update the company based on the exchange provided company
+				// stat
+				// modifier
+				splitStocks(company);
+
+				companyModifier.modifyCompanyRates(company);
+				companyModifier.modifyCompanyDebts(company);
+
+				CompanyPeriodReport newPeriodReport = new CompanyPeriodReport(company, currentDate, exchange.getPeriodLength(), generation + 1);
+
+				// Calculate the expected return based on the current asset/debt
+				// and
+				// so on.
+				long primeInterestRateBasisPoints = company.getPrimeInterestRateBasisPoints();
+				long expectedExpenses = (company.getExpenseRate() + currentPeriod.getExpenseRateDelta()) * company.getAssetValue() / 100;
+				long expectedRevenues = (company.getRevenueRate() + currentPeriod.getRevenueRateDelta()) * company.getAssetValue() / 100;
+				long expectedInterest = (company.getDebtValue()) * primeInterestRateBasisPoints / 10000;
+				long expectedProfit = expectedRevenues - expectedExpenses - expectedInterest;
+
+				// Set the expected profit data for the year.
+				newPeriodReport.setStartingExpectedProfit(expectedProfit);
+				newPeriodReport.setStartingExpectedRevenue(expectedRevenues);
+				newPeriodReport.setStartingExpectedExpenses(expectedExpenses);
+				newPeriodReport.setStartingExpectedInterest(expectedInterest);
+
+				companyPeriodReportDAO.savePeriodReport(newPeriodReport);
+
+				generator.generateEvents(newPeriodReport, company, exchange);
+				company.setCurrentPeriod(newPeriodReport);
+				companyDAO.saveCompany(company);
+				HibernateUtil.flushAndClearSession();
+			}
 		}
 		return;
 	}
@@ -315,22 +336,23 @@ public class PeriodGenerator implements Runnable {
 
 	public void start() {
 		// Start a period. This will initialise companies reporting.
-		logger.info("Generating period reports: Starting exchange " + exchangeName);
-		StockExchange exchange = stockExchangeDAO.getStockExchangeByName(exchangeName);
-		if (exchange == null) {
+		logger.info("Generating period reports: Starting exchange group:" + groupName);
+
+		ExchangeGroup exchangeGroup = exchangeGroupDAO.getExchangeGroupByName(groupName);
+		if (exchangeGroup == null) {
 			return;
 		}
-		exchange.setUpdating(true);
+		exchangeGroup.setUpdating(true);
 	}
 
 	public void finish() {
 		// Start a period. This will initialise companies reporting.
-		logger.info("Generating period reports: finishing exchange " + exchangeName);
-		StockExchange exchange = stockExchangeDAO.getStockExchangeByName(exchangeName);
-		if (exchange == null) {
+		logger.info("Generating period reports: finishing exchange " + groupName);
+		ExchangeGroup exchangeGroup = exchangeGroupDAO.getExchangeGroupByName(groupName);
+		if (exchangeGroup == null) {
 			return;
 		}
-		exchange.setUpdating(false);
+		exchangeGroup.setUpdating(false);
 	}
 
 	/**

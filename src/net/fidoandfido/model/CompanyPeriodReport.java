@@ -403,7 +403,7 @@ public class CompanyPeriodReport {
 	}
 
 	public long getPeriodLength() {
-		return getCompany().getStockExchange().getCompanyPeriodLength();
+		return getCompany().getStockExchange().getPeriodLength();
 	}
 
 }
