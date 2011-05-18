@@ -1,3 +1,5 @@
+<%@page import="net.fidoandfido.model.ShareParcel"%>
+<%@page import="net.fidoandfido.dao.ShareParcelDAO"%>
 <%@page import="net.fidoandfido.servlets.GraphServlet"%>
 <%@page import="java.text.SimpleDateFormat"%>
 <%@page import="org.jfree.chart.axis.DateAxis"%>
@@ -306,6 +308,29 @@ to access (or create) your trader profile.</p>
 				<li>quarter profit: <%=WebPageUtil.formatCurrency(fourthQuarterEvent.getProfit())%></li>
 				<li><b>Final profit: <%= WebPageUtil.formatCurrency(currentReport.getFinalProfit()) %></b></li>
 					</ul>
+				</div>
+			</div>
+			
+			<div class="post">
+				<h2 class="title">Admin Information - Holdings</h2>
+				<div class="entry">
+				<table>
+<%
+
+			ShareParcelDAO shareParcelDAO = new ShareParcelDAO();
+			Iterable<ShareParcel> holdings = shareParcelDAO.getHoldingsByCompany(company);
+			for (ShareParcel holding : holdings)	{
+%>
+				<tr>
+					<td><%= holding.getTrader().getName() %></td>
+					<td><%= holding.getTrader().isAITrader() %></td>
+					<td><%= holding.getShareCount() %></td>
+					<td><%= WebPageUtil.formatCurrency(holding.getPurchasePrice()) %></td>
+				</tr>
+<%
+				}
+%>
+				</table>
 				</div>
 			</div>	
 <%
