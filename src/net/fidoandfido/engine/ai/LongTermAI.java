@@ -8,8 +8,7 @@ public class LongTermAI extends AITrader implements AITradeStrategy {
 
 	@Override
 	public String getName() {
-		// TODO Auto-generated method stub
-		return null;
+		return NAME;
 	}
 
 	@Override

@@ -57,4 +57,11 @@ public class TraderDAO {
 		List<Trader> results = crit.list();
 		return results;
 	}
+
+	public Trader getTraderById(String id) {
+		Session session = HibernateUtil.getSession();
+		Criteria crit = session.createCriteria(Trader.class);
+		crit.add(Restrictions.eq("id", id));
+		return (Trader) crit.uniqueResult();
+	}
 }

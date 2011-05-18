@@ -32,6 +32,8 @@ public class AIRunner implements Runnable {
 	// Seeded (as always!)
 	private Random aiSelector = new Random(17);
 
+	private static final int CHANCE_OF_LIQUIDATION = 3;
+
 	// Only do 10 traders each time
 	private static final int AI_TRADE_COUNT = 10;
 
@@ -79,31 +81,39 @@ public class AIRunner implements Runnable {
 
 			HibernateUtil.beginTransaction();
 			aiTraders = traderDAO.getAITraderList();
-			// for (Trader trader : aiTraders) {
-			// AITradeStrategy strategy =
-			// aiFactory.getStrategyByName(trader.getAiStrategyName());
-			// logger.info("AIRunner - Performing trades: " + trader.getName() +
-			// " -- " + trader.getAiStrategyName() + " -- " +
-			// strategy.getName());
-			// strategy.performTrades(trader);
-			// }
-
 			List<Trader> localList = new ArrayList<Trader>(aiTraders);
 
 			for (int i = 0; i < AI_TRADE_COUNT; i++) {
 				int index = aiSelector.nextInt(localList.size());
 				Trader trader = localList.get(index);
+				trader = traderDAO.getTraderById(trader.getId());
 				AITrader aiTrader = aiFactory.getStrategyByName(trader.getAiStrategyName());
 				logger.info("AIRunner - Performing trades: " + trader.getName() + " -- " + aiTrader.getName());
 				aiTrader.performTrades(trader);
 				localList.remove(index);
+				HibernateUtil.flushAndClearSession();
 			}
+			// Now have a 1 in CHANCE_OF_LIQUIDATION chance that a single trader
+			// might liquidate
+			// *all* their holdings.
+			if (aiSelector.nextInt(CHANCE_OF_LIQUIDATION) == 0 || true) {
+				int index = aiSelector.nextInt(localList.size());
+				Trader trader = localList.get(index);
+				trader = traderDAO.getTraderById(trader.getId());
+				// Liquidate!
+				AITrader aiTrader = new LiquididatingAI();
+				aiTrader.performTrades(trader);
+				localList.remove(index);
+				HibernateUtil.flushAndClearSession();
+			}
+
 			HibernateUtil.commitTransaction();
 			logger.info("AIRunner - processing complete");
 		} catch (Exception e) {
 			HibernateUtil.rollbackTransaction();
 			// logger.error("AI Runner - exception thrown! " + e.getMessage());
 			ServerUtil.logError(logger, e);
+			e.printStackTrace();
 		} finally {
 			logger.info("AI runner - processing finished");
 		}
