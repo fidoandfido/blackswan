@@ -60,6 +60,9 @@ public class StockExchange {
 	@Column
 	private long maxSharePrice = 0;
 
+	@Column
+	long requiredExperiencePoints = 0;
+
 	@OneToOne
 	@Cascade(value = CascadeType.ALL)
 	private StockExchangePeriod currentPeriod;
@@ -69,7 +72,7 @@ public class StockExchange {
 	}
 
 	public StockExchange(ExchangeGroup exchangeGroup, String name, String description, int companyCount, String eventGeneratorName, long companyPeriodLength,
-			long defaultPrimeInterestRateBasisPoints, String economicModifierName, String companyModifierName, long maxSharePrice)
+			long defaultPrimeInterestRateBasisPoints, String economicModifierName, String companyModifierName, long maxSharePrice, long requiredExperiencePoints)
 
 	{
 		super();
@@ -83,6 +86,18 @@ public class StockExchange {
 		this.economicModifierName = economicModifierName;
 		this.companyModifierName = companyModifierName;
 		this.maxSharePrice = maxSharePrice;
+		this.requiredExperiencePoints = requiredExperiencePoints;
+	}
+
+	/**
+	 * For testing purposes
+	 * 
+	 * @param name
+	 * @param defaultPrimeInterestRateBasisPoints
+	 */
+	public StockExchange(String name, long defaultPrimeInterestRateBasisPoints) {
+		this.name = name;
+		this.defaultPrimeInterestRateBasisPoints = defaultPrimeInterestRateBasisPoints;
 	}
 
 	@Override
@@ -289,6 +304,36 @@ public class StockExchange {
 	 */
 	public void setMaxSharePrice(long maxSharePrice) {
 		this.maxSharePrice = maxSharePrice;
+	}
+
+	/**
+	 * @return the exchangeGroup
+	 */
+	public ExchangeGroup getExchangeGroup() {
+		return exchangeGroup;
+	}
+
+	/**
+	 * @param exchangeGroup
+	 *            the exchangeGroup to set
+	 */
+	public void setExchangeGroup(ExchangeGroup exchangeGroup) {
+		this.exchangeGroup = exchangeGroup;
+	}
+
+	/**
+	 * @return the requiredExperiencePoints
+	 */
+	public long getRequiredExperiencePoints() {
+		return requiredExperiencePoints;
+	}
+
+	/**
+	 * @param requiredExperiencePoints
+	 *            the requiredExperiencePoints to set
+	 */
+	public void setRequiredExperiencePoints(long requiredExperiencePoints) {
+		this.requiredExperiencePoints = requiredExperiencePoints;
 	}
 
 }

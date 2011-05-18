@@ -9,6 +9,7 @@ import net.fidoandfido.dao.ShareParcelDAO;
 import net.fidoandfido.dao.TradeRecordDAO;
 import net.fidoandfido.dao.TraderDAO;
 import net.fidoandfido.dao.TraderEventDAO;
+import net.fidoandfido.engine.ExperiencePointGenerator.ExperienceEvent;
 import net.fidoandfido.model.Company;
 import net.fidoandfido.model.Order;
 import net.fidoandfido.model.Order.OrderType;
@@ -240,6 +241,10 @@ public class OrderProcessor {
 					buyer.getCash() + saleAmount);
 			traderEventDAO.saveTraderEvent(event);
 		}
+
+		ExperiencePointGenerator generator = new ExperiencePointGenerator();
+		generator.addExperiencePoints(buyer, ExperienceEvent.BUY_SHARES, saleAmount);
+		generator.addExperiencePoints(seller, ExperienceEvent.SELL_SHARES, saleAmount);
 
 		buyer.takeCash(saleAmount);
 		seller.giveCash(saleAmount);

@@ -28,6 +28,7 @@ public class ExchangeParser extends DefaultHandler {
 	private static final String COMPANY_MODIFIER_NAME = "company-modifier";
 	private static final String MAX_SHARE_PRICE_ATTRIB = "max-share-price";
 	private static final String EXCHANGE_GROUP_TAG = "exchange-group";
+	private static final String REQUIRED_XP_TAG = "required-xp";
 
 	private ExchangeGroup currentExchangeGroup;
 
@@ -58,10 +59,20 @@ public class ExchangeParser extends DefaultHandler {
 				String companyModifierName = attributes.getValue(COMPANY_MODIFIER_NAME);
 				long maxSharePrice = Long.parseLong(attributes.getValue(MAX_SHARE_PRICE_ATTRIB));
 				long interestRate = Long.parseLong(attributes.getValue(STARTING_INTEREST));
+
+				String xpString = attributes.getValue(REQUIRED_XP_TAG);
+				long requiredExperiencePoints = 0;
+				try {
+					requiredExperiencePoints = Long.parseLong(xpString);
+				} catch (NumberFormatException nfe) {
+					// and ignore it.
+				}
+
 				// EventGenerator generator =
 				// EventGeneratorFactory.getGeneratorByName(eventGeneratorName);
 				StockExchange stockExchange = new StockExchange(currentExchangeGroup, name, description, companyCount, eventGeneratorName,
-						currentExchangeGroup.getPeriodLength(), interestRate, economicModifierName, companyModifierName, maxSharePrice);
+						currentExchangeGroup.getPeriodLength(), interestRate, economicModifierName, companyModifierName, maxSharePrice,
+						requiredExperiencePoints);
 				currentExchangeGroup.addExchange(stockExchange);
 			}
 		}
