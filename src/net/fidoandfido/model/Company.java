@@ -160,6 +160,16 @@ public class Company {
 	// private long previousProfit = 0;
 
 	/**
+	 * Indicate how many good / bad quarters we have in a row prior to the start
+	 * of this period.
+	 */
+	@Column
+	private long quartersSinceGoodQuarter = 0;
+
+	@Column
+	private long quartersSinceBadQuarter = 0;
+
+	/**
 	 * Indicate how many periods (if any) this company has left of a golden age.
 	 * 
 	 * Small chance each period a company may enter a golden age; this is set by
@@ -689,6 +699,44 @@ public class Company {
 	 */
 	public void setCompanyStatus(String companyStatus) {
 		this.companyStatus = companyStatus;
+	}
+
+	/**
+	 * @return the quartersSinceGoodQuarter
+	 */
+	public long getQuartersSinceGoodQuarter() {
+		return quartersSinceGoodQuarter;
+	}
+
+	/**
+	 * @param quartersSinceGoodQuarter
+	 *            the quartersSinceGoodQuarter to set
+	 */
+	public void setQuartersSinceGoodQuarter(long quartersSinceGoodQuarter) {
+		this.quartersSinceGoodQuarter = quartersSinceGoodQuarter;
+	}
+
+	public void incrementQuartersSinceGoodQuarter() {
+		quartersSinceGoodQuarter++;
+	}
+
+	/**
+	 * @return the quartersSinceBadQuarter
+	 */
+	public long getQuartersSinceBadQuarter() {
+		return quartersSinceBadQuarter;
+	}
+
+	/**
+	 * @param quartersSinceBadQuarter
+	 *            the quartersSinceBadQuarter to set
+	 */
+	public void setQuartersSinceBadQuarter(long quartersSinceBadQuarter) {
+		this.quartersSinceBadQuarter = quartersSinceBadQuarter;
+	}
+
+	public void incrementQuartersSinceBadQuarter() {
+		quartersSinceBadQuarter++;
 	}
 
 }

@@ -330,4 +330,43 @@ public class PeriodEvent {
 		this.runningInterest = currentData.getRunningInterestPaid();
 	}
 
+	public boolean isBad() {
+		boolean isBad = false;
+		switch (eventType) {
+		case CATASTROPHIC:
+		case TERRIBLE:
+		case POOR:
+			isBad = true;
+			break;
+		case AVERAGE:
+		case EXTRAORDINARY:
+		case GOOD:
+		case GREAT:
+			isBad = false;
+			break;
+		}
+		return isBad;
+	}
+
+	public boolean isAverage() {
+		return eventType == EventType.AVERAGE;
+	}
+
+	public boolean isGood() {
+		boolean isGood = false;
+		switch (eventType) {
+		case EXTRAORDINARY:
+		case GOOD:
+		case GREAT:
+			isGood = true;
+			break;
+		case AVERAGE:
+		case CATASTROPHIC:
+		case TERRIBLE:
+		case POOR:
+			isGood = false;
+			break;
+		}
+		return isGood;
+	}
 }

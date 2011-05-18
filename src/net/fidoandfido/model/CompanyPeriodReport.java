@@ -353,6 +353,22 @@ public class CompanyPeriodReport {
 
 	public void close(Date currentDate) {
 		open = false;
+		// Update the company data - quarters since bad and good quarter
+		for (PeriodEvent event : periodEventList) {
+			if (event.isBad()) {
+				company.incrementQuartersSinceBadQuarter();
+				company.setQuartersSinceBadQuarter(0);
+			} else if (event.isGood()) {
+				company.incrementQuartersSinceGoodQuarter();
+				company.setQuartersSinceBadQuarter(0);
+			} else {
+				// Average!
+				company.incrementQuartersSinceGoodQuarter();
+				company.incrementQuartersSinceBadQuarter();
+			}
+
+		}
+
 		this.closeDate = currentDate;
 	}
 
@@ -406,4 +422,43 @@ public class CompanyPeriodReport {
 		return getCompany().getStockExchange().getPeriodLength();
 	}
 
+	public boolean anyQuartersAvailable() {
+		Date date = new Date();
+		for (PeriodEvent event : this.periodEventList) {
+			if (event.getDateInformationAvailable().before(date)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public long getQuartersSinceGoodQuarter() {
+		Date date = new Date();
+		long quarterCount = company.getQuartersSinceGoodQuarter();
+		for (PeriodEvent event : periodEventList) {
+			if (date.after(event.getDateInformationAvailable())) {
+				if (event.isBad() || event.isAverage()) {
+					quarterCount++;
+				} else {
+					quarterCount = 0;
+				}
+			}
+		}
+		return quarterCount;
+	}
+
+	public long getQuartersSinceBadQuarter() {
+		Date date = new Date();
+		long quarterCount = company.getQuartersSinceBadQuarter();
+		for (PeriodEvent event : periodEventList) {
+			if (date.after(event.getDateInformationAvailable())) {
+				if (event.isBad() || event.isAverage()) {
+					quarterCount++;
+				} else {
+					quarterCount = 0;
+				}
+			}
+		}
+		return quarterCount;
+	}
 }
