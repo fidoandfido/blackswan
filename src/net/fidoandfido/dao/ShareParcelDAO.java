@@ -8,6 +8,7 @@ import net.fidoandfido.model.Trader;
 
 import org.hibernate.Criteria;
 import org.hibernate.Session;
+import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 
 public class ShareParcelDAO {
@@ -22,6 +23,7 @@ public class ShareParcelDAO {
 		Session session = HibernateUtil.getSession();
 		Criteria crit = session.createCriteria(ShareParcel.class);
 		crit.add(Restrictions.eq("company", company));
+		crit.addOrder(Order.asc("trader"));
 		List<ShareParcel> results = crit.list();
 		return results;
 	}

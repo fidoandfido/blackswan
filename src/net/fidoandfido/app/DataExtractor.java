@@ -18,6 +18,7 @@ import net.fidoandfido.model.Company;
 import net.fidoandfido.model.CompanyPeriodReport;
 import net.fidoandfido.model.Order;
 import net.fidoandfido.model.PeriodRumour;
+import net.fidoandfido.model.ShareParcel;
 import net.fidoandfido.model.StockExchange;
 import net.fidoandfido.model.Trader;
 import net.fidoandfido.model.User;
@@ -61,7 +62,7 @@ public class DataExtractor {
 		dataExtractor.getUser("andy");
 		dataExtractor.getUser("Andy");
 		dataExtractor.getUser("Poultry");
-		// dataExtractor.writeData();
+		dataExtractor.blob();
 		HibernateUtil.commitTransaction();
 	}
 
@@ -92,11 +93,17 @@ public class DataExtractor {
 		}
 	}
 
-	public void blbo() {
-		Company company = companyDAO.getCompanyByCode("ONMO");
-
+	public void blob() {
+		Company company = companyDAO.getCompanyByCode("ONME");
 		CompanyPeriodReport periodReport = company.getCurrentPeriod();
+		System.out.println("Quarters since bad: " + periodReport.getQuartersSinceBadQuarter());
+		System.out.println("Quarters since good: " + periodReport.getQuartersSinceGoodQuarter());
 
+		ShareParcelDAO shareParcelDAO = new ShareParcelDAO();
+		Iterable<ShareParcel> holdings = shareParcelDAO.getHoldingsByCompany(company);
+		for (ShareParcel parcel : holdings) {
+			System.out.println("Holdings -- Trader: " + parcel.getTrader().getName());
+		}
 	}
 
 	public void ruma() {
