@@ -11,6 +11,8 @@ import net.fidoandfido.dao.StockExchangeDAO;
 import net.fidoandfido.dao.StockExchangePeriodDAO;
 import net.fidoandfido.dao.TraderDAO;
 import net.fidoandfido.dao.TraderEventDAO;
+import net.fidoandfido.engine.ExperiencePointGenerator;
+import net.fidoandfido.engine.ExperiencePointGenerator.ExperienceEvent;
 import net.fidoandfido.engine.companymodifiers.CompanyModiferFactory;
 import net.fidoandfido.engine.companymodifiers.CompanyModifier;
 import net.fidoandfido.engine.economicmodfiers.EconomicModifier;
@@ -300,6 +302,9 @@ public class PeriodGenerator implements Runnable {
 										parcel.getShareCount(), payment, trader.getCash(), trader.getCash() + payment);
 								traderEventDAO.saveTraderEvent(event);
 							}
+
+							ExperiencePointGenerator generator = new ExperiencePointGenerator();
+							generator.addExperiencePoints(trader, ExperienceEvent.DIVIDEND, payment);
 							trader.giveCash(payment);
 							traderDAO.saveTrader(trader);
 						}
