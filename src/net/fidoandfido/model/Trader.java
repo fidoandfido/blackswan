@@ -48,7 +48,7 @@ public class Trader {
 	private Set<ReputationItem> reputationItems = new HashSet<ReputationItem>();
 
 	@ManyToOne
-	private ExchangeGroup group;
+	private ExchangeGroup group;;
 
 	public Trader() {
 		// Default constructor required for persistence code.
@@ -314,6 +314,25 @@ public class Trader {
 
 	public void removeItem(ReputationItem item) {
 		reputationItems.remove(item);
+	}
+
+	/**
+	 * @return the group
+	 */
+	public ExchangeGroup getGroup() {
+		return group;
+	}
+
+	/**
+	 * @param group
+	 *            the group to set
+	 */
+	public void setGroup(ExchangeGroup group) {
+		this.group = group;
+	}
+
+	public void addExperiencePoints(long points) {
+		this.experiencePoints += points;
 	}
 
 }
