@@ -8,11 +8,8 @@ public class AIRunnerApp {
 	public static void main(String[] args) {
 		HibernateUtil.connectToDB();
 		HibernateUtil.beginTransaction();
-
 		AIRunner runner = new AIRunner();
 		runner.process();
-
 		HibernateUtil.commitTransaction();
-
 	}
 }
