@@ -104,14 +104,10 @@
 		
 	</target>	
 
-	<target name="copy_war" depends="make_war">
-		<copy file="myapp.war" tofile="/usr/local/apache-tomcat-7.0.11/webapps/myapp.war"></copy>
-	</target>	
-	
-	<target name="deploy" depends="stop, remove, install, start">
-			</target>
-		
 	<target name="installandrun" depends="install, start">
+			</target>
+	
+	<target name="redeploy" depends="stop, remove, install, start">
 			</target>
 	
     <target name="install" description="Install application in Tomcat"
