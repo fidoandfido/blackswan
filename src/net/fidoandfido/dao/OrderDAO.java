@@ -83,4 +83,14 @@ public class OrderDAO {
 		session.delete(order);
 	}
 
+	public Iterable<Order> getLastExecutedOrders(Company company, int i) {
+		Session session = HibernateUtil.getSession();
+		Criteria crit = session.createCriteria(Order.class);
+		crit.add(Restrictions.eq("company", company));
+		crit.add(Restrictions.eq("executed", Boolean.TRUE));
+		crit.addOrder(org.hibernate.criterion.Order.desc("dateExecuted"));
+		crit.setMaxResults(i);
+		return crit.list();
+	}
+
 }

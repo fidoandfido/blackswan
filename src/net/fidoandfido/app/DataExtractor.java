@@ -59,10 +59,7 @@ public class DataExtractor {
 		HibernateUtil.connectToDB();
 		HibernateUtil.beginTransaction();
 		DataExtractor dataExtractor = new DataExtractor();
-		dataExtractor.getUser("andy");
-		dataExtractor.getUser("Andy");
-		dataExtractor.getUser("Poultry");
-		dataExtractor.blob();
+		dataExtractor.getOrders();
 		HibernateUtil.commitTransaction();
 	}
 
@@ -94,7 +91,7 @@ public class DataExtractor {
 	}
 
 	public void blob() {
-		Company company = companyDAO.getCompanyByCode("ONME");
+		Company company = companyDAO.getCompanyByCode("AUDT");
 		CompanyPeriodReport periodReport = company.getCurrentPeriod();
 		System.out.println("Quarters since bad: " + periodReport.getQuartersSinceBadQuarter());
 		System.out.println("Quarters since good: " + periodReport.getQuartersSinceGoodQuarter());
@@ -103,6 +100,18 @@ public class DataExtractor {
 		Iterable<ShareParcel> holdings = shareParcelDAO.getHoldingsByCompany(company);
 		for (ShareParcel parcel : holdings) {
 			System.out.println("Holdings -- Trader: " + parcel.getTrader().getName());
+		}
+	}
+
+	public void getOrders() {
+		OrderDAO orderDAO = new OrderDAO();
+		Company company = companyDAO.getCompanyByCode("AUDT");
+		Iterable<Order> orders = orderDAO.getLastExecutedOrders(company, 10);
+		for (Order order : orders) {
+			System.out.println(order.getTrader().getName());
+			System.out.println(WebPageUtil.formatCurrency(order.getOfferPrice()));
+			System.out.println(order.getOriginalShareCount());
+			System.out.println(order.getOrderType());
 		}
 	}
 

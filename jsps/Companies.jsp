@@ -1,3 +1,5 @@
+<%@page import="net.fidoandfido.model.Order"%>
+<%@page import="net.fidoandfido.dao.OrderDAO"%>
 <%@page import="net.fidoandfido.model.ShareParcel"%>
 <%@page import="net.fidoandfido.dao.ShareParcelDAO"%>
 <%@page import="net.fidoandfido.servlets.GraphServlet"%>
@@ -127,7 +129,9 @@ to access (or create) your trader profile.</p>
 					<ul>
 					<li>Last share trade price: <%= WebPageUtil.formatCurrency(company.getLastTradePrice()) %></li>
 					<li>Share Book value: <%= WebPageUtil.formatCurrency(company.getCapitalisation() / company.getOutstandingShares()  ) %></li>
-					<li>Projected Earning per share: <%= WebPageUtil.formatCurrency(company.getCurrentPeriod().getStartingExpectedExpenses() / company.getOutstandingShares() ) %></li>
+					<li>Projected Earning per share: <%= WebPageUtil.formatCurrency(company.getCurrentPeriod().getStartingExpectedProfit() / company.getOutstandingShares() ) %> ( 
+						<%= ((company.getCurrentPeriod().getStartingExpectedProfit() * 100 / company.getOutstandingShares()) / company.getShareBookValue() )  %> 
+						% return)</li>
 					<li>Last dividend: <%= WebPageUtil.formatCurrency(company.getPreviousDividend()) %></li>
 					<li>Starting Profit outlook: <%= currentReport == null ? WebPageUtil.formatCurrency(0) : WebPageUtil.formatCurrency(currentReport.getStartingExpectedProfit()) %></li>
 					<li>Current Economic climate: <%= company.getStockExchange().getCurrentPeriod().getEconomicConditions() %></li>
@@ -310,6 +314,31 @@ to access (or create) your trader profile.</p>
 					</ul>
 				</div>
 			</div>
+
+			<div class="post">
+				<h2 class="title">Admin Information - Last trades</h2>
+				<div class="entry">
+				<table>
+<%
+
+			OrderDAO orderDAO = new OrderDAO();
+			Iterable<Order> orders = orderDAO.getLastExecutedOrders(company, 30);
+			for (Order order : orders)	{
+%>
+				<tr>
+					<td><%= order.getTrader().getName() %></td>
+					<td><%= WebPageUtil.formatCurrency(order.getOfferPrice()) %></td>
+					<td><%= order.getOriginalShareCount() %></td>
+					<td><%= order.getOrderType() %></td>
+					<td><%= order.getTrader().getAiStrategyName() %></td>
+				</tr>
+<%
+				}
+%>
+				</table>
+				</div>
+			</div>	
+
 			
 			<div class="post">
 				<h2 class="title">Admin Information - Holdings</h2>
@@ -324,6 +353,7 @@ to access (or create) your trader profile.</p>
 				<tr>
 					<td><%= holding.getTrader().getName() %></td>
 					<td><%= holding.getTrader().isAITrader() %></td>
+					<td><%= (holding.getTrader().isAITrader() ? trader.getAiStrategyName() : "---") %>
 					<td><%= holding.getShareCount() %></td>
 					<td><%= WebPageUtil.formatCurrency(holding.getPurchasePrice()) %></td>
 				</tr>
