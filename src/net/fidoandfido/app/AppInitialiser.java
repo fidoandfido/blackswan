@@ -59,11 +59,9 @@ public class AppInitialiser {
 
 	public static final int AIS_TO_GET_SHARES = 20;
 
-	/**
-	 * Number of instances of each trader strategy to create
-	 */
-	private static final int TRADER_STRATEGY_INSTANCE_COUNT = 10;
 	private static final String MARKET_MAKER_NAME = "Market Maker";
+	private static final long MIN_SHARE_COUNT = 50000;
+	private static final long MAX_SHARE_COUNT = 1000000;
 
 	private Map<String, StockExchange> exchangeMap = new HashMap<String, StockExchange>();
 	private Map<String, Trader> traderMap = new HashMap<String, Trader>();
@@ -166,7 +164,7 @@ public class AppInitialiser {
 
 		XMLReader reader = XMLReaderFactory.createXMLReader();
 		InputSource src = new InputSource(this.getClass().getResourceAsStream("/initdata.xml"));
-		TraderParser traderParser = new TraderParser(TRADER_STRATEGY_INSTANCE_COUNT);
+		TraderParser traderParser = new TraderParser();
 		reader.setContentHandler(traderParser);
 		reader.parse(src);
 
@@ -302,6 +300,13 @@ public class AppInitialiser {
 	private Set<String> codes = new HashSet<String>();
 	private Set<String> names = new HashSet<String>();
 
+	private Random assetValueRandom = new Random(17);
+	private Random debtValueRandom = new Random(17);
+	private Random bookValueRandom = new Random(17);
+	private Random dividendRateRandom = new Random(17);
+	private Random expenseRateRandom = new Random(17);
+	private Random returnRateRandom = new Random(17);
+
 	public Company getNewCompany() {
 		String name = "";
 		String code = "";
@@ -355,14 +360,82 @@ public class AppInitialiser {
 		String sector = body.sector;
 		String modifierName = body.strategy;
 		//
-		// At the moment, companies start out all the same.
-		// This should be tweaked!!!
-		long assets = /*			*/100000000; // formatting retarded for clarity!
-		long debt = /*				 */50000000;
-		long shareCount = /*           */100000;
-		long dividendRate = 25;
-		long defaultRevenueRate = 20;
-		long defaultExpenseRate = 12;
+		// // At the moment, companies start out all the same.
+		// // This should be tweaked!!!
+		// // formatting retarded for clarity!
+		// long assets = /* */100000000;
+		// long debt = /* */50000000;
+		// long shareCount = /* */100000;
+		// long dividendRate = 25;
+		// long defaultRevenueRate = 20;
+		// long defaultExpenseRate = 12;
+		//
+
+		// Psuedo-randomly generate companies!
+		// For the assets, lets get a number between 1 and 200, and multiply it
+		// by 100,000 dollars.
+		// This gives assets in the range of 100,000 and 20,000,000.
+		// For added... something, lets make the number between 10 and 2000 and
+		// multiply by 10,000 dollars.
+		long assets = (assetValueRandom.nextInt(1990) + 10) * 1000000;
+
+		// Obviously (!) debt must be less than the assets; but how much so?
+		// Debt will be between 10 and 90% of the assets.
+		long debt = (debtValueRandom.nextInt(80) + 10) * assets / 100;
+		// Round the debt off to nearest $10,000 ... Note this may '0' the debt.
+		// That is okay.
+		debt = (debt / 1000000) * 1000000;
+
+		// Starting book value? Owners equity?
+		// We can work out the starting equity...
+		long equity = assets - debt;
+		// Given equity is between anywhere between 10,000 and 20,000,000
+		// dollars,
+		// This will be slightly complex. So... Here are the rules...
+		// There is a minimum share count of 50,000 and maximum of 1,000,000.
+		// Starting book value is randomised to be between 50c and $20 (ie 50
+		// and 2000).
+		// If this value leads to either the max or min share count being
+		// broken, the
+		// appropriate one will then be used.
+		long shareBookValue = bookValueRandom.nextInt(1950) + 50;
+		long shareCount = equity / shareBookValue;
+		if (shareCount < MIN_SHARE_COUNT) {
+			shareCount = MIN_SHARE_COUNT;
+		} else if (shareCount > MAX_SHARE_COUNT) {
+			shareCount = MAX_SHARE_COUNT;
+		} else {
+			// Round the share count to two decimal places...
+			// Can't find a better solution to this on the interwebs.
+			// There must be a better way right? Right?
+			int digits = 0;
+			while (shareCount > 100) {
+				shareCount = shareCount / 10;
+				digits++;
+			}
+			while (digits > 0) {
+				shareCount = shareCount * 10;
+				digits--;
+			}
+		}
+
+		shareBookValue = equity / shareCount;
+
+		// Now the dividend rate.
+		// This will be somewhere between 20 and 80 %, stepping in 5%
+		// increments.
+		long dividendRate = (dividendRateRandom.nextInt(12) * 5) + 20;
+
+		// Expense and revenue rates. This one is a bit simpler;
+		// calculate the expense rate and the return delta.
+		// Expenses will be between 8 and 25.
+		long defaultExpenseRate = expenseRateRandom.nextInt(18) + 8;
+
+		// Return will be calculated slightly differently. Bias towards a return
+		// rate of 4%
+		int possibleReturns[] = { 2, 3, 3, 4, 4, 4, 5, 5, 6, 7, 8 };
+		int returnRate = possibleReturns[returnRateRandom.nextInt(possibleReturns.length)];
+		long defaultRevenueRate = defaultExpenseRate + returnRate;
 
 		Company company = new Company(name, code, assets, debt, shareCount, sector, modifierName, dividendRate, defaultRevenueRate, defaultExpenseRate);
 
@@ -415,7 +488,7 @@ public class AppInitialiser {
 	public List<CompanyNameSuffix> suffixes = new ArrayList<CompanyNameSuffix>();
 	private Trader marketMakerTrader;
 
-	private void initCompanyGenerator() throws SAXException, IOException {
+	public void initCompanyGenerator() throws SAXException, IOException {
 		InputSource src = new InputSource(this.getClass().getResourceAsStream("/initdata.xml"));
 		XMLReader reader = XMLReaderFactory.createXMLReader();
 		CompanyNameParser companyNameParser = new CompanyNameParser(this);

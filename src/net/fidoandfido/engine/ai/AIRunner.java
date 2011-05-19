@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import net.fidoandfido.app.AppInitialiser;
 import net.fidoandfido.dao.HibernateUtil;
 import net.fidoandfido.dao.OrderDAO;
 import net.fidoandfido.dao.TraderDAO;
@@ -32,7 +33,7 @@ public class AIRunner implements Runnable {
 	// Seeded (as always!)
 	private Random aiSelector = new Random(17);
 
-	private static final int CHANCE_OF_LIQUIDATION = 3;
+	private static final int CHANCE_OF_LIQUIDATION = 10;
 
 	// Only do 10 traders each time
 	private static final int AI_TRADE_COUNT = 10;
@@ -103,6 +104,7 @@ public class AIRunner implements Runnable {
 				// Liquidate!
 				AITrader aiTrader = new LiquididatingAI();
 				aiTrader.performTrades(trader);
+				trader.setCash(AppInitialiser.TRADER_START_CASH);
 				localList.remove(index);
 				HibernateUtil.flushAndClearSession();
 			}

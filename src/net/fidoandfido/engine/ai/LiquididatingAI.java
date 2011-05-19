@@ -29,8 +29,8 @@ public class LiquididatingAI extends AITrader implements AITradeStrategy {
 			long shareCount = shareParcel.getShareCount();
 			Company company = shareParcel.getCompany();
 			long askingPrice = company.getLastTradePrice();
-			// Since we are selling, drop the price by 5 %
-			long bigDelta = (askingPrice * 5);
+			// Since we are selling, drop the price by the bad sell rate
+			long bigDelta = (askingPrice * DefaultAITradeExecutor.SELL_RATE);
 			long bigAskingPrice = (100 * askingPrice) + bigDelta;
 			askingPrice = bigAskingPrice / 100;
 			if (askingPrice == 0) {

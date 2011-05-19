@@ -6,8 +6,8 @@ public class AIStrategyFactory {
 		if (NaiveAI.Name.equals(strategyName)) {
 			return new NaiveAI();
 		}
-		if (ReactiveAI.Name.equals(strategyName)) {
-			return new ReactiveAI();
+		if (EarningAI.Name.equals(strategyName)) {
+			return new EarningAI();
 		}
 		if (ValueAI.Name.equals(strategyName)) {
 			return new ValueAI();

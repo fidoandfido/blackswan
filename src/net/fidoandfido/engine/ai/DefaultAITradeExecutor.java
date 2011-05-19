@@ -21,19 +21,26 @@ public class DefaultAITradeExecutor implements AITradeExecutor {
 	private OrderDAO orderDAO = new OrderDAO();
 	private ShareParcelDAO shareParcelDAO = new ShareParcelDAO();
 
-	private static final long MAX_BUY_COUNT = 1000;
+	public static final long DEFAULT_BUY_COUNT = 1000;
+	public static final long DEFAULT_SELL_COUNT = 1000;
+	public static final long MAX_BUY_COUNT = 2000;
 
-	private static final int VERY_GOOD_BUY_RATE = 10;
-	private static final int GOOD_BUY_RATE = 5;
-	private static final int BAD_SELL_RATE = -5;
-	private static final int VERY_BAD_SELL_RATE = -10;
+	public static final int VERY_GOOD_BUY_RATE = 10;
+	public static final int GOOD_BUY_RATE = 5;
+	public static final int BUY_RATE = 2;
+	public static final int SELL_RATE = -2;
+	public static final int BAD_SELL_RATE = -5;
+	public static final int VERY_BAD_SELL_RATE = -10;
 
 	@Override
-	public void executeBuy(Trader trader, Company company, boolean veryGood) {
+	public void executeBuy(Trader trader, Company company, int rate, long preferredShareCount) {
 		// We are going to buy some shares!
 		long offerPrice = company.getLastTradePrice();
 		// Since we are buying, adjust the price...
-		offerPrice = adjustPrice(offerPrice, veryGood ? VERY_GOOD_BUY_RATE : GOOD_BUY_RATE);
+		if (rate < 0) {
+			logger.error("Trader " + trader + " trying to buy shares with negative adjusted price rate!" + rate);
+		}
+		offerPrice = adjustPrice(offerPrice, rate < 0 ? 0 : rate);
 		logger.info("AI Buying shares:  " + trader.getAiStrategyName() + " co: " + company.getName() + " at: " + offerPrice);
 		if (offerPrice < 10) {
 			offerPrice = 10;
@@ -50,7 +57,11 @@ public class DefaultAITradeExecutor implements AITradeExecutor {
 		long usableCash = cash - committedFunds;
 		if (usableCash > offerPrice) {
 			long shareCount = usableCash / offerPrice;
-			shareCount = shareCount > MAX_BUY_COUNT ? MAX_BUY_COUNT : shareCount;
+			if (shareCount > preferredShareCount) {
+				shareCount = preferredShareCount;
+			}
+			shareCount = shareCount > MAX_BUY_COUNT ? MAX_BUY_COUNT : preferredShareCount;
+
 			if (shareCount < 10) {
 				return;
 			}
@@ -72,11 +83,10 @@ public class DefaultAITradeExecutor implements AITradeExecutor {
 	}
 
 	@Override
-	public void executeSell(Trader trader, Company company, boolean veryBad) {
+	public void executeSell(Trader trader, Company company, int rate, long shareCount) {
 		ShareParcel parcel = shareParcelDAO.getHoldingsByTraderForCompany(trader, company);
 		if (parcel != null) {
 			// We are going to sell all our shares!
-			long shareCount = veryBad ? parcel.getShareCount() : parcel.getShareCount() / 2;
 			if (shareCount < 10) {
 				shareCount = parcel.getShareCount();
 			}
@@ -86,8 +96,11 @@ public class DefaultAITradeExecutor implements AITradeExecutor {
 			}
 
 			long askingPrice = company.getLastTradePrice();
-			// Since we are selling, drop the price by 5 %
-			askingPrice = adjustPrice(askingPrice, veryBad ? VERY_BAD_SELL_RATE : BAD_SELL_RATE);
+			// Since we are selling, drop the price...
+			if (rate > 0) {
+				logger.error("Trader " + trader + " trying to buy shares with positive adjusted price rate!" + rate);
+			}
+			askingPrice = adjustPrice(askingPrice, rate > 0 ? 0 : rate);
 			if (askingPrice == 0) {
 				askingPrice = 1;
 			}

@@ -267,7 +267,7 @@ public class OrderProcessor {
 		// Update the orders
 		Company company = buyOrder.getCompany();
 
-		company.setLastTradeChange(company.getLastTradePrice() - buyOrder.getOfferPrice());
+		company.setLastTradeChange(buyOrder.getOfferPrice() - company.getLastTradePrice());
 		company.setLastTradePrice(buyOrder.getOfferPrice());
 
 		setOrderExecuted(sellOrder, executedDate);

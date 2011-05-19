@@ -42,18 +42,22 @@ public class NaiveAI extends AITrader {
 
 			switch (periodEvent.getEventType()) {
 			case CATASTROPHIC:
+				sell(trader, company, DefaultAITradeExecutor.VERY_BAD_SELL_RATE, DefaultAITradeExecutor.DEFAULT_SELL_COUNT);
+				break;
 			case TERRIBLE:
-				sell(trader, company, true);
+				sell(trader, company, DefaultAITradeExecutor.BAD_SELL_RATE, DefaultAITradeExecutor.DEFAULT_SELL_COUNT);
 				break;
 			case POOR:
-				sell(trader, company, false);
+				sell(trader, company, DefaultAITradeExecutor.SELL_RATE, DefaultAITradeExecutor.DEFAULT_SELL_COUNT);
 				break;
 			case GOOD:
+				buy(trader, company, DefaultAITradeExecutor.BUY_RATE, DefaultAITradeExecutor.DEFAULT_BUY_COUNT);
+				break;
 			case GREAT:
-				buy(trader, company, false);
+				buy(trader, company, DefaultAITradeExecutor.GOOD_BUY_RATE, DefaultAITradeExecutor.DEFAULT_BUY_COUNT);
 				break;
 			case EXTRAORDINARY:
-				buy(trader, company, true);
+				buy(trader, company, DefaultAITradeExecutor.VERY_GOOD_BUY_RATE, DefaultAITradeExecutor.MAX_BUY_COUNT);
 				break;
 			case AVERAGE:
 			}

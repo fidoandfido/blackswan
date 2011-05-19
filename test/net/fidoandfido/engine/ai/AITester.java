@@ -66,20 +66,20 @@ public class AITester {
 	private static class TestTradeExecutor implements AITrader.AITradeExecutor {
 
 		@Override
-		public void executeBuy(Trader trader, Company company, boolean veryGood) {
+		public void executeBuy(Trader trader, Company company, int adjustPriceRate, long shareCount) {
 			// TODO Auto-generated method stub
 			System.out.println();
 			System.out.println();
-			System.out.println("TRADER BUYING SHARES!  " + (veryGood ? "Very good" : "normal"));
+			System.out.println("TRADER BUYING SHARES!  Adjust price: " + adjustPriceRate + "%, share count: " + shareCount);
 			print(trader, company);
 		}
 
 		@Override
-		public void executeSell(Trader trader, Company company, boolean veryBad) {
+		public void executeSell(Trader trader, Company company, int adjustPriceRate, long shareCount) {
 			// TODO Auto-generated method stub
 			System.out.println();
 			System.out.println();
-			System.out.println("TRADER SELLING SHARES!  " + (veryBad ? "Very good" : "normal"));
+			System.out.println("TRADER SELLING SHARES!  Adjust price: " + adjustPriceRate + "%, share count: " + shareCount);
 			print(trader, company);
 		}
 

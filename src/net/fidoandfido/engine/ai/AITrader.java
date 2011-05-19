@@ -8,9 +8,9 @@ import org.apache.log4j.Logger;
 public abstract class AITrader implements AITradeStrategy {
 
 	public static interface AITradeExecutor {
-		public void executeBuy(Trader trader, Company company, boolean veryGood);
+		public void executeBuy(Trader trader, Company company, int adjustPriceRate, long shareCount);
 
-		public void executeSell(Trader trader, Company company, boolean veryBad);
+		public void executeSell(Trader trader, Company company, int adjustPriceRate, long shareCount);
 	}
 
 	Logger logger = Logger.getLogger(getClass());
@@ -32,11 +32,11 @@ public abstract class AITrader implements AITradeStrategy {
 		this.executor = executor;
 	}
 
-	protected void buy(Trader trader, Company company, boolean veryGood) {
-		executor.executeBuy(trader, company, veryGood);
+	protected void buy(Trader trader, Company company, int adjustPriceRate, long shareCount) {
+		executor.executeBuy(trader, company, adjustPriceRate, shareCount);
 	}
 
-	protected void sell(Trader trader, Company company, boolean veryBad) {
-		executor.executeSell(trader, company, veryBad);
+	protected void sell(Trader trader, Company company, int adjustPriceRate, long shareCount) {
+		executor.executeSell(trader, company, adjustPriceRate, shareCount);
 	}
 }

@@ -279,6 +279,9 @@ public class Company {
 	}
 
 	public long getExpectedEarningsPerShare() {
+		if (currentPeriod == null) {
+			return 0;
+		}
 		long profit = currentPeriod.getStartingExpectedProfit();
 		return (profit / outstandingShares);
 	}

@@ -54,10 +54,10 @@ public class RandomAI extends AITrader {
 			int decision = sellOrBuyRandom.nextInt(CHANCE_TO_BUY_OR_SELL);
 			if (decision == BUY) {
 				// This one is a buy!
-				buy(trader, company, true);
+				buy(trader, company, DefaultAITradeExecutor.BUY_RATE, DefaultAITradeExecutor.DEFAULT_BUY_COUNT);
 			} else if (decision == SELL) {
 				// time to sell!
-				sell(trader, company, true);
+				sell(trader, company, DefaultAITradeExecutor.SELL_RATE, DefaultAITradeExecutor.DEFAULT_SELL_COUNT);
 			}
 		}
 	}

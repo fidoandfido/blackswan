@@ -50,10 +50,10 @@ public class ValueAI extends AITrader {
 			long priceToEarningsRate = (expectedEarning * 100 / sharePrice);
 			if (priceToEarningsRate > (company.getPrimeInterestRateBasisPoints() / 100)) {
 				// This one is a buy!
-				buy(trader, company, false);
+				buy(trader, company, DefaultAITradeExecutor.VERY_GOOD_BUY_RATE, DefaultAITradeExecutor.DEFAULT_BUY_COUNT);
 			} else {
 				// time to sell!
-				sell(trader, company, false);
+				sell(trader, company, DefaultAITradeExecutor.SELL_RATE, DefaultAITradeExecutor.DEFAULT_SELL_COUNT);
 			}
 		}
 	}

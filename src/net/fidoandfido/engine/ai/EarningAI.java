@@ -8,9 +8,9 @@ import net.fidoandfido.model.Company;
 import net.fidoandfido.model.PeriodEvent;
 import net.fidoandfido.model.Trader;
 
-public class ReactiveAI extends AITrader {
+public class EarningAI extends AITrader {
 
-	public static final String Name = "Reactive";
+	public static final String Name = "Earnings";
 
 	private PeriodPartInformationDAO periodPartInformationDAO = new PeriodPartInformationDAO();
 
@@ -33,27 +33,25 @@ public class ReactiveAI extends AITrader {
 
 			/**
 			 * So, assuming equity of $50,000 and 10,0000 shares, that would be
-			 * a value of $5 per share. Since we expect a 10% return, a share
-			 * price of up to 10 % more is acceptable.
+			 * a value of $5 per share. Since we expect a 5% return, a share
+			 * price of up to 5 % more is acceptable.
 			 */
 
 			if (shareEquityValue > sharePrice) {
 				// Instant buy!!!
-				buy(trader, company, true);
+				buy(trader, company, DefaultAITradeExecutor.GOOD_BUY_RATE, DefaultAITradeExecutor.DEFAULT_BUY_COUNT);
 				continue;
 			}
-
-			if (shareEquityValue > (sharePrice * 110 / 100)) {
-				buy(trader, company, false);
+			if (shareEquityValue > (sharePrice * 105 / 100)) {
+				buy(trader, company, DefaultAITradeExecutor.BUY_RATE, DefaultAITradeExecutor.DEFAULT_BUY_COUNT);
 				continue;
 			}
 			if ((sharePrice * 3 / 2) > shareEquityValue) {
-				sell(trader, company, false);
+				sell(trader, company, DefaultAITradeExecutor.SELL_RATE, DefaultAITradeExecutor.DEFAULT_SELL_COUNT);
 				continue;
 			}
 			if ((sharePrice * 2) > shareEquityValue) {
-				sell(trader, company, true);
-				continue;
+				sell(trader, company, DefaultAITradeExecutor.VERY_BAD_SELL_RATE, DefaultAITradeExecutor.DEFAULT_SELL_COUNT);
 			}
 
 		}

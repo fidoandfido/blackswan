@@ -25,17 +25,16 @@ public class AISeller {
 		private OrderDAO orderDAO = new OrderDAO();
 
 		@Override
-		public void executeBuy(Trader trader, Company company, boolean veryGood) {
+		public void executeBuy(Trader trader, Company company, int adjustPriceRate, long shareCount) {
 			// TODO Auto-generated method stub
 
 		}
 
 		@Override
-		public void executeSell(Trader trader, Company company, boolean veryBad) {
+		public void executeSell(Trader trader, Company company, int adjustPriceRate, long shareCount) {
 			ShareParcel parcel = shareParcelDAO.getHoldingsByTraderForCompany(trader, company);
 			if (parcel != null) {
 				// We are going to sell all our shares!
-				long shareCount = 2000;
 				if (shareCount > parcel.getShareCount()) {
 					shareCount = parcel.getShareCount() / 2;
 				}
@@ -117,7 +116,7 @@ public class AISeller {
 				aiTrader.setExecutor(new SellExecutor());
 				List<Company> companyList = companyDAO.getCompanyList();
 				for (Company company : companyList) {
-					aiTrader.sell(trader, company, true);
+					aiTrader.sell(trader, company, -10, 2000);
 				}
 				HibernateUtil.commitTransaction();
 			}
