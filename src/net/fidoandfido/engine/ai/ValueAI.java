@@ -28,10 +28,9 @@ public class ValueAI extends AITrader {
 	public void performTrades(Trader trader) {
 		// So basically, we are going to get some companies, look at their
 		// earnings per share,
-		// if the earning per share (as a percent) is above the stock market
-		// prime interest rate, we buy
-		// if the earning per share (as a percent) is below the stock market
-		// prime interest rate, we sell
+		// We are looking at the book value + the current earning % as a
+		// premium, minimum price is the book value.
+
 		Set<Company> companySet = new HashSet<Company>();
 
 		List<PeriodEvent> recentEvents = periodPartInformationDAO.getLatestEvents(20, new Date());
@@ -45,12 +44,22 @@ public class ValueAI extends AITrader {
 				continue;
 			}
 
+			long bookValue = company.getShareBookValue();
 			long sharePrice = company.getLastTradePrice();
 			long expectedEarning = company.getExpectedEarningsPerShare();
 			long priceToEarningsRate = (expectedEarning * 100 / sharePrice);
-			if (priceToEarningsRate > (company.getPrimeInterestRateBasisPoints() / 100)) {
+
+			// bookvalue = 1000
+			// p2e = 5
+			// fp = ((1000 * (100 + 5)) / 100) = 1050 <- correct!
+			long fairPrice = ((bookValue * (100 + priceToEarningsRate)) / 100);
+			if (fairPrice < bookValue) {
+				fairPrice = bookValue;
+			}
+
+			if (fairPrice < company.getLastTradePrice()) {
 				// This one is a buy!
-				buy(trader, company, DefaultAITradeExecutor.VERY_GOOD_BUY_RATE, DefaultAITradeExecutor.DEFAULT_BUY_COUNT);
+				buy(trader, company, DefaultAITradeExecutor.GOOD_BUY_RATE, DefaultAITradeExecutor.DEFAULT_BUY_COUNT);
 			} else {
 				// time to sell!
 				sell(trader, company, DefaultAITradeExecutor.SELL_RATE, DefaultAITradeExecutor.DEFAULT_SELL_COUNT);
