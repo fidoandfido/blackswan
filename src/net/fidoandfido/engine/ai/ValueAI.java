@@ -57,7 +57,7 @@ public class ValueAI extends AITrader {
 				fairPrice = bookValue;
 			}
 
-			if (fairPrice < company.getLastTradePrice()) {
+			if (fairPrice > company.getLastTradePrice()) {
 				// This one is a buy!
 				buy(trader, company, DefaultAITradeExecutor.GOOD_BUY_RATE, DefaultAITradeExecutor.DEFAULT_BUY_COUNT);
 			} else {
