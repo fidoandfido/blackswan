@@ -21,10 +21,10 @@
 	HibernateUtil.beginTransaction();
 	User user = WebUtil.getCurrentUserBySession(request.getSession().getId());
 	boolean isAdmin = user == null ? false : user.isUserAdmin();
-
+	TraderDAO traderDAO = new TraderDAO();
 	Trader trader = null;
 	if (user != null) {
-		trader = TraderDAO.getTraderByUser(user);	
+		trader = traderDAO.getTraderByUser(user);	
 	}
 	Date currentDate = new Date();
 
