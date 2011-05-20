@@ -54,6 +54,7 @@ public class TraderDAO {
 		Session session = HibernateUtil.getSession();
 		Criteria crit = session.createCriteria(Trader.class);
 		crit.add(Restrictions.eq("isAITrader", Boolean.TRUE));
+		crit.add(Restrictions.eq("isMarketMaker", Boolean.FALSE));
 		List<Trader> results = crit.list();
 		return results;
 	}
