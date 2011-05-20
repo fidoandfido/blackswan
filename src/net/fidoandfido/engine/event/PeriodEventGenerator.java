@@ -9,8 +9,6 @@ import net.fidoandfido.dao.CompanyPeriodReportDAO;
 import net.fidoandfido.dao.PeriodPartInformationDAO;
 import net.fidoandfido.dao.RumourDAO;
 import net.fidoandfido.engine.eventgenerators.EventGeneratorFactory;
-import net.fidoandfido.engine.profitmodifers.ConstantModifier;
-import net.fidoandfido.engine.profitmodifers.EventProfitModifier;
 import net.fidoandfido.engine.profitmodifers.LinearProfitModifier;
 import net.fidoandfido.model.Company;
 import net.fidoandfido.model.CompanyPeriodReport;
@@ -22,7 +20,7 @@ import net.fidoandfido.util.Constants.EventType;
 
 public class PeriodEventGenerator {
 
-	// To be used to get the event type.\
+	// To be used to get the event type.
 	private Random randomTime = new Random();
 
 	// These will be thrown away!
@@ -77,21 +75,11 @@ public class PeriodEventGenerator {
 			}
 		}
 
-		// Create a long term sector outlook...
 		String sectorName = company.getSector();
-		// EventProfitModifier profitModifer =
-		// getProfitModifer(company.getProfitModifierName());
 		LinearProfitModifier profitModifier = new LinearProfitModifier();
-
 		EventGenerator eventGenerator = EventGeneratorFactory.getGeneratorByName(stockExchange.getName(), stockExchange.getEventGeneratorName());
 
-		// long startingProfit = periodReport.getStartingExpectedProfit();
-		// long startingExpenses = periodReport.getStartingExpectedExpenses();
-		// long startingRevenue = periodReport.getStartingExpectedRevenue();
-		// long startingInterest = periodReport.getStartingExpectedInterest();
-
 		EventData eventData = new EventData(0, 0, 0, 0);
-
 		SectorNewsEvent sectorEvent = null;
 		if (sectorEventMap.containsKey(sectorName)) {
 			sectorEvent = sectorEventMap.get(sectorName);
@@ -99,21 +87,8 @@ public class PeriodEventGenerator {
 			// Get the event type...
 			sectorEvent = new SectorNewsEvent(sectorName);
 
-			// Generate the long term outlook
-			// sectorEvent.setLongEventDate(getDateWithinPeriod(periodReport,
-			// PERIOD_PART_COUNT, FIRST_QUARTER_PART_INDEX, true));
-			// TODO - generate appropriate messages and event
 			sectorEvent.setFirstEventType(eventGenerator.getNextEventType());
-			// sectorEvent.setLongMessage("--> " +
-			// sectorEvent.getLongEventType());
-
-			// Generate the short term outlook
-			// sectorEvent.setShortEventDate(getDateWithinPeriod(periodReport,
-			// PERIOD_PART_COUNT, THIRD_QUARTER_PART_INDEX, true));
-			// TODO - generate appropriate message and event
 			sectorEvent.setSecondEventType(eventGenerator.getNextEventType(sectorEvent.getFirstEventType()));
-			// sectorEvent.setShortMessage("Short term sector outlook --> " +
-			// sectorEvent.getShortEventType());
 
 			sectorEventMap.put(sectorName, sectorEvent);
 		}
@@ -214,11 +189,8 @@ public class PeriodEventGenerator {
 	}
 
 	private String getMessage(EventType eventType) {
-		// TODO Auto-generated method stub
 		String message = "Something happened!";
-
 		switch (eventType) {
-
 		case CATASTROPHIC:
 			message = "Revenues slashed on weak ecomonic figures; rising costs of yak food threaten company";
 			break;
@@ -255,15 +227,15 @@ public class PeriodEventGenerator {
 		switch (event.getEventType()) {
 
 		case CATASTROPHIC:
-			// rumour chance: 50 %
-			if (rumourRandomValue <= 50) {
+			// rumour chance: 80 %
+			if (rumourRandomValue <= 80) {
 				generateRumour = true;
 				positive = false;
 			}
 			break;
 		case TERRIBLE:
-			// rumour chance: 20 %
-			if (rumourRandomValue <= 20) {
+			// rumour chance: 50 %
+			if (rumourRandomValue <= 50) {
 				generateRumour = true;
 				positive = false;
 			}
@@ -284,15 +256,15 @@ public class PeriodEventGenerator {
 				positive = true;
 			}
 			break;
-		case GREAT:// rumour chance: 20 %
-			if (rumourRandomValue <= 20) {
+		case GREAT:// rumour chance: 40 %
+			if (rumourRandomValue <= 40) {
 				generateRumour = true;
 				positive = true;
 			}
 			break;
 		case EXTRAORDINARY:
-			// rumour chance: 50 %
-			if (rumourRandomValue <= 50) {
+			// rumour chance: 80 %
+			if (rumourRandomValue <= 80) {
 				generateRumour = true;
 				positive = true;
 			}
@@ -325,13 +297,6 @@ public class PeriodEventGenerator {
 
 		}
 
-	}
-
-	private EventProfitModifier getProfitModifer(String profitModifierName) {
-		if (LinearProfitModifier.NAME.equals(profitModifierName)) {
-			return new LinearProfitModifier();
-		}
-		return new ConstantModifier();
 	}
 
 	/**
