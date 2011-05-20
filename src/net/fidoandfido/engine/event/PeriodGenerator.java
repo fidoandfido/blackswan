@@ -156,7 +156,6 @@ public class PeriodGenerator implements Runnable {
 			economicModifier.modifiyExchangePeriod(currentPeriod, previousPeriod);
 
 			exchange.setCurrentPeriod(currentPeriod);
-
 			CompanyModifier companyModifier = CompanyModiferFactory.getCompanyModifier(exchange.getCompanyModifierName());
 
 			// Get the current period for the stock exchange.
@@ -166,6 +165,11 @@ public class PeriodGenerator implements Runnable {
 
 			for (Company company : companyList) {
 				company = CompanyDAO.getCompanyById(company.getId());
+
+				if (!company.isTrading()) {
+					continue;
+				}
+
 				logger.info("Updating company: " + company.getName());
 				// Create a new company report entry..
 				CompanyPeriodReport currentPeriodReport = company.getCurrentPeriod();
@@ -179,22 +183,33 @@ public class PeriodGenerator implements Runnable {
 						logger.info("Too soon for company: " + company.getName() + " end date must be after: " + currentPeriodReport.getMinimumEndDate());
 						continue;
 					}
-					// Close this period off, distribute the dividends and save
-					// it.
+
+					// Update the company:
+					// Split stocks (if required)
+					// Update the company status
+					// Update revenue / expense based on company stats modifier
+					// Update debt based company stats modifier
+					// Close this period off
+					// distribute the dividends
+					// Finally - save it!
+					splitStocks(company);
+
+					companyModifier.updateCompanyTradingStatus(company);
+					if (!company.isTrading()) {
+						continue;
+					}
+					companyModifier.modifyCompanyRates(company);
+
+					if (!company.isInsolvent()) {
+						companyModifier.modifyCompanyDebts(company);
+					}
+
 					generation = currentPeriodReport.getGeneration();
 					distributeDividends(currentPeriodReport);
 					currentPeriodReport.close(currentDate);
 					companyPeriodReportDAO.savePeriodReport(currentPeriodReport);
 					company.setPreviousPeriodReport(currentPeriodReport);
 				}
-
-				// Update the company based on the exchange provided company
-				// stat
-				// modifier
-				splitStocks(company);
-
-				companyModifier.modifyCompanyRates(company);
-				companyModifier.modifyCompanyDebts(company);
 
 				CompanyPeriodReport newPeriodReport = new CompanyPeriodReport(company, currentDate, exchange.getPeriodLength(), generation + 1);
 

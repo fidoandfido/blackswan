@@ -90,6 +90,23 @@ to access (or create) your trader profile.</p>
 <%
 	} else {
 		if (company != null) {
+			
+			if (!company.isTrading()) {
+%>
+				<div class="post">
+				<h2 class="title"><%= company.getName() %></h2>
+				<div class="entry">
+					<ul>
+					<li>Company Name: <%= company.getName() %></li>
+					<li>Company Code: <%= company.getCode() %></li>
+					<li>Company Sector: <%= company.getSector() %></li>
+					<li>Stock Exchange: <%= company.getStockExchange().getName() %></li>
+					<li>Company Status: <%= company.getCompanyStatus() %></li>
+				</div>
+			</div>	
+<%				
+			} else {
+			
 	// Show company information!
 	CompanyPeriodReport currentReport = company.getCurrentPeriod();
 	Map<String, PeriodEvent> events = currentReport.getPeriodPartInformationMappedByEvent();
@@ -106,6 +123,7 @@ to access (or create) your trader profile.</p>
 					<li>Company Code: <%= company.getCode() %></li>
 					<li>Company Sector: <%= company.getSector() %></li>
 					<li>Stock Exchange: <%= company.getStockExchange().getName() %></li>
+					<li>Company Status: <%= company.getCompanyStatus() %></li>
 					<li>Company Outstanding shares: <%= company.getOutstandingShares() %></li>
 					<li>Dividend Scheme: 
 <%			if (company.isNeverPayDividend()) {  %>					
@@ -365,6 +383,7 @@ to access (or create) your trader profile.</p>
 			</div>	
 <%
 			}
+		}
 %>				
 
 <%			
@@ -399,6 +418,9 @@ to access (or create) your trader profile.</p>
 
 <%
 					for (Company currentCompany : companyList) {
+						if (!currentCompany.isTrading()) {
+							continue;
+						}
 						CompanyPeriodReport currentPeriodReport = currentCompany.getCurrentPeriod();				
 %>
 					<tr>

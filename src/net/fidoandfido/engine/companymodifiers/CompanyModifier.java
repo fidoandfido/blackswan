@@ -8,4 +8,6 @@ public interface CompanyModifier {
 
 	public boolean modifyCompanyDebts(Company company);
 
+	void updateCompanyTradingStatus(Company company);
+
 }

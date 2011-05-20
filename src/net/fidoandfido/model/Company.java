@@ -19,9 +19,12 @@ import org.hibernate.annotations.GenericGenerator;
 @Table(name = "Company")
 public class Company {
 
-	public static final String DEFAULT_COMPANY_STATUS = "Trading";
-	public static final String INSOLVENT_COMPANY_STATUS = "Insolvent";
-	public static final String UNLISTED_COMPANY_STATUS = "Unlisted";
+	// Default status strings - other may be used.
+	public static final String TRADING_COMPANY_STATUS = "Trading as normal.";
+	public static final String INSOLVENT_COMPANY_STATUS = "The company has been declared insolvent!";
+	public static final String NO_MORE_INSOLVENT_COMPANY_STATUS = "The company is no longer insolvent! It is now trading as normal.";
+	public static final String DISSOLVED_COMPANY_STATUS = "The comapny has been dissolved; it is no longer able to be traded.";
+	public static final String UNLISTED_COMPANY_STATUS = "The company has not been formally listed.";
 
 	@Id
 	@Column(name = "company_id")
@@ -188,6 +191,42 @@ public class Company {
 	@Column
 	private String companyStatus;
 
+	@Column
+	private boolean isInsolvent;
+
+	@Column
+	private boolean isTrading;
+
+	/**
+	 * @return the isInsolvent
+	 */
+	public boolean isInsolvent() {
+		return isInsolvent;
+	}
+
+	/**
+	 * @param isInsolvent
+	 *            the isInsolvent to set
+	 */
+	public void setInsolvent(boolean isInsolvent) {
+		this.isInsolvent = isInsolvent;
+	}
+
+	/**
+	 * @return the isTrading
+	 */
+	public boolean isTrading() {
+		return isTrading;
+	}
+
+	/**
+	 * @param isTrading
+	 *            the isTrading to set
+	 */
+	public void setTrading(boolean isTrading) {
+		this.isTrading = isTrading;
+	}
+
 	public Company() {
 		// Default constructor for persistence
 	}
@@ -204,7 +243,9 @@ public class Company {
 		this.dividendRate = dividendRate;
 		this.revenueRate = defaultRevenueRate;
 		this.expenseRate = defaultExpenseRate;
-		companyStatus = DEFAULT_COMPANY_STATUS;
+		companyStatus = TRADING_COMPANY_STATUS;
+		isTrading = true;
+		isInsolvent = false;
 	}
 
 	/*
@@ -287,11 +328,17 @@ public class Company {
 	}
 
 	public long getPreviousEarningPerShare() {
-		return getPreviousProfit() / outstandingShares;
+		if (outstandingShares != 0) {
+			return getPreviousProfit() / outstandingShares;
+		}
+		return 0;
 	}
 
 	public long getShareBookValue() {
-		return ((assetValue - debtValue) / outstandingShares);
+		if (outstandingShares != 0) {
+			return ((assetValue - debtValue) / outstandingShares);
+		}
+		return 0;
 	}
 
 	public long getPreviousProfit() {

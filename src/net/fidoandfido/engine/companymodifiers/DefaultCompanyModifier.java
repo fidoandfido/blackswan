@@ -30,4 +30,9 @@ public class DefaultCompanyModifier implements CompanyModifier {
 		return false;
 	}
 
+	@Override
+	public void updateCompanyTradingStatus(Company company) {
+		// Dont do anything!
+	}
+
 }
