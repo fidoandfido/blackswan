@@ -55,6 +55,11 @@ public class OrderProcessor {
 	 * @param buyOrder
 	 */
 	public void processOrder(Order order) {
+		// Make sure the company that this order is for is still trading!
+		if (!order.getCompany().isTrading()) {
+			return;
+		}
+
 		// ascertain whether this is a buy or sell order.
 		if (order.getOrderType().equals(Order.OrderType.BUY)) {
 			logger.info("Processing buy order");
