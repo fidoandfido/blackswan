@@ -59,7 +59,7 @@ public class DataExtractor {
 		HibernateUtil.connectToDB();
 		HibernateUtil.beginTransaction();
 		DataExtractor dataExtractor = new DataExtractor();
-		dataExtractor.getOrders();
+		dataExtractor.writeData();
 		HibernateUtil.commitTransaction();
 	}
 
