@@ -43,6 +43,10 @@ public class RandomAI extends AITrader {
 		List<PeriodEvent> recentEvents = periodPartInformationDAO.getLatestEvents(20, new Date());
 		for (PeriodEvent periodEvent : recentEvents) {
 			Company company = periodEvent.getCompany();
+
+			if (company.isTrading() == false) {
+				continue;
+			}
 			if (companySet.contains(company)) {
 				continue;
 			}
@@ -54,10 +58,10 @@ public class RandomAI extends AITrader {
 			int decision = sellOrBuyRandom.nextInt(CHANCE_TO_BUY_OR_SELL);
 			if (decision == BUY) {
 				// This one is a buy!
-				buy(trader, company, DefaultAITradeExecutor.BUY_RATE, DefaultAITradeExecutor.DEFAULT_BUY_COUNT);
+				adjustPriceAndBuy(trader, company, BUY_RATE, SMALL_BUY_COUNT);
 			} else if (decision == SELL) {
 				// time to sell!
-				sell(trader, company, DefaultAITradeExecutor.SELL_RATE, DefaultAITradeExecutor.DEFAULT_SELL_COUNT);
+				adjustPriceAndSell(trader, company, SELL_RATE, SMALL_SELL_COUNT);
 			}
 		}
 	}

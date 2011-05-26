@@ -2,7 +2,7 @@ package net.fidoandfido.engine.ai;
 
 import net.fidoandfido.model.Trader;
 
-public class LongTermAI extends AITrader implements AITradeStrategy {
+public class LongTermAI extends AITrader {
 
 	public static final String NAME = "LongTerm";
 

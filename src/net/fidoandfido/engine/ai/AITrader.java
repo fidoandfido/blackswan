@@ -7,36 +7,53 @@ import org.apache.log4j.Logger;
 
 public abstract class AITrader implements AITradeStrategy {
 
-	public static interface AITradeExecutor {
-		public void executeBuy(Trader trader, Company company, int adjustPriceRate, long shareCount);
-
-		public void executeSell(Trader trader, Company company, int adjustPriceRate, long shareCount);
-	}
-
 	Logger logger = Logger.getLogger(getClass());
 
-	private AITradeExecutor executor = new DefaultAITradeExecutor();
+	public static final long DEFAULT_BUY_COUNT = 1000;
+	public static final long DEFAULT_SELL_COUNT = 1000;
+	public static final long MAX_BUY_COUNT = 2000;
 
-	/**
-	 * @return the executor
-	 */
-	public AITradeExecutor getExecutor() {
-		return executor;
+	public static final long SMALL_BUY_COUNT = 100;
+	public static final long SMALL_SELL_COUNT = 100;
+
+	public static final int VERY_GOOD_BUY_RATE = 10;
+	public static final int GOOD_BUY_RATE = 5;
+	public static final int BUY_RATE = 2;
+	public static final int SELL_RATE = -2;
+	public static final int BAD_SELL_RATE = -5;
+	public static final int VERY_BAD_SELL_RATE = -10;
+
+	private AITradeExecutor executor = new AITradeExecutor();
+
+	protected void buy(Trader trader, Company company, long price, long shareCount) {
+		executor.executeBuy(trader, company, price, shareCount);
+	}
+
+	protected void adjustPriceAndBuy(Trader trader, Company company, int rate, long shareCount) {
+		long price = adjustPrice(company.getLastTradePrice(), rate);
+		executor.executeBuy(trader, company, price, shareCount);
+	}
+
+	protected void sell(Trader trader, Company company, long price, long shareCount) {
+		executor.executeSell(trader, company, price, shareCount);
+	}
+
+	protected void adjustPriceAndSell(Trader trader, Company company, int rate, long shareCount) {
+		long price = adjustPrice(company.getLastTradePrice(), rate);
+		executor.executeSell(trader, company, price, shareCount);
 	}
 
 	/**
-	 * @param executor
-	 *            the executor to set
+	 * Adjust the price by the supplied percent
+	 * 
+	 * @param askingPrice
+	 * @param percent
+	 * @return
 	 */
-	public void setExecutor(AITradeExecutor executor) {
-		this.executor = executor;
+	public long adjustPrice(long val, int percent) {
+		long delta = (val * percent);
+		long bigVal = (100 * val) + delta;
+		return bigVal / 100;
 	}
 
-	protected void buy(Trader trader, Company company, int adjustPriceRate, long shareCount) {
-		executor.executeBuy(trader, company, adjustPriceRate, shareCount);
-	}
-
-	protected void sell(Trader trader, Company company, int adjustPriceRate, long shareCount) {
-		executor.executeSell(trader, company, adjustPriceRate, shareCount);
-	}
 }

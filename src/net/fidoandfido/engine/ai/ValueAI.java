@@ -1,49 +1,48 @@
 package net.fidoandfido.engine.ai;
 
-import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
+import java.util.Random;
 
-import net.fidoandfido.dao.PeriodPartInformationDAO;
+import net.fidoandfido.dao.CompanyDAO;
 import net.fidoandfido.model.Company;
-import net.fidoandfido.model.PeriodEvent;
 import net.fidoandfido.model.Trader;
-
-import org.apache.log4j.Logger;
 
 public class ValueAI extends AITrader {
 
 	public static final String Name = "Value";
-	Logger logger = Logger.getLogger(getClass());
+	private static final int COMPANIES_TO_BUY = 20;
 
 	@Override
 	public String getName() {
 		return Name;
 	}
 
-	private PeriodPartInformationDAO periodPartInformationDAO = new PeriodPartInformationDAO();
-
 	@Override
 	public void performTrades(Trader trader) {
-		// So basically, we are going to get some companies, look at their
+		// So basically, we are going to get the companies, look at their
 		// earnings per share,
 		// We are looking at the book value + the current earning % as a
 		// premium, minimum price is the book value.
-
-		Set<Company> companySet = new HashSet<Company>();
-
-		List<PeriodEvent> recentEvents = periodPartInformationDAO.getLatestEvents(20, new Date());
-		for (PeriodEvent periodEvent : recentEvents) {
-			Company company = periodEvent.getCompany();
-			if (companySet.contains(company)) {
+		CompanyDAO companyDAO = new CompanyDAO();
+		List<Company> companyList = companyDAO.getCompanyList();
+		Random companyRandom = new Random();
+		for (int i = 0; i < COMPANIES_TO_BUY; i++) {
+			int index = companyRandom.nextInt(companyList.size());
+			Company company = companyList.get(index);
+			companyList.remove(index);
+			if (company.isTrading() == false) {
 				continue;
 			}
-			companySet.add(company);
+
+			// Iterable<Company> companies = companyDAO.getCompanyList();
+			// for (Company company : companies) {
+
 			if (company.getStockExchange().isUpdating()) {
 				continue;
 			}
-
+			if (company.isTrading() == false) {
+				continue;
+			}
 			long bookValue = company.getShareBookValue();
 			long sharePrice = company.getLastTradePrice();
 			long expectedEarning = company.getExpectedEarningsPerShare();
@@ -56,15 +55,24 @@ public class ValueAI extends AITrader {
 			if (fairPrice < bookValue) {
 				fairPrice = bookValue;
 			}
-
-			if (fairPrice > company.getLastTradePrice()) {
+			if (fairPrice > sharePrice) {
 				// This one is a buy!
-				buy(trader, company, DefaultAITradeExecutor.GOOD_BUY_RATE, DefaultAITradeExecutor.DEFAULT_BUY_COUNT);
+				// Make the offer price at least half way between the two
+				long halfwayPoint = ((fairPrice - sharePrice) / 2) + sharePrice;
+				long askingPrice = adjustPrice(sharePrice, GOOD_BUY_RATE);
+				if (askingPrice < halfwayPoint) {
+					askingPrice = halfwayPoint;
+				}
+				buy(trader, company, askingPrice, DEFAULT_BUY_COUNT);
 			} else {
 				// time to sell!
-				sell(trader, company, DefaultAITradeExecutor.SELL_RATE, DefaultAITradeExecutor.DEFAULT_SELL_COUNT);
+				long halfwayPoint = ((sharePrice - fairPrice) / 2) + fairPrice;
+				long askingPrice = adjustPrice(sharePrice, BAD_SELL_RATE);
+				if (askingPrice < halfwayPoint) {
+					askingPrice = halfwayPoint;
+				}
+				sell(trader, company, askingPrice, DEFAULT_SELL_COUNT);
 			}
 		}
 	}
-
 }

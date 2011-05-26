@@ -1,6 +1,7 @@
 package net.fidoandfido.engine.ai;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Random;
 
@@ -31,11 +32,11 @@ public class AIRunner implements Runnable {
 	private TraderDAO traderDAO = new TraderDAO();
 
 	// Seeded (as always!)
-	private Random aiSelector = new Random(17);
+	private Random aiSelector = new Random(new Date().getTime());
 
-	private static final int CHANCE_OF_LIQUIDATION = 10;
+	private static final int CHANCE_OF_LIQUIDATION = 60;
 
-	// Only do 10 traders each time
+	// Only do 5 traders each time
 	private static final int AI_TRADE_COUNT = 10;
 
 	public AIRunner() {
@@ -104,7 +105,7 @@ public class AIRunner implements Runnable {
 				// Liquidate!
 				AITrader aiTrader = new LiquididatingAI();
 				aiTrader.performTrades(trader);
-				trader.setCash(AppInitialiser.TRADER_START_CASH);
+				trader.setCash(AppInitialiser.TRADER_LIQUIDATE_CASH);
 				localList.remove(index);
 				HibernateUtil.flushAndClearSession();
 			}

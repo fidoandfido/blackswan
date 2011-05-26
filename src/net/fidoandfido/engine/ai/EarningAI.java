@@ -1,38 +1,36 @@
 package net.fidoandfido.engine.ai;
 
-import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
+import java.util.Random;
 
-import net.fidoandfido.dao.PeriodPartInformationDAO;
+import net.fidoandfido.dao.CompanyDAO;
 import net.fidoandfido.model.Company;
-import net.fidoandfido.model.PeriodEvent;
 import net.fidoandfido.model.Trader;
 
 public class EarningAI extends AITrader {
 
 	public static final String Name = "Earnings";
 
-	private PeriodPartInformationDAO periodPartInformationDAO = new PeriodPartInformationDAO();
+	private static final int COMPANIES_TO_BUY = 20;
 
 	@Override
 	public void performTrades(Trader trader) {
-		// Get recent events, and process the companies.
-		// We look ONLY at earning per share.
 		// If it is above the cash rate - we buy.
 		// If it is below, we sell.
+		CompanyDAO companyDAO = new CompanyDAO();
+		List<Company> companyList = companyDAO.getCompanyList();
+		Random companyRandom = new Random();
+		for (int i = 0; i < COMPANIES_TO_BUY; i++) {
+			int index = companyRandom.nextInt(companyList.size());
+			Company company = companyList.get(index);
+			companyList.remove(index);
 
-		Set<Company> companySet = new HashSet<Company>();
-		List<PeriodEvent> recentEvents = periodPartInformationDAO.getLatestEvents(20, new Date());
-
-		for (PeriodEvent periodEvent : recentEvents) {
-			Company company = periodEvent.getCompany();
-			if (companySet.contains(company)) {
+			// Iterable<Company> companies = companyDAO.getCompanyList();
+			// for (Company company : companies) {
+			if (company.getStockExchange().isUpdating()) {
 				continue;
 			}
-			companySet.add(company);
-			if (company.getStockExchange().isUpdating()) {
+			if (company.isTrading() == false) {
 				continue;
 			}
 
@@ -44,13 +42,16 @@ public class EarningAI extends AITrader {
 				long delta = (priceToEarningsRate - (company.getPrimeInterestRateBasisPoints() / 100));
 				if (delta > 5) {
 					// More than 5 % spread between earnings and cash rate...
-					buy(trader, company, DefaultAITradeExecutor.VERY_GOOD_BUY_RATE, DefaultAITradeExecutor.DEFAULT_BUY_COUNT);
+					sharePrice = adjustPrice(sharePrice, VERY_GOOD_BUY_RATE);
+					buy(trader, company, sharePrice, DEFAULT_BUY_COUNT);
 				} else {
-					buy(trader, company, DefaultAITradeExecutor.GOOD_BUY_RATE, DefaultAITradeExecutor.DEFAULT_BUY_COUNT);
+					sharePrice = adjustPrice(sharePrice, GOOD_BUY_RATE);
+					buy(trader, company, sharePrice, DEFAULT_BUY_COUNT);
 				}
 			} else {
 				// time to sell!
-				sell(trader, company, DefaultAITradeExecutor.SELL_RATE, DefaultAITradeExecutor.DEFAULT_SELL_COUNT);
+				sharePrice = adjustPrice(sharePrice, SELL_RATE);
+				sell(trader, company, sharePrice, DEFAULT_SELL_COUNT);
 			}
 		}
 
