@@ -100,9 +100,13 @@ public class OrderProcessor {
 		}
 
 		if (order.getRemainingShareCount() != 0) {
-			logger.info("Market maker attempting to trade");
 			// See if the MarketMaker wants to trade
 			Trader marketMaker = traderDAO.getMarketMaker();
+			if (order.getTrader().equals(marketMaker)) {
+				logger.info("Market maker can't sell to itself");
+				return;
+			}
+			logger.info("Market maker attempting to trade");
 			long offerPrice = order.getOfferPrice();
 			Company company = order.getCompany();
 			Trader trader = order.getTrader();
@@ -213,6 +217,10 @@ public class OrderProcessor {
 
 		Trader seller = sellOrder.getTrader();
 		Trader buyer = buyOrder.getTrader();
+
+		if (seller.equals(buyer)) {
+			logger.info("Can't sell to yourself! " + buyer.getName());
+		}
 
 		// Validate the buyer can afford the purchase, and the seller has the
 		// shares
