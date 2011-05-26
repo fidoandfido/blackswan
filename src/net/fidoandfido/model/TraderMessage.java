@@ -12,8 +12,8 @@ import javax.persistence.Table;
 import org.hibernate.annotations.GenericGenerator;
 
 @Entity
-@Table(name = "Message")
-public class Message {
+@Table(name = "TraderMessage")
+public class TraderMessage {
 
 	@Id
 	@Column(name = "group_id")
@@ -30,6 +30,9 @@ public class Message {
 	@Column
 	private String body;
 
+	@ManyToOne
+	private Trader forTrader;
+
 	@Column
 	private boolean gameMessage;
 
@@ -39,14 +42,36 @@ public class Message {
 	@Column
 	private boolean isRead;
 
-	public Message(Date date, String subject, String body) {
+	@Column
+	private boolean current;
+
+	public TraderMessage() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+
+	public TraderMessage(Trader forTrader, Date date, String subject, String body) {
 		super();
 		this.date = date;
 		this.subject = subject;
 		this.body = body;
+		this.forTrader = forTrader;
 		this.fromTrader = null;
 		this.gameMessage = true;
 		this.isRead = false;
+		this.current = true;
+	}
+
+	public TraderMessage(Date date, String subject, String body, Trader forTrader, Trader fromTrader) {
+		super();
+		this.date = date;
+		this.subject = subject;
+		this.body = body;
+		this.forTrader = forTrader;
+		this.fromTrader = fromTrader;
+		this.gameMessage = false;
+		this.isRead = false;
+		this.current = true;
 	}
 
 	/**
@@ -152,6 +177,36 @@ public class Message {
 	 */
 	public void setRead(boolean isRead) {
 		this.isRead = isRead;
+	}
+
+	/**
+	 * @return the forTrader
+	 */
+	public Trader getForTrader() {
+		return forTrader;
+	}
+
+	/**
+	 * @param forTrader
+	 *            the forTrader to set
+	 */
+	public void setForTrader(Trader forTrader) {
+		this.forTrader = forTrader;
+	}
+
+	/**
+	 * @return the current
+	 */
+	public boolean isCurrent() {
+		return current;
+	}
+
+	/**
+	 * @param current
+	 *            the current to set
+	 */
+	public void setCurrent(boolean current) {
+		this.current = current;
 	}
 
 }

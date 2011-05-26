@@ -5,11 +5,11 @@
 
     alter table Company 
         drop 
-        foreign key FK9BDFD45D912EEC1A;
+        foreign key FK9BDFD45D3AD658EE;
 
     alter table Company 
         drop 
-        foreign key FK9BDFD45D3AD658EE;
+        foreign key FK9BDFD45D912EEC1A;
 
     alter table CompanyPeriodReport 
         drop 
@@ -30,6 +30,14 @@
     alter table CompanyPeriodReport_PeriodPartRumour 
         drop 
         foreign key FK8164606332671068;
+
+    alter table ExchangeGroup_StockExchange 
+        drop 
+        foreign key FK401C5236D377034D;
+
+    alter table ExchangeGroup_StockExchange 
+        drop 
+        foreign key FK401C52363FABC04B;
 
     alter table GameUser 
         drop 
@@ -69,6 +77,10 @@
 
     alter table StockExchange 
         drop 
+        foreign key FK4B98A339D377034D;
+
+    alter table StockExchange 
+        drop 
         foreign key FK4B98A3399F79C876;
 
     alter table StockExchangePeriod 
@@ -99,6 +111,10 @@
         drop 
         foreign key FK95CB27AEDE29A6B0;
 
+    alter table Trader 
+        drop 
+        foreign key FK95CB27AE5EAE6E6A;
+
     alter table TraderEvent 
         drop 
         foreign key FKB03F78CD1B4A736;
@@ -110,6 +126,14 @@
     alter table TraderEvent 
         drop 
         foreign key FKB03F78C79C9A78F;
+
+    alter table TraderMessage 
+        drop 
+        foreign key FKE4DB107945A42AE0;
+
+    alter table TraderMessage 
+        drop 
+        foreign key FKE4DB1079EA7D81FF;
 
     alter table Trader_ReputationItem 
         drop 
@@ -130,6 +154,10 @@
     drop table if exists CompanyPeriodReport_PeriodEvent;
 
     drop table if exists CompanyPeriodReport_PeriodPartRumour;
+
+    drop table if exists ExchangeGroup;
+
+    drop table if exists ExchangeGroup_StockExchange;
 
     drop table if exists GameUser;
 
@@ -159,6 +187,8 @@
 
     drop table if exists TraderEvent;
 
+    drop table if exists TraderMessage;
+
     drop table if exists Trader_ReputationItem;
 
     drop table if exists UserSession;
@@ -182,12 +212,16 @@
         lastTradePrice bigint,
         lastTradeChange bigint,
         previousDividend bigint,
+        quartersSinceGoodQuarter bigint,
+        quartersSinceBadQuarter bigint,
         remainingPeriodsOfGoldenAge bigint,
         remainingPeriodsOfDarkAge bigint,
         companyStatus varchar(255),
-        previous_period varchar(255),
+        isInsolvent bit,
+        isTrading bit,
         current_period varchar(255),
         stock_exchange_id varchar(255),
+        previous_period varchar(255),
         primary key (company_id)
     );
 
@@ -200,6 +234,7 @@
         startingExpectedInterest bigint,
         startingAssets bigint,
         startingDebt bigint,
+        outstandingShareCount bigint,
         finalProfit bigint,
         finalRevenue bigint,
         finalExpenses bigint,
@@ -224,6 +259,22 @@
         periodRumourList_period_rumour_id varchar(255) not null,
         primary key (CompanyPeriodReport_company_period_report_id, periodRumourList_period_rumour_id),
         unique (periodRumourList_period_rumour_id)
+    );
+
+    create table ExchangeGroup (
+        group_id varchar(255) not null,
+        name varchar(255) unique,
+        description varchar(255),
+        periodLength bigint,
+        updating bit,
+        primary key (group_id)
+    );
+
+    create table ExchangeGroup_StockExchange (
+        ExchangeGroup_group_id varchar(255) not null,
+        exchanges_stock_exchange_id varchar(255) not null,
+        primary key (ExchangeGroup_group_id, exchanges_stock_exchange_id),
+        unique (exchanges_stock_exchange_id)
     );
 
     create table GameUser (
@@ -313,13 +364,15 @@
         description varchar(255),
         companyCount integer,
         eventGeneratorName varchar(255),
-        companyPeriodLength bigint,
+        periodLength bigint,
         defaultPrimeInterestRateBasisPoints bigint,
         economicModifierName varchar(255),
         companyModifierName varchar(255),
         updating bit,
         maxSharePrice bigint,
+        requiredExperiencePoints bigint,
         currentPeriod_stock_exchange_id varchar(255),
+        exchangeGroup_group_id varchar(255),
         primary key (stock_exchange_id)
     );
 
@@ -359,9 +412,9 @@
         shareCount bigint,
         sharePrice bigint,
         date datetime,
+        company_company_id varchar(255),
         buyer_trader_id varchar(255),
         seller_trader_id varchar(255),
-        company_company_id varchar(255),
         primary key (trade_record_id)
     );
 
@@ -374,6 +427,7 @@
         isMarketMaker bit,
         experiencePoints bigint,
         user_trader_id varchar(255),
+        group_group_id varchar(255),
         primary key (trader_id)
     );
 
@@ -385,10 +439,23 @@
         amountTransferred bigint,
         startingCash bigint,
         endingCash bigint,
-        company_company_id varchar(255),
         trader_trader_id varchar(255),
+        company_company_id varchar(255),
         item_reputation_item_id varchar(255),
         primary key (trader_id)
+    );
+
+    create table TraderMessage (
+        group_id varchar(255) not null,
+        date datetime,
+        subject varchar(255),
+        body varchar(255),
+        gameMessage bit,
+        isRead bit,
+        current bit,
+        forTrader_trader_id varchar(255),
+        fromTrader_trader_id varchar(255),
+        primary key (group_id)
     );
 
     create table Trader_ReputationItem (
@@ -413,16 +480,16 @@
         references CompanyPeriodReport (company_period_report_id);
 
     alter table Company 
-        add index FK9BDFD45D912EEC1A (stock_exchange_id), 
-        add constraint FK9BDFD45D912EEC1A 
-        foreign key (stock_exchange_id) 
-        references StockExchange (stock_exchange_id);
-
-    alter table Company 
         add index FK9BDFD45D3AD658EE (previous_period), 
         add constraint FK9BDFD45D3AD658EE 
         foreign key (previous_period) 
         references CompanyPeriodReport (company_period_report_id);
+
+    alter table Company 
+        add index FK9BDFD45D912EEC1A (stock_exchange_id), 
+        add constraint FK9BDFD45D912EEC1A 
+        foreign key (stock_exchange_id) 
+        references StockExchange (stock_exchange_id);
 
     alter table CompanyPeriodReport 
         add index FKF12227522B724E8D (company_id), 
@@ -453,6 +520,18 @@
         add constraint FK8164606332671068 
         foreign key (periodRumourList_period_rumour_id) 
         references PeriodPartRumour (period_rumour_id);
+
+    alter table ExchangeGroup_StockExchange 
+        add index FK401C5236D377034D (ExchangeGroup_group_id), 
+        add constraint FK401C5236D377034D 
+        foreign key (ExchangeGroup_group_id) 
+        references ExchangeGroup (group_id);
+
+    alter table ExchangeGroup_StockExchange 
+        add index FK401C52363FABC04B (exchanges_stock_exchange_id), 
+        add constraint FK401C52363FABC04B 
+        foreign key (exchanges_stock_exchange_id) 
+        references StockExchange (stock_exchange_id);
 
     alter table GameUser 
         add index FK9A67C6FDD1B4A736 (trader_trader_id), 
@@ -509,6 +588,12 @@
         references Company (company_id);
 
     alter table StockExchange 
+        add index FK4B98A339D377034D (exchangeGroup_group_id), 
+        add constraint FK4B98A339D377034D 
+        foreign key (exchangeGroup_group_id) 
+        references ExchangeGroup (group_id);
+
+    alter table StockExchange 
         add index FK4B98A3399F79C876 (currentPeriod_stock_exchange_id), 
         add constraint FK4B98A3399F79C876 
         foreign key (currentPeriod_stock_exchange_id) 
@@ -556,6 +641,12 @@
         foreign key (user_trader_id) 
         references GameUser (trader_id);
 
+    alter table Trader 
+        add index FK95CB27AE5EAE6E6A (group_group_id), 
+        add constraint FK95CB27AE5EAE6E6A 
+        foreign key (group_group_id) 
+        references ExchangeGroup (group_id);
+
     alter table TraderEvent 
         add index FKB03F78CD1B4A736 (trader_trader_id), 
         add constraint FKB03F78CD1B4A736 
@@ -573,6 +664,18 @@
         add constraint FKB03F78C79C9A78F 
         foreign key (company_company_id) 
         references Company (company_id);
+
+    alter table TraderMessage 
+        add index FKE4DB107945A42AE0 (fromTrader_trader_id), 
+        add constraint FKE4DB107945A42AE0 
+        foreign key (fromTrader_trader_id) 
+        references Trader (trader_id);
+
+    alter table TraderMessage 
+        add index FKE4DB1079EA7D81FF (forTrader_trader_id), 
+        add constraint FKE4DB1079EA7D81FF 
+        foreign key (forTrader_trader_id) 
+        references Trader (trader_id);
 
     alter table Trader_ReputationItem 
         add index FKE1744FFD15E7CA32 (reputationItems_reputation_item_id), 

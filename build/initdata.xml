@@ -3,17 +3,16 @@
 
 
 <exchange-group name="group1" description="Group 1" period-length-mins="60">
-	<exchange name="ASX" company-count="200" event-generator="cyclicEvents" description="ASX: The big one." interest-rate="500" economic-modifier="GENTLE_MODIFIER" company-modifier="GENTLE_COMPANY_MODIFIER" max-share-price="10000"/>
-	<exchange name="MX" company-count="100" event-generator="cyclicEvents" description="MX: Traditional mining exchange." period-length-mins="60" interest-rate="500" economic-modifier="GENTLE_MODIFIER" company-modifier="GENTLE_COMPANY_MODIFIER" max-share-price="10000"/>
-	<!--<exchange name="SX1" company-count="10" event-generator="cyclicEvents" description="The SX1 - Or stock exchange 1 - is a simple stock exchange where companies 'play by the rules'. It is a safe, black swan free exchange that anyone can get involved in." interest-rate="500"/>-->
+	<exchange name="ESX" company-count="200" event-generator="cyclicEvents" description="Eastern Stock Exchange: The big one." interest-rate="400" economic-modifier="GENTLE_MODIFIER" company-modifier="GENTLE_COMPANY_MODIFIER" max-share-price="10000"/>
+	<exchange name="SMX" required-xp="100" company-count="100" event-generator="cyclicEvents" description="SMX: Southern Mercantile exchange." period-length-mins="60" interest-rate="400" economic-modifier="GENTLE_MODIFIER" company-modifier="GENTLE_COMPANY_MODIFIER" max-share-price="10000"/>
 </exchange-group>
 
 
-<trader name="Fred" strategy="Value"/>
-<trader name="Wilma" strategy="LongTerm"/>
-<trader name="Barney" strategy="Reactive"/>
-<trader name="Homer" strategy="Random"/>
-<trader name="Karl" strategy="Naive"/>
+<trader name="Karl" strategy="Value" count="20"/>
+<trader name="Lenny" strategy="Earnings" count="10"/>
+<trader name="Barney" strategy="LongTerm" count="10"/>
+<trader name="Homer" strategy="Random" count="10"/>
+<trader name="Moe" strategy="Naive" count="10"/>
 
 
 <prefix value="i" space="no" code="IX"/>

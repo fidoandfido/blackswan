@@ -1,3 +1,6 @@
+<%@page import="net.fidoandfido.servlets.MessageServlet"%>
+<%@page import="net.fidoandfido.model.TraderMessage"%>
+<%@page import="net.fidoandfido.dao.TraderMessageDAO"%>
 <%@page import="java.util.ArrayList"%>
 <%@page import="java.util.Set"%>
 <%@page import="net.fidoandfido.model.ReputationItem"%>
@@ -62,12 +65,58 @@
 				<h2 class="title">Trader Page - <%= trader.getName() %></h2>
 				<div class="entry">
 				<p>Hello <%= user.getUserName() %> and Welcome to the new Black Swan application!</p>
+<%
+	TraderMessageDAO messageDAO = new TraderMessageDAO();
+	List<TraderMessage> messages = messageDAO.getCurrentMessages(trader);
+	if (messages.size() != 0) {
+%>
+				<p>There are messages for you to view.</p>
+
+				<ul>
+<%	
+		for (TraderMessage message : messages) {
+			boolean isNew = false;
+			if (!message.isRead()) {
+				isNew = true;
+				message.setRead(true);
+				messageDAO.saveMessage(message);
+			}
+%>
+				<li>
+				<p>
+				<%= isNew ? "<b>" : "" %>
+				<%= message.getSubject() %>
+				<br/>
+				<%= message.getBody() %>
+				<br/>
+				<%= message.getDate() %>
+				<%= isNew ? "</b>" : "" %>
+
+				<form action="/myapp/message" method="post">
+				<input type="hidden" name="<%=MessageServlet.COMMAND_PARM %>" value="<%=MessageServlet.DISMISS_MESSAGE%>" ></input>
+				<input type="hidden" name="<%=MessageServlet.ID_PARM %>" value="<%=message.getId()%>" ></input>
+				<input type="submit" value="Dismiss" />
+				</form>
+				</p>
+				</li>	
+<%
+		}
+%>
+			</ul>
+<%
+	} else {
+%>	
+	No current messages.		
+<%
+	}
+%>				
+
 				<p>
 				Current balance: <%= WebPageUtil.formatCurrency(trader.getCash()) %><br/>
 				Available balance: <%= WebPageUtil.formatCurrency(trader.getCash()) %><br/>
 <%
 	long totalValue = trader.getCash();
-ShareParcelDAO shareParcelDAO = new ShareParcelDAO();
+	ShareParcelDAO shareParcelDAO = new ShareParcelDAO();
 	Iterable<ShareParcel> shareParcels = shareParcelDAO.getHoldingsByTrader(trader);
 	if (shareParcels.iterator().hasNext()) {
 %>

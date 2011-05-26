@@ -1,6 +1,7 @@
 package net.fidoandfido.servlets;
 
 import java.io.IOException;
+import java.util.Date;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -8,9 +9,11 @@ import javax.servlet.http.HttpServletResponse;
 
 import net.fidoandfido.dao.HibernateUtil;
 import net.fidoandfido.dao.TraderDAO;
+import net.fidoandfido.dao.TraderMessageDAO;
 import net.fidoandfido.dao.UserDAO;
 import net.fidoandfido.dao.UserSessionDAO;
 import net.fidoandfido.model.Trader;
+import net.fidoandfido.model.TraderMessage;
 import net.fidoandfido.model.User;
 import net.fidoandfido.model.UserSession;
 import net.fidoandfido.util.WebUtil;
@@ -30,6 +33,7 @@ public class RegisterServlet extends HttpServlet {
 		TraderDAO traderDAO = new TraderDAO();
 		UserDAO userDAO = new UserDAO();
 		UserSessionDAO userSessionDAO = new UserSessionDAO();
+		TraderMessageDAO traderMessageDAO = new TraderMessageDAO();
 		HibernateUtil.beginTransaction();
 		User user = WebUtil.getCurrentUserBySession(req.getSession().getId());
 		if (user != null) {
@@ -40,6 +44,12 @@ public class RegisterServlet extends HttpServlet {
 				user.setTrader(trader);
 				traderDAO.saveTrader(trader);
 				userDAO.saveUser(user);
+				TraderMessage message = new TraderMessage(
+						trader,
+						new Date(),
+						"Welcome To BlackSwan!",
+						"Welcome to the black swan trading application. From this screen you can view your portfolio, see the latest news and rumours, and access the company list and item marketplace.");
+				traderMessageDAO.saveMessage(message);
 			}
 			resp.sendRedirect("/myapp/Trader.jsp");
 		} else {
@@ -60,6 +70,12 @@ public class RegisterServlet extends HttpServlet {
 					user.setTrader(trader);
 					userDAO.saveUser(user);
 					traderDAO.saveTrader(trader);
+					TraderMessage message = new TraderMessage(
+							trader,
+							new Date(),
+							"Welcome To BlackSwan!",
+							"Welcome to the black swan trading application. From this screen you can view your portfolio, see the latest news and rumours, and access the company list and item marketplace.");
+					traderMessageDAO.saveMessage(message);
 					UserSession userSession = new UserSession(user, req.getSession().getId());
 					userSessionDAO.saveUserSession(userSession);
 					resp.sendRedirect("/myapp/Welcome.jsp");
