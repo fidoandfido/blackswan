@@ -47,7 +47,19 @@ public class ShareParcelDAO {
 		Criteria crit = session.createCriteria(ShareParcel.class);
 		crit.add(Restrictions.eq("company", company));
 		crit.add(Restrictions.eq("trader", trader));
-		return (ShareParcel) crit.uniqueResult();
+
+		// return (ShareParcel) crit.uniqueResult();
+		// Bad bug fix...
+		List<ShareParcel> parcels = crit.list();
+		if (parcels.size() > 1) {
+			// Handle this somehow...
+		}
+
+		if (parcels.isEmpty()) {
+			return null;
+		}
+		return parcels.get(0);
+
 	}
 
 }
