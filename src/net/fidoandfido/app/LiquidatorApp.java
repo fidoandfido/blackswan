@@ -42,9 +42,10 @@ public class LiquidatorApp {
 		// Liquidate!
 		AITrader aiTrader = new LiquididatingAI();
 		aiTrader.performTrades(trader);
-		trader.setCash(AppInitialiser.TRADER_START_CASH * 10);
+		trader.setCash(AppInitialiser.TRADER_LIQUIDATE_CASH);
 		traderDAO.saveTrader(trader);
 		HibernateUtil.commitTransaction();
+
 	}
 
 }

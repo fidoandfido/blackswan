@@ -52,8 +52,10 @@ public class AppInitialiser {
 	 */
 	private static final long serialVersionUID = 1L;
 	private static final int CODE_LENGTH = 4;
-	// 50 k (including cents)
-	public static final long TRADER_START_CASH = 5000000;
+	// 100 k (including cents)
+	public static final long TRADER_START_CASH = 10000000;
+	// 1 mil (including cents)
+	public static final long TRADER_LIQUIDATE_CASH = 100000000;
 	// ten mil (including cents)
 	public static final long MARKET_MAKER_START_CASH = 1000000000;
 
@@ -116,8 +118,7 @@ public class AppInitialiser {
 	}
 
 	/**
-	 * Initialise the application. This whole unit of work should be unertaken
-	 * within a transaction.
+	 * Initialise the application. This whole unit of work should be unertaken within a transaction.
 	 * 
 	 * @throws Exception
 	 */
