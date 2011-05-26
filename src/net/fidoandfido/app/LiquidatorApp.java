@@ -8,6 +8,7 @@ import net.fidoandfido.dao.OrderDAO;
 import net.fidoandfido.dao.TraderDAO;
 import net.fidoandfido.engine.ai.AITrader;
 import net.fidoandfido.engine.ai.LiquididatingAI;
+import net.fidoandfido.initialiser.AppInitialiser;
 import net.fidoandfido.model.Order;
 import net.fidoandfido.model.Trader;
 

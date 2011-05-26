@@ -1,6 +1,5 @@
 package net.fidoandfido.initialiser;
 
-import net.fidoandfido.app.AppInitialiser;
 
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;

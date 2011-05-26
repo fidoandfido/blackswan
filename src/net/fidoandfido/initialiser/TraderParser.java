@@ -3,7 +3,6 @@ package net.fidoandfido.initialiser;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.fidoandfido.app.AppInitialiser;
 import net.fidoandfido.model.Trader;
 
 import org.xml.sax.Attributes;

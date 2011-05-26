@@ -1,4 +1,4 @@
-package net.fidoandfido.app;
+package net.fidoandfido.initialiser;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -14,7 +14,6 @@ import net.fidoandfido.dao.AppStatusDAO;
 import net.fidoandfido.dao.CompanyDAO;
 import net.fidoandfido.dao.CompanyPeriodReportDAO;
 import net.fidoandfido.dao.ExchangeGroupDAO;
-import net.fidoandfido.dao.HibernateUtil;
 import net.fidoandfido.dao.OrderDAO;
 import net.fidoandfido.dao.ReputationItemDAO;
 import net.fidoandfido.dao.ShareParcelDAO;
@@ -22,13 +21,6 @@ import net.fidoandfido.dao.StockExchangeDAO;
 import net.fidoandfido.dao.TraderDAO;
 import net.fidoandfido.dao.UserDAO;
 import net.fidoandfido.engine.event.PeriodEventGenerator;
-import net.fidoandfido.initialiser.CompanyNameBody;
-import net.fidoandfido.initialiser.CompanyNameParser;
-import net.fidoandfido.initialiser.CompanyNamePrefix;
-import net.fidoandfido.initialiser.CompanyNameSuffix;
-import net.fidoandfido.initialiser.ExchangeParser;
-import net.fidoandfido.initialiser.ItemParser;
-import net.fidoandfido.initialiser.TraderParser;
 import net.fidoandfido.model.AppStatus;
 import net.fidoandfido.model.Company;
 import net.fidoandfido.model.CompanyPeriodReport;
@@ -90,26 +82,6 @@ public class AppInitialiser {
 		reputationItemDAO = new ReputationItemDAO();
 		companyPeriodReportDAO = new CompanyPeriodReportDAO();
 		exchangeGroupDAO = new ExchangeGroupDAO();
-	}
-
-	public static void main(String argv[]) {
-		System.out.println("Initialising application!");
-		HibernateUtil.connectToDB();
-		System.out.println("Connected to database, beginning initislisation.");
-		AppInitialiser appInitialiser = new AppInitialiser();
-		HibernateUtil.beginTransaction();
-		try {
-			appInitialiser.initApp();
-			System.out.println("Initialisation complete, committing transaction.");
-			HibernateUtil.commitTransaction();
-		} catch (Exception e) {
-			HibernateUtil.rollbackTransaction();
-			e.printStackTrace();
-		}
-		HibernateUtil.beginTransaction();
-		AppDataLister appDataLister = new AppDataLister();
-		appDataLister.writeData();
-		HibernateUtil.commitTransaction();
 	}
 
 	public AppInitialiser() {
