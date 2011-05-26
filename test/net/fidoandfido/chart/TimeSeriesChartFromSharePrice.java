@@ -43,6 +43,7 @@ package net.fidoandfido.chart;
 
 import java.awt.Color;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 import javax.swing.JPanel;
@@ -71,15 +72,13 @@ import org.jfree.ui.RectangleInsets;
 import org.jfree.ui.RefineryUtilities;
 
 /**
- * An example of a time series chart. For the most part, default settings are
- * used, except that the renderer is modified to show filled shapes (as well as
- * lines) at each data point.
+ * An example of a time series chart. For the most part, default settings are used, except that the renderer is modified
+ * to show filled shapes (as well as lines) at each data point.
  */
 public class TimeSeriesChartFromSharePrice extends ApplicationFrame {
 
 	/**
-	 * A demonstration application showing how to create a simple time series
-	 * chart. This example uses monthly data.
+	 * A demonstration application showing how to create a simple time series chart. This example uses monthly data.
 	 * 
 	 * @param title
 	 *            the frame title.
@@ -123,9 +122,9 @@ public class TimeSeriesChartFromSharePrice extends ApplicationFrame {
 		XYItemRenderer r = plot.getRenderer();
 		if (r instanceof XYLineAndShapeRenderer) {
 			XYLineAndShapeRenderer renderer = (XYLineAndShapeRenderer) r;
-			renderer.setBaseShapesVisible(true);
-			renderer.setBaseShapesFilled(true);
-			renderer.setDrawSeriesLineAsPath(true);
+			renderer.setBaseShapesVisible(false);
+			renderer.setBaseShapesFilled(false);
+			renderer.setDrawSeriesLineAsPath(false);
 		}
 
 		DateAxis axis = (DateAxis) plot.getDomainAxis();
@@ -143,6 +142,7 @@ public class TimeSeriesChartFromSharePrice extends ApplicationFrame {
 	private static XYDataset createDataset() {
 
 		TimeSeries sharePrice = new TimeSeries("Traded Value");
+		TimeSeries smoothSharePrice = new TimeSeries("Smooth Traded Value");
 		TimeSeries bookValue = new TimeSeries("Book Value");
 		TimeSeries earningPerShare = new TimeSeries("Earning Per Share");
 
@@ -168,8 +168,28 @@ public class TimeSeriesChartFromSharePrice extends ApplicationFrame {
 			// 2000), report.getStartingExpectedProfit());
 		}
 
+		Date previousDate = new Date();
+		previousDate.setTime(1);
+		for (TradeRecord record : recordList) {
+			long oldTime = previousDate.getTime();
+			long newTime = record.getDate().getTime();
+			System.out.println("new time - old time = " + (newTime - oldTime));
+			long delta = newTime - oldTime;
+			if (delta < 60000) {
+				System.out.println("Should be skipped.");
+			}
+			if (record.getDate().getTime() > previousDate.getTime() + 30000) {
+				System.out.println("Adding point");
+				smoothSharePrice.addOrUpdate(new Second(record.getDate()), record.getSharePrice());
+				previousDate = record.getDate();
+			} else {
+				System.out.println("--- SKIPPED ---------------");
+			}
+		}
+
+		dataset.addSeries(smoothSharePrice);
 		dataset.addSeries(bookValue);
-		dataset.addSeries(sharePrice);
+		// dataset.addSeries(sharePrice);
 		dataset.addSeries(earningPerShare);
 
 		HibernateUtil.commitTransaction();

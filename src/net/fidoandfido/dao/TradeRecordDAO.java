@@ -21,7 +21,7 @@ public class TradeRecordDAO {
 		Session session = HibernateUtil.getSession();
 		Criteria crit = session.createCriteria(TradeRecord.class);
 		crit.add(Restrictions.eq("company", company));
-		crit.addOrder(Order.desc("date"));
+		crit.addOrder(Order.asc("date"));
 		crit.setMaxResults(count);
 		return crit.list();
 	}

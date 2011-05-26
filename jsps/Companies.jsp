@@ -229,18 +229,18 @@ to access (or create) your trader profile.</p>
 		for (CompanyPeriodReport report : reportList) {
 			earningPerShare.add(new Second(report.getStartDate()), report.getFinalProfit() / report.getOutstandingShareCount());
 			bookValue.add(new Second(report.getStartDate()), (report.getStartingAssets() - report.getStartingDebt()) / report.getOutstandingShareCount());
-			// expectedProfitSeries.add(new Year((int) report.getGeneration() +
-			// 2000), report.getStartingExpectedProfit());
 		}
 		TradeRecordDAO tradeRecordDAO = new TradeRecordDAO();
 		List<TradeRecord> recordList = tradeRecordDAO.getLastTradeRecords(company, 200);
 
+		Date previousDate = new Date();
+		previousDate.setTime(1);		
 		for (TradeRecord record : recordList) {
-			sharePrice.addOrUpdate(new Second(record.getDate()), record.getSharePrice());
-			// expectedProfitSeries.add(new Year((int) report.getGeneration() +
-			// 2000), report.getStartingExpectedProfit());
+			if ( record.getDate().getTime() > previousDate.getTime() + 10000) {
+				sharePrice.addOrUpdate(new Second(record.getDate()), record.getSharePrice());
+				previousDate = record.getDate();
+			}
 		}
-
 		dataset.addSeries(bookValue);
 		dataset.addSeries(sharePrice);
 		dataset.addSeries(earningPerShare);
@@ -268,14 +268,12 @@ to access (or create) your trader profile.</p>
 		XYItemRenderer r = plot.getRenderer();
 		if (r instanceof XYLineAndShapeRenderer) {
 			XYLineAndShapeRenderer renderer = (XYLineAndShapeRenderer) r;
-			renderer.setBaseShapesVisible(true);
-			renderer.setBaseShapesFilled(true);
-			renderer.setDrawSeriesLineAsPath(true);
+			renderer.setBaseShapesVisible(false);
+			renderer.setBaseShapesFilled(false);
+			renderer.setDrawSeriesLineAsPath(false);
 		}
-
 		DateAxis axis = (DateAxis) plot.getDomainAxis();
 		axis.setDateFormatOverride(new SimpleDateFormat("HH:mm:ss"));
-		
 		session.setAttribute(GraphServlet.CHART_ATTRIBUTE, chart);
 		
 %>
