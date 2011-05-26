@@ -6,12 +6,15 @@ import net.fidoandfido.model.Company;
 import net.fidoandfido.model.ShareParcel;
 import net.fidoandfido.model.Trader;
 
+import org.apache.log4j.Logger;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 
 public class ShareParcelDAO {
+
+	Logger logger = Logger.getLogger(this.getClass().getName());
 
 	public void saveShareParcel(ShareParcel shareParcel) {
 		Session session = HibernateUtil.getSession();
@@ -53,6 +56,8 @@ public class ShareParcelDAO {
 		List<ShareParcel> parcels = crit.list();
 		if (parcels.size() > 1) {
 			// Handle this somehow...
+			logger.warn("Multiple share parcels for Company: " + company.getName() + "(id: " + company.getId() + ") belong to Trader:" + trader.getName()
+					+ " (id:" + trader.getId() + ")");
 		}
 
 		if (parcels.isEmpty()) {
