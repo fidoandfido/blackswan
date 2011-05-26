@@ -324,6 +324,9 @@ public class Company {
 			return 0;
 		}
 		long profit = currentPeriod.getStartingExpectedProfit();
+		if (outstandingShares == 0) {
+			return 0; 
+		}
 		return (profit / outstandingShares);
 	}
 
