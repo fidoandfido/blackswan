@@ -391,7 +391,7 @@ to access (or create) your trader profile.</p>
 			// List all the companies
 			for (StockExchange exchange : exchangeList) {
 				Iterable<Company> companyList = companyDAO.getCompaniesByExchange(exchange);
-				if (companyList != null && companyList.iterator().hasNext()) {
+				if (trader.getExperiencePoints() >= exchange.getRequiredExperiencePoints() && companyList != null && companyList.iterator().hasNext()) {
 %>
 			<div class="post">
 				<h2 class="title">Companies on <%= exchange.getName() %> (Showing <%= exchange.getCompanyCount() %> entries)</h2>
