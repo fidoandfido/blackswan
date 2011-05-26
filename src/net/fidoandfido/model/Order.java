@@ -79,6 +79,12 @@ public class Order {
 		dateExecuted = null;
 	}
 
+	public void executeOrder(Date executedDate) {
+		this.setExecuted(true);
+		this.setActive(false);
+		this.setDateExecuted(executedDate);
+	}
+
 	/**
 	 * @return the id
 	 */
