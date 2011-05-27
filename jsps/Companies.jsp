@@ -224,23 +224,34 @@ to access (or create) your trader profile.</p>
 		TimeSeries earningPerShare = new TimeSeries("Earning Per Share");
 		TimeSeriesCollection dataset = new TimeSeriesCollection();
 
+		Date startOfChartDate = new Date();
 		CompanyPeriodReportDAO companyPeriodReportDAO = new CompanyPeriodReportDAO();
 		List<CompanyPeriodReport> reportList = companyPeriodReportDAO.getRecentPeriodReportListByCompany(company, 10);
 		for (CompanyPeriodReport report : reportList) {
 			earningPerShare.add(new Second(report.getStartDate()), report.getFinalProfit() / report.getOutstandingShareCount());
 			bookValue.add(new Second(report.getStartDate()), (report.getStartingAssets() - report.getStartingDebt()) / report.getOutstandingShareCount());
+			if (startOfChartDate.after(report.getStartDate())) {
+				startOfChartDate = report.getStartDate();
+			}
 		}
 		TradeRecordDAO tradeRecordDAO = new TradeRecordDAO();
-		List<TradeRecord> recordList = tradeRecordDAO.getLastTradeRecords(company, 200);
-
+		List<TradeRecord> recordList = tradeRecordDAO.getLastTradeRecords(company, startOfChartDate);
+		// This list is sorted in reverse order; this is okay for our graph.
 		Date previousDate = new Date();
-		previousDate.setTime(1);		
 		for (TradeRecord record : recordList) {
-			if ( record.getDate().getTime() > previousDate.getTime() + 10000) {
+			if ( record.getDate().getTime() < previousDate.getTime() - 10000) {
 				sharePrice.addOrUpdate(new Second(record.getDate()), record.getSharePrice());
 				previousDate = record.getDate();
 			}
 		}
+		
+		// Add data points to bring the lines to the edge of the graph.
+		Date latestDatePointDate = new Date();
+		earningPerShare.add(new Second(latestDatePointDate), currentReport.getStartingExpectedProfit() / currentReport.getOutstandingShareCount());
+		bookValue.add(new Second(latestDatePointDate), ((currentReport.getStartingAssets() - currentReport.getStartingDebt()) / currentReport.getOutstandingShareCount()));
+		sharePrice.add(new Second(latestDatePointDate), company.getLastTradePrice());
+		
+		
 		dataset.addSeries(bookValue);
 		dataset.addSeries(sharePrice);
 		dataset.addSeries(earningPerShare);
@@ -264,6 +275,9 @@ to access (or create) your trader profile.</p>
 		plot.setAxisOffset(new RectangleInsets(5.0, 5.0, 5.0, 5.0));
 		plot.setDomainCrosshairVisible(true);
 		plot.setRangeCrosshairVisible(true);
+		plot.getRenderer().setSeriesPaint(0, Color.MAGENTA);
+		plot.getRenderer().setSeriesPaint(1, Color.BLUE);
+		plot.getRenderer().setSeriesPaint(2, Color.BLACK);
 
 		XYItemRenderer r = plot.getRenderer();
 		if (r instanceof XYLineAndShapeRenderer) {
@@ -274,11 +288,10 @@ to access (or create) your trader profile.</p>
 		}
 		DateAxis axis = (DateAxis) plot.getDomainAxis();
 		axis.setDateFormatOverride(new SimpleDateFormat("HH:mm:ss"));
-		session.setAttribute(GraphServlet.CHART_ATTRIBUTE, chart);
-		
+		session.setAttribute(GraphServlet.CHART_ATTRIBUTE + company.getCode(), chart);
 %>
 				
-				<img src="/myapp/graph"/>
+				<img src="/myapp/graph?<%=GraphServlet.COMPANY_CODE%>=<%=company.getCode()%>"/>
 				
 				</div>
 			</div>	

@@ -1,5 +1,6 @@
 package net.fidoandfido.dao;
 
+import java.util.Date;
 import java.util.List;
 
 import net.fidoandfido.model.Company;
@@ -21,8 +22,17 @@ public class TradeRecordDAO {
 		Session session = HibernateUtil.getSession();
 		Criteria crit = session.createCriteria(TradeRecord.class);
 		crit.add(Restrictions.eq("company", company));
-		crit.addOrder(Order.asc("date"));
+		crit.addOrder(Order.desc("date"));
 		crit.setMaxResults(count);
+		return crit.list();
+	}
+
+	public List<TradeRecord> getLastTradeRecords(Company company, Date startOfChartDate) {
+		Session session = HibernateUtil.getSession();
+		Criteria crit = session.createCriteria(TradeRecord.class);
+		crit.add(Restrictions.eq("company", company));
+		crit.add(Restrictions.gt("date", startOfChartDate));
+		crit.addOrder(Order.desc("date"));
 		return crit.list();
 	}
 }

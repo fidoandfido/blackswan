@@ -118,6 +118,9 @@ public class TimeSeriesChartFromSharePrice extends ApplicationFrame {
 		plot.setAxisOffset(new RectangleInsets(5.0, 5.0, 5.0, 5.0));
 		plot.setDomainCrosshairVisible(true);
 		plot.setRangeCrosshairVisible(true);
+		plot.getRenderer().setSeriesPaint(0, Color.BLUE);
+		plot.getRenderer().setSeriesPaint(1, Color.MAGENTA);
+		plot.getRenderer().setSeriesPaint(2, Color.BLACK);
 
 		XYItemRenderer r = plot.getRenderer();
 		if (r instanceof XYLineAndShapeRenderer) {
@@ -152,24 +155,33 @@ public class TimeSeriesChartFromSharePrice extends ApplicationFrame {
 		TimeSeriesCollection dataset = new TimeSeriesCollection();
 
 		CompanyPeriodReportDAO companyPeriodReportDAO = new CompanyPeriodReportDAO();
-		List<CompanyPeriodReport> reportList = companyPeriodReportDAO.getRecentPeriodReportListByCompany(company, 10);
+		List<CompanyPeriodReport> reportList = companyPeriodReportDAO.getRecentPeriodReportListByCompany(company, 8);
+
+		CompanyPeriodReport currentReport = company.getCurrentPeriod();
+		Date latestDatePointDate = new Date();
+		earningPerShare.add(new Second(latestDatePointDate), currentReport.getStartingExpectedProfit() / currentReport.getOutstandingShareCount());
+		bookValue.add(new Second(latestDatePointDate),
+				((currentReport.getStartingAssets() - currentReport.getStartingDebt()) / currentReport.getOutstandingShareCount()));
+		sharePrice.add(new Second(latestDatePointDate), company.getLastTradePrice());
+
+		Date startOfChartDate = new Date();
 		for (CompanyPeriodReport report : reportList) {
 			earningPerShare.add(new Second(report.getStartDate()), report.getFinalProfit() / report.getOutstandingShareCount());
 			bookValue.add(new Second(report.getStartDate()), (report.getStartingAssets() - report.getStartingDebt()) / report.getOutstandingShareCount());
-			// expectedProfitSeries.add(new Year((int) report.getGeneration() +
-			// 2000), report.getStartingExpectedProfit());
+			if (startOfChartDate.after(report.getStartDate())) {
+				System.out.println("Updating time...");
+				startOfChartDate = report.getStartDate();
+			}
 		}
+
 		TradeRecordDAO tradeRecordDAO = new TradeRecordDAO();
-		List<TradeRecord> recordList = tradeRecordDAO.getLastTradeRecords(company, 200);
+		List<TradeRecord> recordList = tradeRecordDAO.getLastTradeRecords(company, startOfChartDate);
 
 		for (TradeRecord record : recordList) {
 			sharePrice.addOrUpdate(new Second(record.getDate()), record.getSharePrice());
-			// expectedProfitSeries.add(new Year((int) report.getGeneration() +
-			// 2000), report.getStartingExpectedProfit());
 		}
 
 		Date previousDate = new Date();
-		previousDate.setTime(1);
 		for (TradeRecord record : recordList) {
 			long oldTime = previousDate.getTime();
 			long newTime = record.getDate().getTime();
@@ -178,7 +190,8 @@ public class TimeSeriesChartFromSharePrice extends ApplicationFrame {
 			if (delta < 60000) {
 				System.out.println("Should be skipped.");
 			}
-			if (record.getDate().getTime() > previousDate.getTime() + 30000) {
+
+			if (record.getDate().getTime() < previousDate.getTime() - 10000) {
 				System.out.println("Adding point");
 				smoothSharePrice.addOrUpdate(new Second(record.getDate()), record.getSharePrice());
 				previousDate = record.getDate();

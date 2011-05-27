@@ -14,12 +14,14 @@ import org.jfree.chart.JFreeChart;
 
 public class GraphServlet extends HttpServlet {
 	public static final String CHART_ATTRIBUTE = "chart";
+	public static final String COMPANY_CODE = "companyCode";
 
 	@Override
 	public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		HttpSession session = request.getSession();
 		// get the chart from storage
-		JFreeChart chart = (JFreeChart) session.getAttribute(CHART_ATTRIBUTE);
+		String companyCode = request.getParameter(COMPANY_CODE);
+		JFreeChart chart = (JFreeChart) session.getAttribute(CHART_ATTRIBUTE + companyCode);
 		if (chart == null) {
 			return;
 		}
