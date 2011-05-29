@@ -29,7 +29,7 @@
 <%@page import="net.fidoandfido.model.Trader"%>
 <%@page import="net.fidoandfido.util.Constants"%>
 <%@page import="net.fidoandfido.servlets.SellSharesServlet"%>
-<%@ page language="java" contentType="text/html; charset=ISO-8859-1" pageEncoding="ISO-8859-1"%>
+<%@page language="java" contentType="text/html; charset=ISO-8859-1" pageEncoding="ISO-8859-1"%>
 <%@page session="true" %>
 <%	
 	HibernateUtil.beginTransaction();
@@ -49,11 +49,41 @@
 		response.sendRedirect("/myapp/Welcome.jsp");
 		return;
 	}
-	
-	
 %>
-
 <html>
+
+<script type="text/javascript" src="/myapp/scripts/ajax.js"> </script>
+
+<script type="text/javascript">
+
+function removeMessage(messageId) {
+	alert("Removing message!");
+	request = createRequest();
+	if (request == null) {
+		alert("Unable to create request!");
+	} else {
+		request.onreadystatechange = showStatus;
+		url = "/myapp/message";
+		request.open("POST", url, true);
+		var requestData = "<%=MessageServlet.COMMAND_PARM %>=<%=MessageServlet.DISMISS_MESSAGE%>" +
+				"&<%=MessageServlet.ID_PARM %>=" + messageId +
+				"&<%=MessageServlet.RESPONSE_FORMAT %>=<%=MessageServlet.AJAX%>";
+		alert(requestData);
+		request.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+		request.send(requestData);
+	}
+	
+}
+
+function showStatus() {
+	if (request.readyState == 4) {
+		alert(request.responseText);
+	}
+}
+
+</script>
+
+
 <%@ include file="webTemplates/header.txt" %>
 <%@ include file="webTemplates/pageHeaderA.txt" %>
 <%@ include file="webTemplates/pageHeaderB.txt" %>
@@ -72,7 +102,9 @@
 %>
 				<p>There are messages for you to view.</p>
 
+				<div id="messages">
 				<ul>
+				
 <%	
 		for (TraderMessage message : messages) {
 			boolean isNew = false;
@@ -83,6 +115,7 @@
 			}
 %>
 				<li>
+				<div>
 				<p>
 				<%= isNew ? "<b>" : "" %>
 				<%= message.getSubject() %>
@@ -92,17 +125,28 @@
 				<%= message.getDate() %>
 				<%= isNew ? "</b>" : "" %>
 
-				<form action="/myapp/message" method="post">
+				<script>
+				function removeMessage<%=message.getId()%>() {
+					alert("<%=message.getId()%>");
+					removeMessage("<%=message.getId()%>");
+				}
+				
+				</script>
+				
+				
+				<form>
 				<input type="hidden" name="<%=MessageServlet.COMMAND_PARM %>" value="<%=MessageServlet.DISMISS_MESSAGE%>" ></input>
 				<input type="hidden" name="<%=MessageServlet.ID_PARM %>" value="<%=message.getId()%>" ></input>
-				<input type="submit" value="Dismiss" />
+				<input type="button" value="Dismiss" onclick="removeMessage<%=message.getId()%>()" />
 				</form>
 				</p>
+				</div>
 				</li>	
 <%
 		}
 %>
 			</ul>
+			</div>
 <%
 	} else {
 %>	
@@ -110,6 +154,7 @@
 <%
 	}
 %>				
+				<br/><a href="/myapp/Message.jsp">Post a Message</a><br/>
 
 				<p>
 				Current balance: <%= WebPageUtil.formatCurrency(trader.getCash()) %><br/>

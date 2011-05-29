@@ -1,6 +1,7 @@
 package net.fidoandfido.servlets;
 
 import java.io.IOException;
+import java.util.Date;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -29,28 +30,85 @@ public class MessageServlet extends HttpServlet {
 	 * javax.servlet.http.HttpServletResponse)
 	 */
 	public static final String ID_PARM = "message_id";
+
+	public static final String MESSAGE_SUBJECT_PARM = "subject";
+	public static final String MESSAGE_BODY_PARM = "body";
+
+	public static final String RESPONSE_FORMAT = "format";
+	public static final String AJAX = "ajax";
+
 	public static final String COMMAND_PARM = "command";
 
 	public static final String DISMISS_MESSAGE = "dismiss";
+	public static final String POST_MESSAGE = "post";
 
 	TraderMessageDAO traderMessageDAO = new TraderMessageDAO();
 
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		logger.info("Message servlet starting.");
-		HibernateUtil.beginTransaction();
-		Trader trader = WebUtil.getCurrentTraderBySession(req.getSession().getId());
-		String id = req.getParameter(ID_PARM);
-		boolean success = dismissMessage(id, trader);
-		HibernateUtil.commitTransaction();
-		if (success) {
-			logger.info("Message dismissed");
-			resp.sendRedirect("/myapp/Trader.jsp");
-		} else {
-			logger.info("Message dismissed");
-			resp.sendRedirect("/myapp/Welcome.jsp");
+		boolean success = false;
+
+		boolean ajax = false;
+		String format = req.getParameter(RESPONSE_FORMAT);
+		if (AJAX.equals(format)) {
+			ajax = true;
 		}
 
+		HibernateUtil.beginTransaction();
+		Trader trader = WebUtil.getCurrentTraderBySession(req.getSession().getId());
+		String command = req.getParameter(COMMAND_PARM);
+		logger.info("command: [" + command + "]");
+		if (DISMISS_MESSAGE.equals(command)) {
+			logger.info("Have a dismiss command");
+			String id = req.getParameter(ID_PARM);
+			success = dismissMessage(id, trader);
+			if (success) {
+				logger.info("Message dismissed");
+			} else {
+				logger.error("Could not dismiss message! ID:" + id + " Trader: " + trader.getName());
+			}
+			if (ajax) {
+				if (success) {
+					resp.getWriter().println("Okay");
+				} else {
+					resp.getWriter().println("Failed");
+				}
+			}
+		} else if (POST_MESSAGE.equals(command)) {
+			String body = req.getParameter(MESSAGE_BODY_PARM);
+			String subject = req.getParameter(MESSAGE_SUBJECT_PARM);
+			success = postMessage(subject, body, trader);
+			if (success) {
+				logger.info("Message saved");
+			} else {
+				logger.error("Message unable to be saved.");
+			}
+		} else {
+			logger.warn("Unknown command.");
+		}
+		HibernateUtil.commitTransaction();
+		if (!ajax) {
+			if (success) {
+				resp.sendRedirect("/myapp/Trader.jsp");
+			} else {
+				logger.info("Some kind of error occured in Message Servlet");
+				resp.sendRedirect("/myapp/Welcome.jsp");
+			}
+		}
+
+	}
+
+	public boolean postMessage(String subject, String body, Trader trader) {
+		if (subject == null || subject.isEmpty()) {
+			return false;
+		}
+		if (body == null || body.isEmpty()) {
+			return false;
+		}
+		TraderMessage message = new TraderMessage(new Date(), subject, body, trader, trader);
+		traderMessageDAO.saveMessage(message);
+		return true;
 	}
 
 	public boolean dismissMessage(String id, Trader trader) {
