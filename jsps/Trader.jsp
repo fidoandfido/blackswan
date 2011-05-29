@@ -54,34 +54,20 @@
 
 <script type="text/javascript" src="/myapp/scripts/ajax.js"> </script>
 
+
 <script type="text/javascript">
 
-function removeMessage(messageId) {
-	alert("Removing message!");
-	request = createRequest();
-	if (request == null) {
-		alert("Unable to create request!");
-	} else {
-		request.onreadystatechange = showStatus;
-		url = "/myapp/message";
-		request.open("POST", url, true);
-		var requestData = "<%=MessageServlet.COMMAND_PARM %>=<%=MessageServlet.DISMISS_MESSAGE%>" +
-				"&<%=MessageServlet.ID_PARM %>=" + messageId +
-				"&<%=MessageServlet.RESPONSE_FORMAT %>=<%=MessageServlet.AJAX%>";
-		alert(requestData);
-		request.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-		request.send(requestData);
-	}
-	
-}
 
-function showStatus() {
-	if (request.readyState == 4) {
-		alert(request.responseText);
-	}
+function removeElement(parentDivId, childDivId){
+	if (document.getElementById(childDivId)) {     
+          var child = document.getElementById(childDivId);
+          var parent = document.getElementById(parentDivId);
+          parent.removeChild(child);
+     }
 }
 
 </script>
+
 
 
 <%@ include file="webTemplates/header.txt" %>
@@ -103,8 +89,6 @@ function showStatus() {
 				<p>There are messages for you to view.</p>
 
 				<div id="messages">
-				<ul>
-				
 <%	
 		for (TraderMessage message : messages) {
 			boolean isNew = false;
@@ -113,9 +97,43 @@ function showStatus() {
 				message.setRead(true);
 				messageDAO.saveMessage(message);
 			}
+			// Add a javascript function to remove this message.
 %>
-				<li>
-				<div>
+		
+
+<script type="text/javascript">
+
+function removeMessage_<%=message.getId()%>() {
+	request = createRequest();
+	if (request == null) {
+		alert("Unable to create request!");
+	} else {
+		request.onreadystatechange = deleteMessage_<%=message.getId()%>;
+		url = "/myapp/message";
+		request.open("POST", url, true);
+		var requestData = "<%=MessageServlet.COMMAND_PARM %>=<%=MessageServlet.DISMISS_MESSAGE%>" +
+				"&<%=MessageServlet.ID_PARM %>=<%= message.getId() %>"  +
+				"&<%=MessageServlet.RESPONSE_FORMAT %>=<%=MessageServlet.AJAX%>";
+		request.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+		request.send(requestData);
+	}
+	
+}
+
+function deleteMessage_<%=message.getId()%>() {
+	if (request.readyState == 4) {
+		if (request.responseText == "<%= MessageServlet.OKAY %>") {
+			removeElement("messages", "message_<%= message.getId()%>");
+		} else {
+			// ??
+			//alert("Error removing message");
+		}
+	}
+}
+
+</script>
+
+				<div id="message_<%= message.getId()%>">
 				<p>
 				<%= isNew ? "<b>" : "" %>
 				<%= message.getSubject() %>
@@ -125,27 +143,17 @@ function showStatus() {
 				<%= message.getDate() %>
 				<%= isNew ? "</b>" : "" %>
 
-				<script>
-				function removeMessage<%=message.getId()%>() {
-					alert("<%=message.getId()%>");
-					removeMessage("<%=message.getId()%>");
-				}
-				
-				</script>
-				
 				
 				<form>
 				<input type="hidden" name="<%=MessageServlet.COMMAND_PARM %>" value="<%=MessageServlet.DISMISS_MESSAGE%>" ></input>
 				<input type="hidden" name="<%=MessageServlet.ID_PARM %>" value="<%=message.getId()%>" ></input>
-				<input type="button" value="Dismiss" onclick="removeMessage<%=message.getId()%>()" />
+				<input type="button" value="Dismiss" onclick="removeMessage_<%=message.getId()%>()" />
 				</form>
 				</p>
 				</div>
-				</li>	
 <%
 		}
 %>
-			</ul>
 			</div>
 <%
 	} else {

@@ -42,6 +42,9 @@ public class MessageServlet extends HttpServlet {
 	public static final String DISMISS_MESSAGE = "dismiss";
 	public static final String POST_MESSAGE = "post";
 
+	public static final String OKAY = "okay";
+	public static final String FAILED = "failed";
+
 	TraderMessageDAO traderMessageDAO = new TraderMessageDAO();
 
 	@Override
@@ -69,10 +72,13 @@ public class MessageServlet extends HttpServlet {
 				logger.error("Could not dismiss message! ID:" + id + " Trader: " + trader.getName());
 			}
 			if (ajax) {
+				resp.setContentType("text/plain");
 				if (success) {
-					resp.getWriter().println("Okay");
+					resp.getWriter().print(OKAY);
+					resp.getWriter().flush();
 				} else {
-					resp.getWriter().println("Failed");
+					resp.getWriter().print(FAILED);
+					resp.getWriter().flush();
 				}
 			}
 		} else if (POST_MESSAGE.equals(command)) {
