@@ -12,7 +12,7 @@ import net.fidoandfido.dao.HibernateUtil;
 import net.fidoandfido.dao.PeriodPartInformationDAO;
 import net.fidoandfido.model.Company;
 import net.fidoandfido.model.CompanyPeriodReport;
-import net.fidoandfido.model.PeriodEvent;
+import net.fidoandfido.model.PeriodQuarter;
 
 public class VerifyDividends {
 

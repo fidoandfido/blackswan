@@ -13,7 +13,7 @@ public class Constants {
 
 	// public static final long PERIOD_LENGTH_BUFFER = MILLIS_IN_MINUTE * 1;
 
-	public static enum EventType {
+	public static enum QuarterPerformanceType {
 		EXTRAORDINARY, GREAT, GOOD, AVERAGE, POOR, TERRIBLE, CATASTROPHIC;
 	}
 

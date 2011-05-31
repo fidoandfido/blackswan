@@ -1,9 +1,8 @@
 <%@page import="org.jfree.chart.ChartFactory"%>
 <%@page import="org.jfree.chart.JFreeChart"%>
 <%@page import="org.jfree.data.general.DefaultPieDataset"%>
-<%@page import="net.fidoandfido.engine.event.PeriodEventGenerator"%>
 <%@page import="java.util.Map"%>
-<%@page import="net.fidoandfido.model.PeriodEvent"%>
+<%@page import="net.fidoandfido.model.PeriodQuarter"%>
 <%@page import="net.fidoandfido.dao.HibernateUtil"%>
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
     pageEncoding="ISO-8859-1"%>

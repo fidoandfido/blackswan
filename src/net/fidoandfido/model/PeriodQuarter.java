@@ -11,19 +11,19 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
-import net.fidoandfido.engine.event.EventData;
-import net.fidoandfido.util.Constants.EventType;
+import net.fidoandfido.engine.quarter.QuarterData;
+import net.fidoandfido.util.Constants.QuarterPerformanceType;
 
 import org.hibernate.annotations.GenericGenerator;
 
 @Entity
 @Table(name = "PeriodEvent")
-public class PeriodEvent {
+public class PeriodQuarter {
 
-	public static class EventCompator implements Comparator<PeriodEvent> {
+	public static class EventCompator implements Comparator<PeriodQuarter> {
 
 		@Override
-		public int compare(PeriodEvent o1, PeriodEvent o2) {
+		public int compare(PeriodQuarter o1, PeriodQuarter o2) {
 			Date date1 = o1.getDateInformationAvailable();
 			Date date2 = o2.getDateInformationAvailable();
 
@@ -71,7 +71,7 @@ public class PeriodEvent {
 	private String message;
 
 	@Column
-	private EventType eventType;
+	private QuarterPerformanceType eventType;
 
 	@Column
 	private long profit;
@@ -100,11 +100,11 @@ public class PeriodEvent {
 	@Column
 	private String announcementType;
 
-	public PeriodEvent() {
+	public PeriodQuarter() {
 		// Default constructor required for persistence
 	}
 
-	public PeriodEvent(Company company, CompanyPeriodReport companyPeriodReport, Date dateInformationAvailable, String message, EventType eventType,
+	public PeriodQuarter(Company company, CompanyPeriodReport companyPeriodReport, Date dateInformationAvailable, String message, QuarterPerformanceType eventType,
 			String forecastType) {
 		super();
 		this.company = company;
@@ -193,7 +193,7 @@ public class PeriodEvent {
 	/**
 	 * @return the eventType
 	 */
-	public EventType getEventType() {
+	public QuarterPerformanceType getEventType() {
 		return eventType;
 	}
 
@@ -201,7 +201,7 @@ public class PeriodEvent {
 	 * @param eventType
 	 *            the eventType to set
 	 */
-	public void setEventType(EventType eventType) {
+	public void setEventType(QuarterPerformanceType eventType) {
 		this.eventType = eventType;
 	}
 
@@ -319,7 +319,7 @@ public class PeriodEvent {
 		this.announcementType = forecastType;
 	}
 
-	public void setData(EventData currentData) {
+	public void setData(QuarterData currentData) {
 		this.profit = currentData.getProfit();
 		this.expenses = currentData.getExpenses();
 		this.revenue = currentData.getRevenue();
@@ -349,7 +349,7 @@ public class PeriodEvent {
 	}
 
 	public boolean isAverage() {
-		return eventType == EventType.AVERAGE;
+		return eventType == QuarterPerformanceType.AVERAGE;
 	}
 
 	public boolean isGood() {

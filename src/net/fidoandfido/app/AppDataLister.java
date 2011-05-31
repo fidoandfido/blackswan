@@ -14,7 +14,7 @@ import net.fidoandfido.model.Company;
 import net.fidoandfido.model.CompanyPeriodReport;
 import net.fidoandfido.model.ExchangeGroup;
 import net.fidoandfido.model.Order;
-import net.fidoandfido.model.PeriodEvent;
+import net.fidoandfido.model.PeriodQuarter;
 import net.fidoandfido.model.ReputationEffect;
 import net.fidoandfido.model.ReputationItem;
 import net.fidoandfido.model.ShareParcel;
@@ -95,7 +95,7 @@ public class AppDataLister {
 			// printPeriodPartInformation(currentReport.getShortTermSectorInformation());
 			// System.out.println("- Short term company");
 			// printPeriodPartInformation(currentReport.getShortTermCompanyInformation());
-			for (PeriodEvent event : currentReport.getPeriodEventList()) {
+			for (PeriodQuarter event : currentReport.getPeriodQuarterList()) {
 				System.out.println("EVENT: " + event.getAnnouncementType());
 				System.out.println("Message: " + event.getMessage());
 				System.out.println("Date available: " + event.getDateInformationAvailable());
@@ -132,7 +132,7 @@ public class AppDataLister {
 
 	}
 
-	private void printPeriodPartInformation(PeriodEvent periodPartInformation) {
+	private void printPeriodPartInformation(PeriodQuarter periodPartInformation) {
 		System.out.println("----> Expected profit: " + periodPartInformation.getProfit());
 		System.out.println("----> " + periodPartInformation.getMessage());
 		System.out.println("----> " + periodPartInformation.getEventType());

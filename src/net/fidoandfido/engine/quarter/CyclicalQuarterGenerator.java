@@ -1,52 +1,51 @@
-package net.fidoandfido.engine.eventgenerators;
+package net.fidoandfido.engine.quarter;
 
 import java.util.Random;
 
-import net.fidoandfido.engine.event.EventGenerator;
-import net.fidoandfido.util.Constants.EventType;
+import net.fidoandfido.util.Constants.QuarterPerformanceType;
 
-public class CyclicalEventGenerator implements EventGenerator {
+public class CyclicalQuarterGenerator implements QuarterGenerator {
 
 	public static final String NAME = "cyclicEvents";
 
 	static Random random = new Random();
 
-	EventType[] sortedArray = { EventType.CATASTROPHIC, // 0
-			EventType.TERRIBLE, // 1
-			EventType.POOR, // 2
-			EventType.AVERAGE, // 3
-			EventType.GOOD, // 4
-			EventType.GREAT, // 5
-			EventType.EXTRAORDINARY }; // 6
+	QuarterPerformanceType[] sortedArray = { QuarterPerformanceType.CATASTROPHIC, // 0
+			QuarterPerformanceType.TERRIBLE, // 1
+			QuarterPerformanceType.POOR, // 2
+			QuarterPerformanceType.AVERAGE, // 3
+			QuarterPerformanceType.GOOD, // 4
+			QuarterPerformanceType.GREAT, // 5
+			QuarterPerformanceType.EXTRAORDINARY }; // 6
 
 	private int lowerEventCountBound = 1000;
 
 	private int upperEventCountBound = 2000;
 
-	EventType currentEventCycle = EventType.AVERAGE;
+	QuarterPerformanceType currentEventCycle = QuarterPerformanceType.AVERAGE;
 
 	private int currentEventCount = 0;
 
 	private boolean gettingBetter = true;
 
-	public CyclicalEventGenerator() {
+	public CyclicalQuarterGenerator() {
 		// Default
 		resetEventCount();
 	}
 
-	public CyclicalEventGenerator(int lowerEventCountBound, int upperEventCountBound) {
+	public CyclicalQuarterGenerator(int lowerEventCountBound, int upperEventCountBound) {
 		this.lowerEventCountBound = lowerEventCountBound;
 		this.upperEventCountBound = upperEventCountBound;
 		resetEventCount();
 	}
 
 	@Override
-	public EventType getNextEventType() {
-		return getNextEventType(EventType.AVERAGE);
+	public QuarterPerformanceType getNextEventType() {
+		return getNextEventType(QuarterPerformanceType.AVERAGE);
 	}
 
 	@Override
-	public EventType getNextEventType(EventType previousEvent) {
+	public QuarterPerformanceType getNextEventType(QuarterPerformanceType previousEvent) {
 		// This will produce events of the same general type.
 		// it will be biased against the extreme events.
 
@@ -56,27 +55,27 @@ public class CyclicalEventGenerator implements EventGenerator {
 			switch (currentEventCycle) {
 			case POOR:
 				gettingBetter = true;
-				currentEventCycle = EventType.AVERAGE;
+				currentEventCycle = QuarterPerformanceType.AVERAGE;
 				break;
 			case AVERAGE:
 				if (gettingBetter) {
-					currentEventCycle = EventType.GOOD;
+					currentEventCycle = QuarterPerformanceType.GOOD;
 				} else {
-					currentEventCycle = EventType.POOR;
+					currentEventCycle = QuarterPerformanceType.POOR;
 				}
 				break;
 			case GOOD:
 				gettingBetter = false;
-				currentEventCycle = EventType.AVERAGE;
+				currentEventCycle = QuarterPerformanceType.AVERAGE;
 				break;
 			default:
-				currentEventCycle = EventType.AVERAGE;
+				currentEventCycle = QuarterPerformanceType.AVERAGE;
 				gettingBetter = true;
 				break;
 			}
 		}
 
-		EventType newEvent = EventType.AVERAGE;
+		QuarterPerformanceType newEvent = QuarterPerformanceType.AVERAGE;
 
 		// Now figure out what type of event we need to return
 		switch (currentEventCycle) {
@@ -90,26 +89,26 @@ public class CyclicalEventGenerator implements EventGenerator {
 			// 0 % chance of EXTRAORDINARY
 			switch (random.nextInt(10)) {
 			case 0:
-				newEvent = EventType.CATASTROPHIC;
+				newEvent = QuarterPerformanceType.CATASTROPHIC;
 				break;
 			case 1:
 			case 2:
-				newEvent = EventType.TERRIBLE;
+				newEvent = QuarterPerformanceType.TERRIBLE;
 				break;
 			case 3:
 			case 4:
 			case 5:
-				newEvent = EventType.POOR;
+				newEvent = QuarterPerformanceType.POOR;
 				break;
 			case 6:
 			case 7:
-				newEvent = EventType.AVERAGE;
+				newEvent = QuarterPerformanceType.AVERAGE;
 				break;
 			case 8:
-				newEvent = EventType.GOOD;
+				newEvent = QuarterPerformanceType.GOOD;
 				break;
 			case 9:
-				newEvent = EventType.GREAT;
+				newEvent = QuarterPerformanceType.GREAT;
 				break;
 			}
 			break;
@@ -123,24 +122,24 @@ public class CyclicalEventGenerator implements EventGenerator {
 			// 0 % chance of EXTRAORDINARY
 			switch (random.nextInt(10)) {
 			case 0:
-				newEvent = EventType.TERRIBLE;
+				newEvent = QuarterPerformanceType.TERRIBLE;
 				break;
 			case 1:
 			case 2:
-				newEvent = EventType.POOR;
+				newEvent = QuarterPerformanceType.POOR;
 				break;
 			case 3:
 			case 4:
 			case 5:
 			case 6:
-				newEvent = EventType.AVERAGE;
+				newEvent = QuarterPerformanceType.AVERAGE;
 				break;
 			case 7:
 			case 8:
-				newEvent = EventType.GOOD;
+				newEvent = QuarterPerformanceType.GOOD;
 				break;
 			case 9:
-				newEvent = EventType.GREAT;
+				newEvent = QuarterPerformanceType.GREAT;
 				break;
 			}
 			break;
@@ -155,32 +154,32 @@ public class CyclicalEventGenerator implements EventGenerator {
 			int rand = random.nextInt(10);
 			switch (rand) {
 			case 0:
-				newEvent = EventType.TERRIBLE;
+				newEvent = QuarterPerformanceType.TERRIBLE;
 				break;
 			case 1:
-				newEvent = EventType.POOR;
+				newEvent = QuarterPerformanceType.POOR;
 				break;
 			case 2:
 			case 3:
-				newEvent = EventType.AVERAGE;
+				newEvent = QuarterPerformanceType.AVERAGE;
 				break;
 			case 4:
 			case 5:
 			case 6:
-				newEvent = EventType.GOOD;
+				newEvent = QuarterPerformanceType.GOOD;
 				break;
 			case 7:
 			case 8:
-				newEvent = EventType.GREAT;
+				newEvent = QuarterPerformanceType.GREAT;
 				break;
 			case 9:
-				newEvent = EventType.EXTRAORDINARY;
+				newEvent = QuarterPerformanceType.EXTRAORDINARY;
 				break;
 			}
 			break;
 		default:
 			// Strange - we are not in the expected event cycle!
-			currentEventCycle = EventType.AVERAGE;
+			currentEventCycle = QuarterPerformanceType.AVERAGE;
 			gettingBetter = true;
 		}
 
@@ -189,25 +188,25 @@ public class CyclicalEventGenerator implements EventGenerator {
 		switch (previousEvent) {
 		case EXTRAORDINARY:
 		case GREAT:
-			if (newEvent == EventType.TERRIBLE || newEvent == EventType.CATASTROPHIC) {
-				newEvent = EventType.POOR;
+			if (newEvent == QuarterPerformanceType.TERRIBLE || newEvent == QuarterPerformanceType.CATASTROPHIC) {
+				newEvent = QuarterPerformanceType.POOR;
 			}
 			break;
 		case GOOD:
-			if (newEvent == EventType.CATASTROPHIC) {
-				newEvent = EventType.TERRIBLE;
+			if (newEvent == QuarterPerformanceType.CATASTROPHIC) {
+				newEvent = QuarterPerformanceType.TERRIBLE;
 			}
 		case AVERAGE:
 			break;
 		case POOR:
-			if (newEvent == EventType.EXTRAORDINARY) {
-				newEvent = EventType.GREAT;
+			if (newEvent == QuarterPerformanceType.EXTRAORDINARY) {
+				newEvent = QuarterPerformanceType.GREAT;
 			}
 			break;
 		case TERRIBLE:
 		case CATASTROPHIC:
-			if (newEvent == EventType.EXTRAORDINARY || newEvent == EventType.GREAT) {
-				newEvent = EventType.GOOD;
+			if (newEvent == QuarterPerformanceType.EXTRAORDINARY || newEvent == QuarterPerformanceType.GREAT) {
+				newEvent = QuarterPerformanceType.GOOD;
 			}
 			break;
 		}
@@ -224,12 +223,12 @@ public class CyclicalEventGenerator implements EventGenerator {
 
 	public static void main(String argv[]) {
 
-		CyclicalEventGenerator gen = new CyclicalEventGenerator(100, 100);
+		CyclicalQuarterGenerator gen = new CyclicalQuarterGenerator(100, 100);
 		int[] counts = new int[7];
 		for (int i = 0; i < 10; i++) {
 			System.out.println("Current event cycle: " + gen.currentEventCycle);
 			for (int j = 0; j < 100; j++) {
-				EventType et = gen.getNextEventType();
+				QuarterPerformanceType et = gen.getNextEventType();
 				switch (et) {
 				case CATASTROPHIC:
 					counts[0]++;

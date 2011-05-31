@@ -3,11 +3,11 @@ package net.fidoandfido.engine.profitmodifers;
 import java.util.Date;
 import java.util.Random;
 
-import net.fidoandfido.engine.event.EventData;
+import net.fidoandfido.engine.quarter.QuarterData;
 import net.fidoandfido.model.Company;
 import net.fidoandfido.model.CompanyPeriodReport;
 import net.fidoandfido.model.StockExchange;
-import net.fidoandfido.util.Constants.EventType;
+import net.fidoandfido.util.Constants.QuarterPerformanceType;
 import net.fidoandfido.util.WebPageUtil;
 
 /**
@@ -25,7 +25,7 @@ public class LinearProfitModifier implements EventProfitModifier {
 
 	// @Override
 	@Override
-	public EventData adjustProfit(EventType eventType, EventData eventData, Company company, CompanyPeriodReport companyPeriodReport, long eventCount) {
+	public QuarterData adjustProfit(QuarterPerformanceType eventType, QuarterData eventData, Company company, CompanyPeriodReport companyPeriodReport, long eventCount) {
 		// Work out how much the company should, ideally, be earning/paying for
 		// this period part.
 		long interestPaid = companyPeriodReport.getStartingExpectedInterest() / eventCount;
@@ -72,7 +72,7 @@ public class LinearProfitModifier implements EventProfitModifier {
 		}
 
 		long profit = revenue - expenses - interestPaid;
-		return new EventData(profit, expenses, revenue, interestPaid, eventData);
+		return new QuarterData(profit, expenses, revenue, interestPaid, eventData);
 	}
 
 	/**
@@ -118,10 +118,10 @@ public class LinearProfitModifier implements EventProfitModifier {
 		companyPeriodReport.setStartingExpectedExpenses(expenses);
 		companyPeriodReport.setStartingExpectedInterest(interest);
 		companyPeriodReport.setStartingExpectedRevenue(revenues);
-		EventData initialData = new EventData(profit, expenses, revenues, interest);
+		QuarterData initialData = new QuarterData(profit, expenses, revenues, interest);
 		LinearProfitModifier modifier = new LinearProfitModifier();
 
-		EventData fullYearData = new EventData(profit * 4, expenses * 4, revenues * 4, interest * 4);
+		QuarterData fullYearData = new QuarterData(profit * 4, expenses * 4, revenues * 4, interest * 4);
 
 		System.out.println("Company data:");
 		System.out.println("Assets: " + WebPageUtil.formatCurrency(company.getAssetValue()));
@@ -140,11 +140,11 @@ public class LinearProfitModifier implements EventProfitModifier {
 		printData(company, fullYearData);
 
 		// Show the rest of the data, using moderate volatility
-		for (EventType eventType : EventType.values()) {
+		for (QuarterPerformanceType eventType : QuarterPerformanceType.values()) {
 			System.out.println(eventType);
 			System.out.println("Profit\t\trevenue\t\texpenses\tinterest\tEarning/share\tDividend");
 			for (int i = 0; i < 10; i++) {
-				EventData eventData = initialData;
+				QuarterData eventData = initialData;
 				eventData = modifier.adjustProfit(eventType, eventData, company, companyPeriodReport, 4);
 				printData(company, eventData);
 			}
@@ -152,7 +152,7 @@ public class LinearProfitModifier implements EventProfitModifier {
 
 	}
 
-	private static void printData(Company company, EventData initialData) {
+	private static void printData(Company company, QuarterData initialData) {
 		System.out.print(WebPageUtil.formatCurrency(initialData.getProfit()));
 		System.out.print("\t");
 		System.out.print(WebPageUtil.formatCurrency(initialData.getRevenue()));

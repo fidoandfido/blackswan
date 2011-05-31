@@ -57,7 +57,7 @@
         <mapping class="net.fidoandfido.model.AppStatus"/>
         <mapping class="net.fidoandfido.model.Company"/>
         <mapping class="net.fidoandfido.model.CompanyPeriodReport"/>
-        <mapping class="net.fidoandfido.model.PeriodEvent"/>
+        <mapping class="net.fidoandfido.model.PeriodQuarter"/>
         <mapping class="net.fidoandfido.model.PeriodRumour"/>
         <mapping class="net.fidoandfido.model.ExchangeGroup"/>
         <mapping class="net.fidoandfido.model.StockExchange"/>

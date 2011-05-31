@@ -69,8 +69,8 @@ public class CompanyPeriodReport {
 	// List of 'forecasts'
 	// ///////////////////////
 	@OneToMany
-	@Sort(type = SortType.COMPARATOR, comparator = PeriodEvent.EventCompator.class)
-	private Set<PeriodEvent> periodEventList = new HashSet<PeriodEvent>();
+	@Sort(type = SortType.COMPARATOR, comparator = PeriodQuarter.EventCompator.class)
+	private Set<PeriodQuarter> periodQuarterList = new HashSet<PeriodQuarter>();
 	// ///////////////////////
 	// List of 'rumours'
 	// ///////////////////////
@@ -120,7 +120,7 @@ public class CompanyPeriodReport {
 		this.minimumEndDate = new Date(startDate.getTime() + periodLength);
 		this.open = true;
 		this.generation = generation;
-		periodEventList = new TreeSet<PeriodEvent>(new PeriodEvent.EventCompator());
+		periodQuarterList = new TreeSet<PeriodQuarter>(new PeriodQuarter.EventCompator());
 	}
 
 	/**
@@ -354,11 +354,11 @@ public class CompanyPeriodReport {
 	public void close(Date currentDate) {
 		open = false;
 		// Update the company data - quarters since bad and good quarter
-		for (PeriodEvent event : periodEventList) {
-			if (event.isBad()) {
+		for (PeriodQuarter quarter : periodQuarterList) {
+			if (quarter.isBad()) {
 				company.incrementQuartersSinceBadQuarter();
 				company.setQuartersSinceBadQuarter(0);
-			} else if (event.isGood()) {
+			} else if (quarter.isGood()) {
 				company.incrementQuartersSinceGoodQuarter();
 				company.setQuartersSinceBadQuarter(0);
 			} else {
@@ -375,16 +375,16 @@ public class CompanyPeriodReport {
 	/**
 	 * @return the periodEventList
 	 */
-	public Set<PeriodEvent> getPeriodEventList() {
-		return periodEventList;
+	public Set<PeriodQuarter> getPeriodQuarterList() {
+		return periodQuarterList;
 	}
 
 	/**
 	 * @param periodEventList
 	 *            the periodEventList to set
 	 */
-	public void setPeriodEventList(Set<PeriodEvent> periodEventList) {
-		this.periodEventList = periodEventList;
+	public void setPeriodQuarterList(Set<PeriodQuarter> periodEventList) {
+		this.periodQuarterList = periodEventList;
 	}
 
 	/**
@@ -406,13 +406,13 @@ public class CompanyPeriodReport {
 		periodRumourList.add(rumour);
 	}
 
-	public void addPeriodEvent(PeriodEvent periodEvent) {
-		periodEventList.add(periodEvent);
+	public void addPeriodQuarter(PeriodQuarter periodEvent) {
+		periodQuarterList.add(periodEvent);
 	}
 
-	public Map<String, PeriodEvent> getPeriodPartInformationMappedByEvent() {
-		HashMap<String, PeriodEvent> resultsMap = new HashMap<String, PeriodEvent>();
-		for (PeriodEvent event : periodEventList) {
+	public Map<String, PeriodQuarter> getPeriodPartInformationMappedByEvent() {
+		HashMap<String, PeriodQuarter> resultsMap = new HashMap<String, PeriodQuarter>();
+		for (PeriodQuarter event : periodQuarterList) {
 			resultsMap.put(event.getAnnouncementType(), event);
 		}
 		return resultsMap;
@@ -424,7 +424,7 @@ public class CompanyPeriodReport {
 
 	public boolean anyQuartersAvailable() {
 		Date date = new Date();
-		for (PeriodEvent event : this.periodEventList) {
+		for (PeriodQuarter event : this.periodQuarterList) {
 			if (event.getDateInformationAvailable().before(date)) {
 				return true;
 			}
@@ -435,7 +435,7 @@ public class CompanyPeriodReport {
 	public long getQuartersSinceGoodQuarter() {
 		Date date = new Date();
 		long quarterCount = company.getQuartersSinceGoodQuarter();
-		for (PeriodEvent event : periodEventList) {
+		for (PeriodQuarter event : periodQuarterList) {
 			if (date.after(event.getDateInformationAvailable())) {
 				if (event.isBad() || event.isAverage()) {
 					quarterCount++;
@@ -450,7 +450,7 @@ public class CompanyPeriodReport {
 	public long getQuartersSinceBadQuarter() {
 		Date date = new Date();
 		long quarterCount = company.getQuartersSinceBadQuarter();
-		for (PeriodEvent event : periodEventList) {
+		for (PeriodQuarter event : periodQuarterList) {
 			if (date.after(event.getDateInformationAvailable())) {
 				if (event.isBad() || event.isAverage()) {
 					quarterCount++;

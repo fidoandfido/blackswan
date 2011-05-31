@@ -18,9 +18,9 @@
 <%@page import="org.jfree.data.time.TimeSeriesCollection"%>
 <%@page import="org.jfree.data.time.TimeSeries"%>
 <%@page import="net.fidoandfido.model.StockExchange"%>
-<%@page import="net.fidoandfido.engine.event.PeriodEventGenerator"%>
+<%@page import="net.fidoandfido.engine.quarter.QuarterEventGenerator"%>
 <%@page import="java.util.Map"%>
-<%@page import="net.fidoandfido.model.PeriodEvent"%>
+<%@page import="net.fidoandfido.model.PeriodQuarter"%>
 <%@page import="net.fidoandfido.dao.HibernateUtil"%>
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
     pageEncoding="ISO-8859-1"%>
@@ -64,7 +64,7 @@
 <%@page import="net.fidoandfido.dao.CompanyPeriodReportDAO"%>
 <%@page import="java.util.Date"%>
 <%@page import="net.fidoandfido.dao.StockExchangeDAO"%>
-<%@page import="net.fidoandfido.model.PeriodEvent"%>
+<%@page import="net.fidoandfido.model.PeriodQuarter"%>
 <%@page import="net.fidoandfido.dao.PeriodPartInformationDAO"%><html>
 
 <%@ include file="webTemplates/header.txt" %>
@@ -90,31 +90,31 @@ to access (or create) your trader profile.</p>
 <%
 	} else {
 		if (company != null) {
-			
-			if (!company.isTrading()) {
+	
+	if (!company.isTrading()) {
 %>
 				<div class="post">
-				<h2 class="title"><%= company.getName() %></h2>
+				<h2 class="title"><%=company.getName()%></h2>
 				<div class="entry">
 					<ul>
-					<li>Company Name: <%= company.getName() %></li>
-					<li>Company Code: <%= company.getCode() %></li>
-					<li>Company Sector: <%= company.getSector() %></li>
-					<li>Stock Exchange: <%= company.getStockExchange().getName() %></li>
-					<li>Company Status: <%= company.getCompanyStatus() %></li>
+					<li>Company Name: <%=company.getName()%></li>
+					<li>Company Code: <%=company.getCode()%></li>
+					<li>Company Sector: <%=company.getSector()%></li>
+					<li>Stock Exchange: <%=company.getStockExchange().getName()%></li>
+					<li>Company Status: <%=company.getCompanyStatus()%></li>
 				</div>
 			</div>	
-<%				
-			} else {
-			
-	// Show company information!
-	CompanyPeriodReport currentReport = company.getCurrentPeriod();
-	Map<String, PeriodEvent> events = currentReport.getPeriodPartInformationMappedByEvent();
-	PeriodEvent firstQuarterEvent = events.get(PeriodEventGenerator.FIRST_QUARTER);
-	PeriodEvent secondQuarterEvent = events.get(PeriodEventGenerator.SECOND_QUARTER);
-	PeriodEvent thirdQuarterEvent = events.get(PeriodEventGenerator.THIRD_QUARTER);
-	PeriodEvent fourthQuarterEvent = events.get(PeriodEventGenerator.FOURTH_QUARTER);
-%>
+<%
+		} else {
+		
+		// Show company information!
+		CompanyPeriodReport currentReport = company.getCurrentPeriod();
+		Map<String, PeriodQuarter> events = currentReport.getPeriodPartInformationMappedByEvent();
+		PeriodQuarter firstQuarterEvent = events.get(QuarterEventGenerator.FIRST_QUARTER);
+		PeriodQuarter secondQuarterEvent = events.get(QuarterEventGenerator.SECOND_QUARTER);
+		PeriodQuarter thirdQuarterEvent = events.get(QuarterEventGenerator.THIRD_QUARTER);
+		PeriodQuarter fourthQuarterEvent = events.get(QuarterEventGenerator.FOURTH_QUARTER);
+	%>
 			<div class="post">
 				<h2 class="title"><%= company.getName() %></h2>
 				<div class="entry">

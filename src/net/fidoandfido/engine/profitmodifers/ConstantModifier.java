@@ -1,9 +1,9 @@
 package net.fidoandfido.engine.profitmodifers;
 
-import net.fidoandfido.engine.event.EventData;
+import net.fidoandfido.engine.quarter.QuarterData;
 import net.fidoandfido.model.Company;
 import net.fidoandfido.model.CompanyPeriodReport;
-import net.fidoandfido.util.Constants.EventType;
+import net.fidoandfido.util.Constants.QuarterPerformanceType;
 
 public class ConstantModifier implements EventProfitModifier {
 
@@ -17,7 +17,7 @@ public class ConstantModifier implements EventProfitModifier {
 	 * .Constants.EventType, long)
 	 */
 	@Override
-	public EventData adjustProfit(EventType eventType, EventData data, Company company, CompanyPeriodReport companyPeriodReport, long eventCount) {
+	public QuarterData adjustProfit(QuarterPerformanceType eventType, QuarterData data, Company company, CompanyPeriodReport companyPeriodReport, long eventCount) {
 		// Dont actually adjust the profit :)
 		return data;
 	}

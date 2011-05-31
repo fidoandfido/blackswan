@@ -1,6 +1,6 @@
-<%@page import="net.fidoandfido.engine.event.PeriodEventGenerator"%>
+<%@page import="net.fidoandfido.engine.quarter.QuarterEventGenerator"%>
 <%@page import="java.util.Map"%>
-<%@page import="net.fidoandfido.model.PeriodEvent"%>
+<%@page import="net.fidoandfido.model.PeriodQuarter"%>
 <%@page import="net.fidoandfido.dao.HibernateUtil"%>
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
     pageEncoding="ISO-8859-1"%>

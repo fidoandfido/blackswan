@@ -8,7 +8,7 @@ import javax.servlet.ServletContextListener;
 
 import net.fidoandfido.dao.ExchangeGroupDAO;
 import net.fidoandfido.dao.HibernateUtil;
-import net.fidoandfido.engine.event.PeriodGenerator;
+import net.fidoandfido.engine.PeriodGenerator;
 
 public class PeriodGeneratorContextListener implements ServletContextListener {
 	// Create a market maker thread...

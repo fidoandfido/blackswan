@@ -10,7 +10,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
-import net.fidoandfido.util.Constants.EventType;
+import net.fidoandfido.util.Constants.QuarterPerformanceType;
 
 import org.hibernate.annotations.GenericGenerator;
 
@@ -48,13 +48,13 @@ public class PeriodRumour {
 	private String message;
 
 	@Column
-	private EventType eventType;
+	private QuarterPerformanceType eventType;
 
 	@Column
 	private String forecastType;
 
 	public PeriodRumour(Company company, CompanyPeriodReport companyPeriodReport, Date dateInformationAvailable, Date rumourExpires, int reputationRequired,
-			String message, EventType eventType, String forecastType) {
+			String message, QuarterPerformanceType eventType, String forecastType) {
 		this.company = company;
 		this.companyPeriodReport = companyPeriodReport;
 		this.dateInformationAvailable = dateInformationAvailable;
@@ -164,7 +164,7 @@ public class PeriodRumour {
 	/**
 	 * @return the eventType
 	 */
-	public EventType getEventType() {
+	public QuarterPerformanceType getEventType() {
 		return eventType;
 	}
 
@@ -172,7 +172,7 @@ public class PeriodRumour {
 	 * @param eventType
 	 *            the eventType to set
 	 */
-	public void setEventType(EventType eventType) {
+	public void setEventType(QuarterPerformanceType eventType) {
 		this.eventType = eventType;
 	}
 

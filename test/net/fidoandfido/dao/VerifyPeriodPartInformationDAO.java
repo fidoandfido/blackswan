@@ -3,7 +3,7 @@ package net.fidoandfido.dao;
 import java.util.Date;
 import java.util.List;
 
-import net.fidoandfido.model.PeriodEvent;
+import net.fidoandfido.model.PeriodQuarter;
 
 public class VerifyPeriodPartInformationDAO {
 
@@ -14,8 +14,8 @@ public class VerifyPeriodPartInformationDAO {
 		System.out.println("Connected to database, attempting to retrieve data...");
 		PeriodPartInformationDAO periodPartInformationDAO = new PeriodPartInformationDAO();
 		HibernateUtil.beginTransaction();
-		List<PeriodEvent> recentEvents = periodPartInformationDAO.getLatestEvents(20, new Date());
-		for (PeriodEvent event : recentEvents) {
+		List<PeriodQuarter> recentEvents = periodPartInformationDAO.getLatestEvents(20, new Date());
+		for (PeriodQuarter event : recentEvents) {
 			System.out.println(event);
 		}
 

@@ -7,7 +7,7 @@ import java.util.Set;
 
 import net.fidoandfido.dao.PeriodPartInformationDAO;
 import net.fidoandfido.model.Company;
-import net.fidoandfido.model.PeriodEvent;
+import net.fidoandfido.model.PeriodQuarter;
 import net.fidoandfido.model.Trader;
 
 public class NaiveAI extends AITrader {
@@ -24,11 +24,11 @@ public class NaiveAI extends AITrader {
 
 	@Override
 	public void performTrades(Trader trader) {
-		List<PeriodEvent> recentEvents = periodPartInformationDAO.getLatestEvents(20, new Date());
+		List<PeriodQuarter> recentEvents = periodPartInformationDAO.getLatestEvents(20, new Date());
 		Set<Company> companiesProcessed = new HashSet<Company>();
-		for (PeriodEvent periodEvent : recentEvents) {
+		for (PeriodQuarter periodQuarter : recentEvents) {
 
-			Company company = periodEvent.getCompany();
+			Company company = periodQuarter.getCompany();
 			if (company.isTrading() == false) {
 				continue;
 			}
@@ -40,7 +40,7 @@ public class NaiveAI extends AITrader {
 				continue;
 			}
 
-			switch (periodEvent.getEventType()) {
+			switch (periodQuarter.getEventType()) {
 			case CATASTROPHIC:
 				adjustPriceAndSell(trader, company, VERY_BAD_SELL_RATE, DEFAULT_SELL_COUNT);
 				break;

@@ -4,7 +4,7 @@ import java.util.List;
 
 import net.fidoandfido.dao.ExchangeGroupDAO;
 import net.fidoandfido.dao.HibernateUtil;
-import net.fidoandfido.engine.event.PeriodGenerator;
+import net.fidoandfido.engine.PeriodGenerator;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;

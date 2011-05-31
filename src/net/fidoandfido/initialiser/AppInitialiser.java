@@ -20,7 +20,7 @@ import net.fidoandfido.dao.ShareParcelDAO;
 import net.fidoandfido.dao.StockExchangeDAO;
 import net.fidoandfido.dao.TraderDAO;
 import net.fidoandfido.dao.UserDAO;
-import net.fidoandfido.engine.event.PeriodEventGenerator;
+import net.fidoandfido.engine.quarter.QuarterEventGenerator;
 import net.fidoandfido.model.AppStatus;
 import net.fidoandfido.model.Company;
 import net.fidoandfido.model.CompanyPeriodReport;
@@ -198,7 +198,7 @@ public class AppInitialiser {
 		initCompanyGenerator();
 
 		Date date = new Date();
-		PeriodEventGenerator generator = new PeriodEventGenerator();
+		QuarterEventGenerator generator = new QuarterEventGenerator();
 
 		for (StockExchange exchange : exchangeMap.values()) {
 
@@ -214,7 +214,7 @@ public class AppInitialiser {
 
 				companyPeriodReportDAO.savePeriodReport(periodReport);
 
-				generator.generateEvents(periodReport, company, exchange);
+				generator.generateQuarters(periodReport, company, exchange);
 
 				company.setCurrentPeriod(periodReport);
 				companyDAO.saveCompany(company);

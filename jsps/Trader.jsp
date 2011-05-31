@@ -5,7 +5,7 @@
 <%@page import="java.util.Set"%>
 <%@page import="net.fidoandfido.model.ReputationItem"%>
 <%@page import="net.fidoandfido.model.PeriodRumour"%>
-<%@page import="net.fidoandfido.model.PeriodEvent"%>
+<%@page import="net.fidoandfido.model.PeriodQuarter"%>
 <%@page import="java.util.Date"%>
 <%@page import="net.fidoandfido.dao.PeriodPartInformationDAO"%>
 <%@page import="net.fidoandfido.dao.RumourDAO"%>
@@ -31,7 +31,7 @@
 <%@page import="net.fidoandfido.servlets.SellSharesServlet"%>
 <%@page language="java" contentType="text/html; charset=ISO-8859-1" pageEncoding="ISO-8859-1"%>
 <%@page session="true" %>
-<%	
+<%
 	HibernateUtil.beginTransaction();
 	User user = null;
 	Trader trader = null;
@@ -78,9 +78,9 @@ function removeElement(parentDivId, childDivId){
 	<div id="content">
 
 			<div class="post">
-				<h2 class="title">Trader Page - <%= trader.getName() %></h2>
+				<h2 class="title">Trader Page - <%=trader.getName()%></h2>
 				<div class="entry">
-				<p>Hello <%= user.getUserName() %> and Welcome to the new Black Swan application!</p>
+				<p>Hello <%=user.getUserName()%> and Welcome to the new Black Swan application!</p>
 <%
 	TraderMessageDAO messageDAO = new TraderMessageDAO();
 	List<TraderMessage> messages = messageDAO.getCurrentMessages(trader);
@@ -89,15 +89,15 @@ function removeElement(parentDivId, childDivId){
 				<p>There are messages for you to view.</p>
 
 				<div id="messages">
-<%	
-		for (TraderMessage message : messages) {
-			boolean isNew = false;
-			if (!message.isRead()) {
-				isNew = true;
-				message.setRead(true);
-				messageDAO.saveMessage(message);
-			}
-			// Add a javascript function to remove this message.
+<%
+	for (TraderMessage message : messages) {
+	boolean isNew = false;
+	if (!message.isRead()) {
+		isNew = true;
+		message.setRead(true);
+		messageDAO.saveMessage(message);
+	}
+	// Add a javascript function to remove this message.
 %>
 		
 
@@ -111,9 +111,9 @@ function removeMessage_<%=message.getId()%>() {
 		request.onreadystatechange = deleteMessage_<%=message.getId()%>;
 		url = "/myapp/message";
 		request.open("POST", url, true);
-		var requestData = "<%=MessageServlet.COMMAND_PARM %>=<%=MessageServlet.DISMISS_MESSAGE%>" +
-				"&<%=MessageServlet.ID_PARM %>=<%= message.getId() %>"  +
-				"&<%=MessageServlet.RESPONSE_FORMAT %>=<%=MessageServlet.AJAX%>";
+		var requestData = "<%=MessageServlet.COMMAND_PARM%>=<%=MessageServlet.DISMISS_MESSAGE%>" +
+				"&<%=MessageServlet.ID_PARM%>=<%=message.getId()%>"  +
+				"&<%=MessageServlet.RESPONSE_FORMAT%>=<%=MessageServlet.AJAX%>";
 		request.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
 		request.send(requestData);
 	}
@@ -122,8 +122,8 @@ function removeMessage_<%=message.getId()%>() {
 
 function deleteMessage_<%=message.getId()%>() {
 	if (request.readyState == 4) {
-		if (request.responseText == "<%= MessageServlet.OKAY %>") {
-			removeElement("messages", "message_<%= message.getId()%>");
+		if (request.responseText == "<%=MessageServlet.OKAY%>") {
+			removeElement("messages", "message_<%=message.getId()%>");
 		} else {
 			// ??
 			//alert("Error removing message");
@@ -133,26 +133,26 @@ function deleteMessage_<%=message.getId()%>() {
 
 </script>
 
-				<div id="message_<%= message.getId()%>">
+				<div id="message_<%=message.getId()%>">
 				<p>
-				<%= isNew ? "<b>" : "" %>
-				<%= message.getSubject() %>
+				<%=isNew ? "<b>" : ""%>
+				<%=message.getSubject()%>
 				<br/>
-				<%= message.getBody() %>
+				<%=message.getBody()%>
 				<br/>
-				<%= message.getDate() %>
-				<%= isNew ? "</b>" : "" %>
+				<%=message.getDate()%>
+				<%=isNew ? "</b>" : ""%>
 
 				
 				<form>
-				<input type="hidden" name="<%=MessageServlet.COMMAND_PARM %>" value="<%=MessageServlet.DISMISS_MESSAGE%>" ></input>
-				<input type="hidden" name="<%=MessageServlet.ID_PARM %>" value="<%=message.getId()%>" ></input>
+				<input type="hidden" name="<%=MessageServlet.COMMAND_PARM%>" value="<%=MessageServlet.DISMISS_MESSAGE%>" ></input>
+				<input type="hidden" name="<%=MessageServlet.ID_PARM%>" value="<%=message.getId()%>" ></input>
 				<input type="button" value="Dismiss" onclick="removeMessage_<%=message.getId()%>()" />
 				</form>
 				</p>
 				</div>
 <%
-		}
+	}
 %>
 			</div>
 <%
@@ -165,8 +165,8 @@ function deleteMessage_<%=message.getId()%>() {
 				<br/><a href="/myapp/Message.jsp">Post a Message</a><br/>
 
 				<p>
-				Current balance: <%= WebPageUtil.formatCurrency(trader.getCash()) %><br/>
-				Available balance: <%= WebPageUtil.formatCurrency(trader.getCash()) %><br/>
+				Current balance: <%=WebPageUtil.formatCurrency(trader.getCash())%><br/>
+				Available balance: <%=WebPageUtil.formatCurrency(trader.getCash())%><br/>
 <%
 	long totalValue = trader.getCash();
 	ShareParcelDAO shareParcelDAO = new ShareParcelDAO();
@@ -175,25 +175,25 @@ function deleteMessage_<%=message.getId()%>() {
 %>
 	<ul>
 <%
-		for (ShareParcel shareParcel : shareParcels) {
-			String companyName = shareParcel.getCompany().getName();
-			String companyCode = shareParcel.getCompany().getCode();
-			long marketValue = shareParcel.getShareCount() * shareParcel.getCompany().getLastTradePrice();
-			totalValue += marketValue;
+	for (ShareParcel shareParcel : shareParcels) {
+	String companyName = shareParcel.getCompany().getName();
+	String companyCode = shareParcel.getCompany().getCode();
+	long marketValue = shareParcel.getShareCount() * shareParcel.getCompany().getLastTradePrice();
+	totalValue += marketValue;
 %>
 			<li>
-			Company: <a href="Companies.jsp?<%= Constants.COMPANY_CODE_PARM %>=<%=companyCode%>"><%= companyName %></a><br/>
-			Share count: <%= shareParcel.getShareCount() %><br/>
-			Last traded price: <%= WebPageUtil.formatCurrency(shareParcel.getCompany().getLastTradePrice()) %><br/>
-			Purchase price (averaged):  <%= WebPageUtil.formatCurrency(shareParcel.getPurchasePrice())  %><br/>
-			Current Market Value: <%= WebPageUtil.formatCurrency(marketValue)  %><br/>
+			Company: <a href="Companies.jsp?<%=Constants.COMPANY_CODE_PARM%>=<%=companyCode%>"><%=companyName%></a><br/>
+			Share count: <%=shareParcel.getShareCount()%><br/>
+			Last traded price: <%=WebPageUtil.formatCurrency(shareParcel.getCompany().getLastTradePrice())%><br/>
+			Purchase price (averaged):  <%=WebPageUtil.formatCurrency(shareParcel.getPurchasePrice())%><br/>
+			Current Market Value: <%=WebPageUtil.formatCurrency(marketValue)%><br/>
 			
-			Buy More Shares: (Max buying power at market rate: <%= trader.getAvailableCash() / shareParcel.getCompany().getLastTradePrice() %>)<br/>
+			Buy More Shares: (Max buying power at market rate: <%=trader.getAvailableCash() / shareParcel.getCompany().getLastTradePrice()%>)<br/>
 			<form action="/myapp/buyshares" method="post">
 				<input type="hidden" name="<%=BuySharesServlet.COMPANY_CODE_PARM%>" value="<%=shareParcel.getCompany().getCode()%>" ></input>
 				<table>
 					<tr><td>Share Count:</td><td><input name="<%=BuySharesServlet.SHARE_COUNT%>" value="" cols="60"></input></td></tr>
-					<tr><td>Offer price (in cents):</td><td><input name="<%=BuySharesServlet.OFFER_PRICE%>" value="<%=shareParcel.getCompany().getLastTradePrice() %>" cols="30"></input><input type="submit" value="Buy Shares" /></td></tr>
+					<tr><td>Offer price (in cents):</td><td><input name="<%=BuySharesServlet.OFFER_PRICE%>" value="<%=shareParcel.getCompany().getLastTradePrice()%>" cols="30"></input><input type="submit" value="Buy Shares" /></td></tr>
 				</table>
 			</form>
 			
@@ -201,20 +201,20 @@ function deleteMessage_<%=message.getId()%>() {
 			<form action="/myapp/sellshares" method="post">
 				<input type="hidden" name="<%=SellSharesServlet.COMPANY_CODE_PARM%>" value="<%=shareParcel.getCompany().getCode()%>" ></input>
 				<table>
-					<tr><td>Share Count:</td><td><input name="<%=SellSharesServlet.SHARE_COUNT%>" value="<%= shareParcel.getShareCount() %>" cols="60"></input></td></tr>
-					<tr><td>Asking price (in cents):</td><td><input name="<%=SellSharesServlet.ASKING_PRICE%>" value="<%=shareParcel.getCompany().getLastTradePrice() %>" cols="30"></input><input type="submit" value="Sell Shares" /></td></tr>
+					<tr><td>Share Count:</td><td><input name="<%=SellSharesServlet.SHARE_COUNT%>" value="<%=shareParcel.getShareCount()%>" cols="60"></input></td></tr>
+					<tr><td>Asking price (in cents):</td><td><input name="<%=SellSharesServlet.ASKING_PRICE%>" value="<%=shareParcel.getCompany().getLastTradePrice()%>" cols="30"></input><input type="submit" value="Sell Shares" /></td></tr>
 				</table>
 			</form>
 			</li>
-<%		
-		}
+<%
+	}
 		// Update net worth to include purchased items...
 		for (ReputationItem item : trader.getReputationItems()) {
-			totalValue += item.getCost();
+	totalValue += item.getCost();
 		}
 %>
 	</ul>
-		 	Total current net worth: <%= WebPageUtil.formatCurrency(totalValue) %>
+		 	Total current net worth: <%=WebPageUtil.formatCurrency(totalValue)%>
 <%
 	} else {
 %>
@@ -230,29 +230,28 @@ function deleteMessage_<%=message.getId()%>() {
 				<p> Outstanding orders </p>
 				<ul>
 <%
-		for (Order order : openOrders) {
+	for (Order order : openOrders) {
 %>
 				<li>
-					Order Type: <%= order.getOrderType() %></br>
-					Company: <%= order.getCompany().getName() %></br>
-					Share count: <%= order.getRemainingShareCount() %></br>
-					Price: <%= WebPageUtil.formatCurrency(order.getOfferPrice()) %></br>
+					Order Type: <%=order.getOrderType()%></br>
+					Company: <%=order.getCompany().getName()%></br>
+					Share count: <%=order.getRemainingShareCount()%></br>
+					Price: <%=WebPageUtil.formatCurrency(order.getOfferPrice())%></br>
 					<form action="/myapp/cancelorder" method="post">
-					<input type="hidden" name="<%= CancelOrderServlet.ID_PARM %>" value="<%= order.getId() %>"/>
+					<input type="hidden" name="<%=CancelOrderServlet.ID_PARM%>" value="<%=order.getId()%>"/>
 					<input type="submit" value="Cancel Order" />
 				</form>
 				</li>
 <%
-		}
+	}
 %>
 				</ul>
 <%
 	} else {
 %>
 		<p>No orders currently outstanding.</p>
-<%		
+<%
 	}
-
 %>
 				
 				</div><!-- end entry -->
@@ -264,57 +263,55 @@ function deleteMessage_<%=message.getId()%>() {
 				<ul>
 				
 <%
-			RumourDAO rumourDAO = new RumourDAO();
-			List<PeriodRumour> rumours = rumourDAO.getLatestRumours(5, currentDate);
-			List<String> sectors = new ArrayList<String>();
-			for (PeriodRumour rumour : rumours) {
-				if (rumour.getDateRumourExpires().before(currentDate)) {
-					continue;
-				}
-				String sector = rumour.getSector();
-				if (trader.getReputation(sector) < rumour.getReputationRequired()) {
-					sectors.add(sector);
-				} else {
-%>
+					RumourDAO rumourDAO = new RumourDAO();
+							List<PeriodRumour> rumours = rumourDAO.getLatestRumours(5, currentDate);
+							List<String> sectors = new ArrayList<String>();
+							for (PeriodRumour rumour : rumours) {
+								if (rumour.getDateRumourExpires().before(currentDate)) {
+									continue;
+								}
+								String sector = rumour.getSector();
+								if (trader.getReputation(sector) < rumour.getReputationRequired()) {
+									sectors.add(sector);
+								} else {
+				%>
 				<li>
-				Company: <a href="Companies.jsp?<%= Constants.COMPANY_CODE_PARM %>=<%=rumour.getCompany().getCode()%>"><%= rumour.getCompany().getName() %></a>
-				Date released: <%= rumour.getDateInformationAvailable() %><br/>
-				Event message: <%= rumour.getMessage() %><br/>
-				Analyst Reaction: <%= rumour.getEventType() %><br/>
+				Company: <a href="Companies.jsp?<%=Constants.COMPANY_CODE_PARM%>=<%=rumour.getCompany().getCode()%>"><%=rumour.getCompany().getName()%></a>
+				Date released: <%=rumour.getDateInformationAvailable()%><br/>
+				Event message: <%=rumour.getMessage()%><br/>
+				Analyst Reaction: <%=rumour.getEventType()%><br/>
 				</li>
-<% 				
-				}
-			}
+<%
+	}
+	}
 %>					
 				</ul>
 <%
-			if (sectors.size() != 0) {
+	if (sectors.size() != 0) {
 %>
 				Rumours are available in the following sectors:
 				<ul>
 <%
-				for (String sector : sectors) {
+	for (String sector : sectors) {
 %>
-					<li><%= sector %></li>
-<%				
-				}
+					<li><%=sector%></li>
+<%
+	}
 %>				
 				</ul> 
 				but you require more reputation points.
 				Perhaps you should visit the <a href="/myapp/ItemShop.jsp">store</a> to buy some items?
-<%						
-				
-			}
-
-%>
+<%
+									}
+								%>
 				<p><b>Latest Announcements:</b></p>
 				<ul>
 								
 <%
-			PeriodPartInformationDAO periodPartInformationDAO = new PeriodPartInformationDAO();
-			List<PeriodEvent> events = periodPartInformationDAO.getLatestEvents(10, currentDate);
-			for (PeriodEvent event : events) {				
-%>
+									PeriodPartInformationDAO periodPartInformationDAO = new PeriodPartInformationDAO();
+															List<PeriodQuarter> events = periodPartInformationDAO.getLatestEvents(10, currentDate);
+															for (PeriodQuarter event : events) {
+								%>
 				<li>
 				Company: <a href="Companies.jsp?<%= Constants.COMPANY_CODE_PARM %>=<%=event.getCompany().getCode()%>"><%= event.getCompany().getName() %></a><br/>
 				Event: <%= event.getAnnouncementType() %><br/>

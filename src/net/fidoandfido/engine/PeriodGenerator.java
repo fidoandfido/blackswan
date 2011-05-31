@@ -1,4 +1,4 @@
-package net.fidoandfido.engine.event;
+package net.fidoandfido.engine;
 
 import java.util.Date;
 
@@ -11,12 +11,12 @@ import net.fidoandfido.dao.StockExchangeDAO;
 import net.fidoandfido.dao.StockExchangePeriodDAO;
 import net.fidoandfido.dao.TraderDAO;
 import net.fidoandfido.dao.TraderEventDAO;
-import net.fidoandfido.engine.ExperiencePointGenerator;
 import net.fidoandfido.engine.ExperiencePointGenerator.ExperienceEvent;
 import net.fidoandfido.engine.companymodifiers.CompanyModiferFactory;
 import net.fidoandfido.engine.companymodifiers.CompanyModifier;
 import net.fidoandfido.engine.economicmodfiers.EconomicModifier;
 import net.fidoandfido.engine.economicmodfiers.EconomicModifierFactory;
+import net.fidoandfido.engine.quarter.QuarterEventGenerator;
 import net.fidoandfido.model.Company;
 import net.fidoandfido.model.CompanyPeriodReport;
 import net.fidoandfido.model.ExchangeGroup;
@@ -104,15 +104,13 @@ public class PeriodGenerator implements Runnable {
 	/**
 	 * Generate a period for the named stock exhange for this generator.
 	 * 
-	 * This method will handle all of it's own transactions, since the process
-	 * is quite complex.
+	 * This method will handle all of it's own transactions, since the process is quite complex.
 	 * 
-	 * Basically, a transaction will start, and then the session context will be
-	 * cleared and flushed at the end of each company to ensure caches don't get
-	 * too big.
+	 * Basically, a transaction will start, and then the session context will be cleared and flushed at the end of each
+	 * company to ensure caches don't get too big.
 	 * 
-	 * A single transaction will be used to ensure that any exceptions trigger a
-	 * roll back (rather than some parts already being committed!)
+	 * A single transaction will be used to ensure that any exceptions trigger a roll back (rather than some parts
+	 * already being committed!)
 	 */
 	public void generatePeriod() {
 		Date currentDate = new Date();
@@ -160,7 +158,7 @@ public class PeriodGenerator implements Runnable {
 
 			// Get the current period for the stock exchange.
 			// Create a period event generator...
-			PeriodEventGenerator generator = new PeriodEventGenerator();
+			QuarterEventGenerator generator = new QuarterEventGenerator();
 			Iterable<Company> companyList = companyDAO.getCompaniesByExchange(exchange);
 
 			for (Company company : companyList) {
@@ -230,7 +228,7 @@ public class PeriodGenerator implements Runnable {
 
 				companyPeriodReportDAO.savePeriodReport(newPeriodReport);
 
-				generator.generateEvents(newPeriodReport, company, exchange);
+				generator.generateQuarters(newPeriodReport, company, exchange);
 				company.setCurrentPeriod(newPeriodReport);
 				companyDAO.saveCompany(company);
 				HibernateUtil.flushAndClearSession();

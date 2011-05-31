@@ -2,7 +2,7 @@
 <%@page import="java.util.Set"%>
 <%@page import="net.fidoandfido.model.ReputationItem"%>
 <%@page import="net.fidoandfido.model.PeriodRumour"%>
-<%@page import="net.fidoandfido.model.PeriodEvent"%>
+<%@page import="net.fidoandfido.model.PeriodQuarter"%>
 <%@page import="java.util.Date"%>
 <%@page import="net.fidoandfido.dao.PeriodPartInformationDAO"%>
 <%@page import="net.fidoandfido.dao.RumourDAO"%>
@@ -28,7 +28,7 @@
 <%@page import="net.fidoandfido.servlets.SellSharesServlet"%>
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1" pageEncoding="ISO-8859-1"%>
 <%@page session="true" %>
-<%	
+<%
 	HibernateUtil.beginTransaction();
 	User user = null;
 	Trader trader = null;
@@ -46,8 +46,6 @@
 		response.sendRedirect("/myapp/Welcome.jsp");
 		return;
 	}
-	
-	
 %>
 
 <html>
@@ -65,23 +63,23 @@
 	<div id="content">
 
 			<div class="post">
-				<h2 class="title">Trader Page - <%= trader.getName() %></h2>
+				<h2 class="title">Trader Page - <%=trader.getName()%></h2>
 				<div class="entry">
-				<p>Hello <%= user.getUserName() %> and Welcome to the new Black Swan application!</p>
+				<p>Hello <%=user.getUserName()%> and Welcome to the new Black Swan application!</p>
 				
 <%
-		long totalValue = trader.getCash();
-		long portfolioValue = 0;
-		ShareParcelDAO shareParcelDAO = new ShareParcelDAO();
-		Iterable<ShareParcel> shareParcels = shareParcelDAO.getHoldingsByTrader(trader);
-		for (ShareParcel shareParcel : shareParcels) {
-			portfolioValue += shareParcel.getShareCount() * shareParcel.getCompany().getLastTradePrice();
-		}
-		totalValue += portfolioValue;
-%>
+					long totalValue = trader.getCash();
+								long portfolioValue = 0;
+								ShareParcelDAO shareParcelDAO = new ShareParcelDAO();
+								Iterable<ShareParcel> shareParcels = shareParcelDAO.getHoldingsByTrader(trader);
+								for (ShareParcel shareParcel : shareParcels) {
+							portfolioValue += shareParcel.getShareCount() * shareParcel.getCompany().getLastTradePrice();
+								}
+								totalValue += portfolioValue;
+				%>
 
 				<p>
-				<b>Summary:<b>
+				<b>Summary:</b>
 				</p>
 				
 				<table id="table-2">
@@ -89,7 +87,7 @@
 						<th>Net Wealth</th>
 					</tr>
 					<tr>
-						<td ><%= WebPageUtil.formatCurrency(totalValue) %></td>
+						<td ><%=WebPageUtil.formatCurrency(totalValue)%></td>
 					</tr>				
 					<tr class="table-foot">
 						<th>Portfolio Value</th>
@@ -98,9 +96,9 @@
 
 					</tr>
 					<tr>
-						<td ><%= WebPageUtil.formatCurrency(portfolioValue) %></td>
-						<td ><%= WebPageUtil.formatCurrency(trader.getCash()) %></td> 
-						<td><%= WebPageUtil.formatCurrency(trader.getCash()) %></td>
+						<td ><%=WebPageUtil.formatCurrency(portfolioValue)%></td>
+						<td ><%=WebPageUtil.formatCurrency(trader.getCash())%></td> 
+						<td><%=WebPageUtil.formatCurrency(trader.getCash())%></td>
 					</tr>
 				</table>
 				<p></p>				
@@ -110,8 +108,8 @@
 				<p>	<b>Portfolio:</b></p>
 				
 <%
-	if (shareParcels.iterator().hasNext()) {
-%>
+					if (shareParcels.iterator().hasNext()) {
+				%>
 				<table id="table-1">
 
 				<tr class="table-head">							
@@ -122,36 +120,36 @@
 					<th>Market Value</th>
 				</tr>
 <%
-				for (ShareParcel shareParcel : shareParcels) {
-					String companyName = shareParcel.getCompany().getName();
-					String companyCode = shareParcel.getCompany().getCode();
-					long marketValue = shareParcel.getShareCount() * shareParcel.getCompany().getLastTradePrice();
-					totalValue += marketValue;
+	for (ShareParcel shareParcel : shareParcels) {
+	String companyName = shareParcel.getCompany().getName();
+	String companyCode = shareParcel.getCompany().getCode();
+	long marketValue = shareParcel.getShareCount() * shareParcel.getCompany().getLastTradePrice();
+	totalValue += marketValue;
 %>
 				<tr>
 					<!-- Company Name  -->
-					<td><a href="Companies.jsp?<%= Constants.COMPANY_CODE_PARM %>=<%=companyCode%>"><%= companyName %></a></td>
+					<td><a href="Companies.jsp?<%=Constants.COMPANY_CODE_PARM%>=<%=companyCode%>"><%=companyName%></a></td>
 					<!-- Share Quantity  -->
-					<td><%= shareParcel.getShareCount() %></td>
+					<td><%=shareParcel.getShareCount()%></td>
 					<!-- Purchase Price  -->
-					<td><%= WebPageUtil.formatCurrency(shareParcel.getPurchasePrice())  %></td>
+					<td><%=WebPageUtil.formatCurrency(shareParcel.getPurchasePrice())%></td>
 					<!-- Last Traded Price  -->
-					<td><%= WebPageUtil.formatCurrency(shareParcel.getCompany().getLastTradePrice()) %></td>
+					<td><%=WebPageUtil.formatCurrency(shareParcel.getCompany().getLastTradePrice())%></td>
 					<!-- Market Value  -->
-					<td><%= WebPageUtil.formatCurrency(marketValue)  %></td>
+					<td><%=WebPageUtil.formatCurrency(marketValue)%></td>
 				</tr>
 			
-<%		
+<%
 				}
-		// Update net worth to include purchased items...
-		for (ReputationItem item : trader.getReputationItems()) {
-			totalValue += item.getCost();
-		}
-%>
+						// Update net worth to include purchased items...
+						for (ReputationItem item : trader.getReputationItems()) {
+					totalValue += item.getCost();
+						}
+			%>
 				<tr class="table-foot">
 					<th>Portfolio Value</th>
 					<th colspan=3></th>
-					<th><%= WebPageUtil.formatCurrency(portfolioValue) %></th>
+					<th><%=WebPageUtil.formatCurrency(portfolioValue)%></th>
 				</tr>	
 				</table> <!-- END TABLE  -->
 <%
@@ -169,29 +167,28 @@
 %>
 				<ul>
 <%
-		for (Order order : openOrders) {
+	for (Order order : openOrders) {
 %>
 				<li>
-					Order Type: <%= order.getOrderType() %></br>
-					Company: <%= order.getCompany().getName() %></br>
-					Share count: <%= order.getRemainingShareCount() %></br>
-					Price: <%= WebPageUtil.formatCurrency(order.getOfferPrice()) %></br>
+					Order Type: <%=order.getOrderType()%></br>
+					Company: <%=order.getCompany().getName()%></br>
+					Share count: <%=order.getRemainingShareCount()%></br>
+					Price: <%=WebPageUtil.formatCurrency(order.getOfferPrice())%></br>
 					<form action="/myapp/cancelorder" method="post">
-					<input type="hidden" name="<%= CancelOrderServlet.ID_PARM %>" value="<%= order.getId() %>"/>
+					<input type="hidden" name="<%=CancelOrderServlet.ID_PARM%>" value="<%=order.getId()%>"/>
 					<input type="submit" value="Cancel Order" />
 				</form>
 				</li>
 <%
-		}
+	}
 %>
 				</ul>
 <%
 	} else {
 %>
 		<p>No orders currently outstanding.</p>
-<%		
+<%
 	}
-
 %>
 				
 				</div><!-- end entry -->
@@ -203,57 +200,55 @@
 				<ul>
 				
 <%
-			RumourDAO rumourDAO = new RumourDAO();
-			List<PeriodRumour> rumours = rumourDAO.getLatestRumours(5, currentDate);
-			List<String> sectors = new ArrayList<String>();
-			for (PeriodRumour rumour : rumours) {
-				if (rumour.getDateRumourExpires().before(currentDate)) {
-					continue;
-				}
-				String sector = rumour.getSector();
-				if (trader.getReputation(sector) < rumour.getReputationRequired()) {
-					sectors.add(sector);
-				} else {
-%>
+					RumourDAO rumourDAO = new RumourDAO();
+							List<PeriodRumour> rumours = rumourDAO.getLatestRumours(5, currentDate);
+							List<String> sectors = new ArrayList<String>();
+							for (PeriodRumour rumour : rumours) {
+								if (rumour.getDateRumourExpires().before(currentDate)) {
+									continue;
+								}
+								String sector = rumour.getSector();
+								if (trader.getReputation(sector) < rumour.getReputationRequired()) {
+									sectors.add(sector);
+								} else {
+				%>
 				<li>
-				Company: <a href="Companies.jsp?<%= Constants.COMPANY_CODE_PARM %>=<%=rumour.getCompany().getCode()%>"><%= rumour.getCompany().getName() %></a>
-				Date released: <%= rumour.getDateInformationAvailable() %><br/>
-				Event message: <%= rumour.getMessage() %><br/>
-				Analyst Reaction: <%= rumour.getEventType() %><br/>
+				Company: <a href="Companies.jsp?<%=Constants.COMPANY_CODE_PARM%>=<%=rumour.getCompany().getCode()%>"><%=rumour.getCompany().getName()%></a>
+				Date released: <%=rumour.getDateInformationAvailable()%><br/>
+				Event message: <%=rumour.getMessage()%><br/>
+				Analyst Reaction: <%=rumour.getEventType()%><br/>
 				</li>
-<% 				
-				}
-			}
+<%
+	}
+	}
 %>					
 				</ul>
 <%
-			if (sectors.size() != 0) {
+	if (sectors.size() != 0) {
 %>
 				Rumours are available in the following sectors:
 				<ul>
 <%
-				for (String sector : sectors) {
+	for (String sector : sectors) {
 %>
-					<li><%= sector %></li>
-<%				
-				}
+					<li><%=sector%></li>
+<%
+	}
 %>				
 				</ul> 
 				but you require more reputation points.
 				Perhaps you should visit the <a href="/myapp/ItemShop.jsp">store</a> to buy some items?
-<%						
-				
-			}
-
-%>
+<%
+									}
+								%>
 				<p><b>Latest Announcements:</b></p>
 				<ul>
 								
 <%
-			PeriodPartInformationDAO periodPartInformationDAO = new PeriodPartInformationDAO();
-			List<PeriodEvent> events = periodPartInformationDAO.getLatestEvents(10, currentDate);
-			for (PeriodEvent event : events) {				
-%>
+									PeriodPartInformationDAO periodPartInformationDAO = new PeriodPartInformationDAO();
+															List<PeriodQuarter> events = periodPartInformationDAO.getLatestEvents(10, currentDate);
+															for (PeriodQuarter event : events) {
+								%>
 				<li>
 				Company: <a href="Companies.jsp?<%= Constants.COMPANY_CODE_PARM %>=<%=event.getCompany().getCode()%>"><%= event.getCompany().getName() %></a><br/>
 				Event: <%= event.getAnnouncementType() %><br/>

@@ -21,7 +21,7 @@
 
     alter table CompanyPeriodReport_PeriodEvent 
         drop 
-        foreign key FKADC63FCC31DF3CC2;
+        foreign key FKADC63FCC76D6FFA6;
 
     alter table CompanyPeriodReport_PeriodPartRumour 
         drop 
@@ -219,8 +219,8 @@
         companyStatus varchar(255),
         isInsolvent bit,
         isTrading bit,
-        current_period varchar(255),
         stock_exchange_id varchar(255),
+        current_period varchar(255),
         previous_period varchar(255),
         primary key (company_id)
     );
@@ -249,9 +249,9 @@
 
     create table CompanyPeriodReport_PeriodEvent (
         CompanyPeriodReport_company_period_report_id varchar(255) not null,
-        periodEventList_period_event_id varchar(255) not null,
-        primary key (CompanyPeriodReport_company_period_report_id, periodEventList_period_event_id),
-        unique (periodEventList_period_event_id)
+        periodQuarterList_period_event_id varchar(255) not null,
+        primary key (CompanyPeriodReport_company_period_report_id, periodQuarterList_period_event_id),
+        unique (periodQuarterList_period_event_id)
     );
 
     create table CompanyPeriodReport_PeriodPartRumour (
@@ -300,8 +300,8 @@
         runningExpenses bigint,
         runningInterest bigint,
         announcementType varchar(255),
-        company_period_report varchar(255),
         company_id varchar(255),
+        company_period_report varchar(255),
         primary key (period_event_id)
     );
 
@@ -371,8 +371,8 @@
         updating bit,
         maxSharePrice bigint,
         requiredExperiencePoints bigint,
-        currentPeriod_stock_exchange_id varchar(255),
         exchangeGroup_group_id varchar(255),
+        currentPeriod_stock_exchange_id varchar(255),
         primary key (stock_exchange_id)
     );
 
@@ -426,8 +426,8 @@
         aiStrategyName varchar(255),
         isMarketMaker bit,
         experiencePoints bigint,
-        user_trader_id varchar(255),
         group_group_id varchar(255),
+        user_trader_id varchar(255),
         primary key (trader_id)
     );
 
@@ -439,9 +439,9 @@
         amountTransferred bigint,
         startingCash bigint,
         endingCash bigint,
-        trader_trader_id varchar(255),
         company_company_id varchar(255),
         item_reputation_item_id varchar(255),
+        trader_trader_id varchar(255),
         primary key (trader_id)
     );
 
@@ -504,9 +504,9 @@
         references CompanyPeriodReport (company_period_report_id);
 
     alter table CompanyPeriodReport_PeriodEvent 
-        add index FKADC63FCC31DF3CC2 (periodEventList_period_event_id), 
-        add constraint FKADC63FCC31DF3CC2 
-        foreign key (periodEventList_period_event_id) 
+        add index FKADC63FCC76D6FFA6 (periodQuarterList_period_event_id), 
+        add constraint FKADC63FCC76D6FFA6 
+        foreign key (periodQuarterList_period_event_id) 
         references PeriodEvent (period_event_id);
 
     alter table CompanyPeriodReport_PeriodPartRumour 

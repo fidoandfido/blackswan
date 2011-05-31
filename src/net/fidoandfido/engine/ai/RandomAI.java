@@ -8,7 +8,7 @@ import java.util.Set;
 
 import net.fidoandfido.dao.PeriodPartInformationDAO;
 import net.fidoandfido.model.Company;
-import net.fidoandfido.model.PeriodEvent;
+import net.fidoandfido.model.PeriodQuarter;
 import net.fidoandfido.model.Trader;
 
 public class RandomAI extends AITrader {
@@ -40,9 +40,9 @@ public class RandomAI extends AITrader {
 		// prime interest rate, we sell
 		Set<Company> companySet = new HashSet<Company>();
 
-		List<PeriodEvent> recentEvents = periodPartInformationDAO.getLatestEvents(20, new Date());
-		for (PeriodEvent periodEvent : recentEvents) {
-			Company company = periodEvent.getCompany();
+		List<PeriodQuarter> recentEvents = periodPartInformationDAO.getLatestEvents(20, new Date());
+		for (PeriodQuarter periodQuarter : recentEvents) {
+			Company company = periodQuarter.getCompany();
 
 			if (company.isTrading() == false) {
 				continue;

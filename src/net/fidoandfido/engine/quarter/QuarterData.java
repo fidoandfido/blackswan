@@ -1,10 +1,10 @@
-package net.fidoandfido.engine.event;
+package net.fidoandfido.engine.quarter;
 
 /**
  * @author andy
  * 
  */
-public class EventData {
+public class QuarterData {
 
 	private long runningProfit = 0;
 	private long runningExpenses = 0;
@@ -16,14 +16,14 @@ public class EventData {
 	private long revenue;
 	private long interestPaid;
 
-	public EventData(long profit, long expenses, long revenue, long interestPaid) {
+	public QuarterData(long profit, long expenses, long revenue, long interestPaid) {
 		this.profit = profit;
 		this.expenses = expenses;
 		this.revenue = revenue;
 		this.interestPaid = interestPaid;
 	}
 
-	public EventData(long profit, long expenses, long revenue, long interestPaid, EventData previousData) {
+	public QuarterData(long profit, long expenses, long revenue, long interestPaid, QuarterData previousData) {
 		this.profit = profit;
 		this.expenses = expenses;
 		this.revenue = revenue;
