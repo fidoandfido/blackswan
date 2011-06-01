@@ -322,28 +322,28 @@ public class PeriodGenerator implements Runnable {
 							traderDAO.saveTrader(trader);
 						}
 					}
-				} else {
-					// We lost money :( (profit will be negative)
-					company.incrementAssetValue(profit);
-					if (company.isAlwaysPayDividend()) {
-						// D'oh - Still pay a dividend
-						if (company.getMinimumDividend() > 0) {
-							long dividend = company.getMinimumDividend();
-							company.setPreviousDividend(dividend);
-							company.incrementAssetValue(company.getOutstandingShares() * dividend * -1);
-							Iterable<ShareParcel> parcels = shareParcelDAO.getHoldingsByCompany(company);
-							for (ShareParcel parcel : parcels) {
-								Trader trader = parcel.getTrader();
-								long payment = dividend * parcel.getShareCount();
-								logger.debug("Giving cash: " + payment + " to Trader: " + trader.getName());
-								if (!trader.isMarketMaker()) {
-									TraderEvent event = new TraderEvent(trader, TraderEvent.DIVIDEND_PAYMENT, new Date(), parcel.getCompany(),
-											parcel.getShareCount(), payment, trader.getCash(), trader.getCash() + payment);
-									traderEventDAO.saveTraderEvent(event);
-								}
-								trader.giveCash(payment);
-								traderDAO.saveTrader(trader);
+				}
+			} else {
+				// We lost money :( (profit will be negative)
+				company.incrementAssetValue(profit);
+				if (company.isAlwaysPayDividend()) {
+					// D'oh - Still pay a dividend
+					if (company.getMinimumDividend() > 0) {
+						long dividend = company.getMinimumDividend();
+						company.setPreviousDividend(dividend);
+						company.incrementAssetValue(company.getOutstandingShares() * dividend * -1);
+						Iterable<ShareParcel> parcels = shareParcelDAO.getHoldingsByCompany(company);
+						for (ShareParcel parcel : parcels) {
+							Trader trader = parcel.getTrader();
+							long payment = dividend * parcel.getShareCount();
+							logger.debug("Giving cash: " + payment + " to Trader: " + trader.getName());
+							if (!trader.isMarketMaker()) {
+								TraderEvent event = new TraderEvent(trader, TraderEvent.DIVIDEND_PAYMENT, new Date(), parcel.getCompany(),
+										parcel.getShareCount(), payment, trader.getCash(), trader.getCash() + payment);
+								traderEventDAO.saveTraderEvent(event);
 							}
+							trader.giveCash(payment);
+							traderDAO.saveTrader(trader);
 						}
 					}
 				}
