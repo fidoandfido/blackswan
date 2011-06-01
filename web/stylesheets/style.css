@@ -5,6 +5,30 @@ http://www.freecsstemplates.org
 Released for free under a Creative Commons Attribution 2.5 License
 */
 
+#graphDiv
+{
+    position: absolute;
+    width: 800px;
+    height: 400px;
+    padding: 2px;
+    z-index: 1005;
+    display: none;
+    background-color: #ddd;
+    border: 2px solid black;
+}
+
+#dataDiv
+{
+    position: absolute;
+    width: 400px;
+    height: 400px;
+    padding: 2px;
+    z-index: 1005;
+    display: none;
+    background-color: #ddd;
+    border: 2px solid black;
+}
+
 body {
 	margin: 0;
 	padding: 0;

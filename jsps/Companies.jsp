@@ -71,6 +71,8 @@
 <%@ include file="webTemplates/pageHeaderA.txt" %>
 <%@ include file="webTemplates/pageHeaderB.txt" %>
 
+<script type="text/javascript" src="/myapp/scripts/popup.js""></script>
+
 <div id="page">
 	<div id="content">
 <%
@@ -436,12 +438,19 @@ to access (or create) your trader profile.</p>
 %>
 					<tr>
 					<td><a href="Companies.jsp?<%= Constants.COMPANY_CODE_PARM %>=<%=currentCompany.getCode()%>"><%= currentCompany.getName() %></a></td>
-					<td><%= currentCompany.getCode() %></td>
+					<td>
+					<script type="text/javascript">
+					</script>
+					<b onclick='javascript:popUpData("<%=currentCompany.getCode()%>");' style="cursor: pointer;" ><%=currentCompany.getCode()%></b>
+					</td>
 					<td><%= WebPageUtil.formatCurrency(currentCompany.getShareBookValue()) %></td>
 					<td><%= WebPageUtil.formatCurrency(currentCompany.getPreviousEarningPerShare()) %></td>
 					<td><%= WebPageUtil.formatCurrency(currentCompany.getPreviousDividend()) %></td>
 					<td></td>
-					<td><b><%= WebPageUtil.formatCurrency(currentCompany.getLastTradePrice()) %></b></td>
+					<td>
+						<b onclick='javascript:popUpGraph("<%=currentCompany.getCode()%>");' style="cursor: pointer;" >
+						<%= WebPageUtil.formatCurrency(currentCompany.getLastTradePrice()) %></b>
+					</td>
 					<td><%= WebPageUtil.formatCurrency(currentCompany.getLastTradeChange()) %></td>
 					<td><% if (currentCompany.getLastTradeChange() > 0) { %>
 						<img src="/myapp/images/arrow-up.png"/>
