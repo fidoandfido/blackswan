@@ -17,7 +17,7 @@ import net.fidoandfido.util.Constants.QuarterPerformanceType;
 import org.hibernate.annotations.GenericGenerator;
 
 @Entity
-@Table(name = "PeriodEvent")
+@Table(name = "PeriodQuarter")
 public class PeriodQuarter {
 
 	public static class EventCompator implements Comparator<PeriodQuarter> {
@@ -104,8 +104,8 @@ public class PeriodQuarter {
 		// Default constructor required for persistence
 	}
 
-	public PeriodQuarter(Company company, CompanyPeriodReport companyPeriodReport, Date dateInformationAvailable, String message, QuarterPerformanceType eventType,
-			String forecastType) {
+	public PeriodQuarter(Company company, CompanyPeriodReport companyPeriodReport, Date dateInformationAvailable, String message,
+			QuarterPerformanceType eventType, String forecastType) {
 		super();
 		this.company = company;
 		this.companyPeriodReport = companyPeriodReport;
