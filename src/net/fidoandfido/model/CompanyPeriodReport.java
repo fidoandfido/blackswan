@@ -373,18 +373,18 @@ public class CompanyPeriodReport {
 	}
 
 	/**
-	 * @return the periodEventList
+	 * @return the periodQuarterList
 	 */
 	public Set<PeriodQuarter> getPeriodQuarterList() {
 		return periodQuarterList;
 	}
 
 	/**
-	 * @param periodEventList
-	 *            the periodEventList to set
+	 * @param periodQuarterList
+	 *            the periodQuarterList to set
 	 */
-	public void setPeriodQuarterList(Set<PeriodQuarter> periodEventList) {
-		this.periodQuarterList = periodEventList;
+	public void setPeriodQuarterList(Set<PeriodQuarter> periodQuarterList) {
+		this.periodQuarterList = periodQuarterList;
 	}
 
 	/**
@@ -406,8 +406,8 @@ public class CompanyPeriodReport {
 		periodRumourList.add(rumour);
 	}
 
-	public void addPeriodQuarter(PeriodQuarter periodEvent) {
-		periodQuarterList.add(periodEvent);
+	public void addPeriodQuarter(PeriodQuarter periodQuarter) {
+		periodQuarterList.add(periodQuarter);
 	}
 
 	public Map<String, PeriodQuarter> getPeriodPartInformationMappedByEvent() {
