@@ -59,8 +59,21 @@ public class DataExtractor {
 		HibernateUtil.connectToDB();
 		HibernateUtil.beginTransaction();
 		DataExtractor dataExtractor = new DataExtractor();
-		dataExtractor.writeData();
+		dataExtractor.loolkAtCompany("UDFO");
 		HibernateUtil.commitTransaction();
+	}
+
+	private void loolkAtCompany(String code) {
+
+		Company company = companyDAO.getCompanyByCode(code);
+		List<CompanyPeriodReport> recentPeriodReportListByCompany = companyPeriodReportDAO.getRecentPeriodReportListByCompany(company, 5);
+
+		for (CompanyPeriodReport companyPeriodReport : recentPeriodReportListByCompany) {
+			System.out.println(companyPeriodReport.getStartingAssets());
+			System.out.println(companyPeriodReport.getFinalProfit());
+
+		}
+
 	}
 
 	public void getUser(String userName) {
