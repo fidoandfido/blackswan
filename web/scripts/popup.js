@@ -91,7 +91,7 @@ function popUpGraph(companyCode)
     
     var request = createRequest();
     request.onreadystatechange = showgraph;
-    request.open("GET", "http://localhost:8080/myapp/CompanyGraph.jsp?company_code=" + companyCode, true);
+    request.open("GET", "/myapp/CompanyGraph.jsp?company_code=" + companyCode, true);
     request.send(null);
 }
 
