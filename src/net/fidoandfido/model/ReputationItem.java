@@ -150,6 +150,10 @@ public class ReputationItem {
 		this.cost = cost;
 	}
 
+	public long getSalePrice() {
+		return (cost * 10) / 9;
+	}
+
 	/**
 	 * @return the image
 	 */
