@@ -54,14 +54,18 @@ function getPosition(args)
 function popUpData(companyCode)
 {
    	remove('dataDiv');
-    
-    div = document.createElement('div');
+    var div = document.createElement('div');
     div.id = 'dataDiv';
     div.setAttribute('onclick', 'remove("dataDiv")'); 
     document.body.appendChild(div);
     div.innerHTML = "<p>Data</p><p>" + companyCode + "</p><p>And... this is where additional company data should be.";
-    // if the style.display value is blank we try to check it out here 
+    popUpDiv('dataDiv', 15, 0);
+}
     
+ 
+function popUpDiv(divId, offsetx, offsety) {
+    var div = document.getElementById(divId);
+	// if the style.display value is blank we try to check it out here 
     if(div.style.display==''&&div.offsetWidth!=undefined&&div.offsetHeight!=undefined)
     {
 	div.style.display = (div.offsetWidth!=0&&div.offsetHeight!=0)?'block':'none'; 
@@ -71,9 +75,9 @@ function popUpData(companyCode)
     // If the PopUp is displayed ('block') then it will hide it ('none').
     div.style.display = (div.style.display==''||div.style.display=='block')?'none':'block';
     
-    // Off-sets the X position by 15px
-    X = X + 15;
-    
+    // Now adjust to include variance specified
+    X = X + offsetx;
+    Y = Y + offsety;
     // Sets the position of the DIV
     div.style.left = X+'px';
     div.style.top = Y+'px';
@@ -104,7 +108,7 @@ function showgraph() {
 	    	    // if the style.display value is blank we try to check it out here 
 		    if(div.style.display==''&&div.offsetWidth!=undefined&&div.offsetHeight!=undefined)
 		    {
-			div.style.display = (div.offsetWidth!=0&&elem.offsetHeight!=0)?'block':'none'; 
+			div.style.display = (div.offsetWidth!=0&&div.offsetHeight!=0)?'block':'none'; 
 		    }
 		    // If the PopUp is hidden ('none') then it will display it ('block').
 		    // If the PopUp is displayed ('block') then it will hide it ('none').

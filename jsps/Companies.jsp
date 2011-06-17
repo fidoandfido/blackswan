@@ -384,7 +384,20 @@ to access (or create) your trader profile.</p>
 				<tr>
 					<td><%= holding.getTrader().getName() %></td>
 					<td><%= holding.getTrader().isAITrader() %></td>
-					<td><%= (holding.getTrader().isAITrader() ? trader.getAiStrategyName() : "---") %>
+					<td>
+<% 
+					if (holding.getTrader().isAITrader()) {
+%>
+						<%= holding.getTrader().getAiStrategyName() %>
+<%
+						trader.getAiStrategyName();
+					} else {
+%>
+						---
+<%
+					}
+%>						 					
+					</td>
 					<td><%= holding.getShareCount() %></td>
 					<td><%= WebPageUtil.formatCurrency(holding.getPurchasePrice()) %></td>
 				</tr>

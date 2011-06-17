@@ -5,6 +5,7 @@ http://www.freecsstemplates.org
 Released for free under a Creative Commons Attribution 2.5 License
 */
 
+
 body {
 	margin: 0;
 	padding: 0;
@@ -40,7 +41,7 @@ p, ul, ol {
 table {
 	margin-top: 0;
 	line-height: 120%;
-	width: 800;
+	width: 780;
 	border-width: 2px;
 	border-color:#d4d4d4;;
 	border-style: outset;
@@ -99,6 +100,46 @@ hr { display: none; }
 }
 
 
+#graphDiv
+{
+    position: absolute;
+    width: 800px;
+    height: 400px;
+    padding: 2px;
+    z-index: 1005;
+    display: none;
+    background-color: #ddd;
+    border: 2px solid black;
+}
+
+
+#tradeDiv
+{
+    position: absolute;
+    width: 400px;
+    height: 120px;
+    padding: 2px;
+    z-index: 1005;
+    display: none;
+    background-color: #FAFAFA;
+    border: 2px solid black;
+}
+
+#tradeTable {
+	margin-top: 1;
+	border-width: 2px;
+	border-color:#d4d4d4;;
+	border-style: outset;
+	border-collapse:collapse;
+	line-height: 120%;
+	text-align: left;
+	font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+	font-size: 12px; 
+	width: 400;
+}
+
+
+
 /* Table Format 1 - numerical */
 
 #table-1 {
@@ -111,7 +152,7 @@ hr { display: none; }
 	text-align: left;
 	font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
 	font-size: 11px; 
-	width: 800;
+	width: 760;
 }
 
 #table-1 th
@@ -178,7 +219,7 @@ hr { display: none; }
 	text-align: left;
 	font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
 	font-size: 11px; 
-	width: 800;
+	width: 760;
 }
 
 #table-2 th
@@ -354,7 +395,7 @@ hr { display: none; }
 	height: 55px;	
 	margin-bottom: 3px;
 	padding: 19px 0px 2px 20px;
-	background: url(images/img07.jpg) no-repeat left top;
+	background: url(images/img07new.jpg) no-repeat left top;
 	color: #000000;
 }
 
