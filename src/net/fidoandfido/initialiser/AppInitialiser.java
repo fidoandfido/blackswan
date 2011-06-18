@@ -205,6 +205,7 @@ public class AppInitialiser {
 			for (int i = 0; i < exchange.getCompanyCount(); i++) {
 				Company company = getNewCompany();
 				company.setStockExchange(exchange);
+				exchange.addSector(company.getSector());
 				companyDAO.saveCompany(company);
 
 				CompanyPeriodReport periodReport = new CompanyPeriodReport(company, date, exchange.getPeriodLength(), 0);
@@ -248,6 +249,7 @@ public class AppInitialiser {
 					traderList.remove(index);
 				}
 			}
+			stockExchangeDAO.saveStockExchange(exchange);
 		}
 
 	}

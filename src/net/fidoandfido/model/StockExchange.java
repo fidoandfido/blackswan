@@ -1,9 +1,14 @@
 package net.fidoandfido.model;
 
+import java.util.SortedSet;
+import java.util.TreeSet;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
@@ -12,7 +17,10 @@ import net.fidoandfido.engine.OrderProcessor;
 
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
+import org.hibernate.annotations.CollectionOfElements;
 import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.Sort;
+import org.hibernate.annotations.SortType;
 
 @Entity
 @Table(name = "StockExchange")
@@ -66,6 +74,12 @@ public class StockExchange {
 	@OneToOne
 	@Cascade(value = CascadeType.ALL)
 	private StockExchangePeriod currentPeriod;
+
+	@CollectionOfElements
+	@JoinTable(name = "StockExchange_Sectors", joinColumns = @JoinColumn(name = "stockExchange"))
+	@Column(name = "sector")
+	@Sort(type = SortType.NATURAL)
+	private SortedSet<String> sectors = new TreeSet<String>();
 
 	public StockExchange() {
 		// Default constructor required for persistence
@@ -334,6 +348,25 @@ public class StockExchange {
 	 */
 	public void setRequiredExperiencePoints(long requiredExperiencePoints) {
 		this.requiredExperiencePoints = requiredExperiencePoints;
+	}
+
+	/**
+	 * @return the sectors
+	 */
+	public SortedSet<String> getSectors() {
+		return sectors;
+	}
+
+	/**
+	 * @param sectors
+	 *            the sectors to set
+	 */
+	public void setSectors(SortedSet<String> sectors) {
+		this.sectors = sectors;
+	}
+
+	public void addSector(String sector) {
+		this.sectors.add(sector);
 	}
 
 }

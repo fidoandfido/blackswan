@@ -1,6 +1,7 @@
 package net.fidoandfido.app;
 
 import java.util.List;
+import java.util.Set;
 
 import net.fidoandfido.dao.CompanyDAO;
 import net.fidoandfido.dao.ExchangeGroupDAO;
@@ -37,6 +38,17 @@ public class AppDataLister {
 	}
 
 	public void writeData() {
+		StockExchangeDAO stockExchangeDAO = new StockExchangeDAO();
+
+		List<StockExchange> stockExchangeList = stockExchangeDAO.getStockExchangeList();
+		for (StockExchange stockExchange : stockExchangeList) {
+			System.out.println(stockExchange.getName());
+			Set<String> sectors = stockExchange.getSectors();
+			System.out.println(sectors);
+		}
+	}
+
+	public void something() {
 		TraderDAO traderDAO = new TraderDAO();
 		ShareParcelDAO shareParcelDAO = new ShareParcelDAO();
 		CompanyDAO companyDAO = new CompanyDAO();
