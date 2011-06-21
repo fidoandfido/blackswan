@@ -1,6 +1,5 @@
 package net.fidoandfido.initialiser;
 
-
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -29,18 +28,19 @@ public class CompanyNameParser extends DefaultHandler {
 	private static final String PREFIX_TAG = "prefix";
 	private static final String BODY_TAG = "body";
 	private static final String SUFFIX_TAG = "suffix";
+	private static final String SECTOR_TAG = "sector";
 
 	private static final String VALUE_ATTRIB = "value";
 	private static final String SPACE_ATTRIB = "space";
 	private static final String PREFIXABLE_ATTRIB = "prefixable";
 	private static final String SUFFIXABLE_ATTRIB = "suffixable";
-	private static final String SECTOR_ATTRIB = "sector";
+	private static final String NAME_ATTRIB = "name";
 	private static final String CODE_ATTRIB = "code";
-	private static final String PROFIT_STRATEGY_ATTRIB = "strategy";
 
 	private static final String YES_VALUE = "yes";
 	// private static final String NO_VALUE = "no";
 	private static final String OPTIONAL_VALUE = "optional";
+	private CompanyNameBody currentBody;
 
 	/*
 	 * (non-Javadoc)
@@ -68,9 +68,13 @@ public class CompanyNameParser extends DefaultHandler {
 			boolean prefixable = YES_VALUE.equals(attributes.getValue(PREFIXABLE_ATTRIB));
 			boolean suffixable = YES_VALUE.equals(attributes.getValue(SUFFIXABLE_ATTRIB));
 			String code = attributes.getValue(CODE_ATTRIB);
-			String sector = attributes.getValue(SECTOR_ATTRIB);
-			String strategy = attributes.getValue(PROFIT_STRATEGY_ATTRIB);
-			this.appInitialiser.bodies.add(new CompanyNameBody(value, prefixable, suffixable, sector, code, strategy));
+			currentBody = new CompanyNameBody(value, prefixable, suffixable, code);
+			this.appInitialiser.bodies.add(currentBody);
+		} else if (localName.equals(SECTOR_TAG)) {
+			String sectorName = attributes.getValue(NAME_ATTRIB);
+			if (currentBody != null) {
+				currentBody.sectors.add(sectorName);
+			}
 		} else if (localName.equals(SUFFIX_TAG)) {
 			String value = attributes.getValue(VALUE_ATTRIB);
 			String spaceSetting = attributes.getValue(SPACE_ATTRIB);
@@ -86,4 +90,17 @@ public class CompanyNameParser extends DefaultHandler {
 			this.appInitialiser.suffixes.add(new CompanyNameSuffix(value, spaceAllowed, spaceOptional, code));
 		}
 	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.xml.sax.helpers.DefaultHandler#endElement(java.lang.String, java.lang.String, java.lang.String)
+	 */
+	@Override
+	public void endElement(String uri, String localName, String qName) throws SAXException {
+		if (localName.equals(BODY_TAG)) {
+			currentBody = null;
+		}
+	}
+
 }

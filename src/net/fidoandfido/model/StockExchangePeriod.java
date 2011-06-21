@@ -1,15 +1,21 @@
 package net.fidoandfido.model;
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import org.hibernate.annotations.CollectionOfElements;
 import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.MapKey;
 
 @Entity
 @Table(name = "StockExchangePeriod")
@@ -22,7 +28,7 @@ public class StockExchangePeriod {
 	public static final String GOOD_CONDITIONS = "Good";
 
 	@Id
-	@Column(name = "stock_exchange_id")
+	@Column(name = "stock_exchange_period_id")
 	@GeneratedValue(generator = "uuid")
 	@GenericGenerator(name = "uuid", strategy = "uuid")
 	private String id;
@@ -57,12 +63,30 @@ public class StockExchangePeriod {
 	@Column
 	private long generation;
 
+	@CollectionOfElements()
+	@JoinTable(name = "StockExchangePeriod_SecordOutlooks", joinColumns = @JoinColumn(name = "stock_exchange_period_id"))
+	@MapKey(columns = @Column(name = "sector_name"))
+	private Map<String, SectorOutlook> sectorOutlooks = new HashMap<String, SectorOutlook>();
+
 	public StockExchangePeriod() {
 		// Default constructor for persistence layer
 	}
 
-	public StockExchangePeriod(StockExchange stockExchange, Date startDate, Date minimumEndDate, long generation, long interestRateBasisPoints,
-			long revenueRateDelta, long expenseRateDelta, String economicConditions) {
+	/**
+	 * This constructor should be used to create a new stock exchange period where there is no previous one.
+	 * 
+	 * @param stockExchange
+	 * @param startDate
+	 * @param minimumEndDate
+	 * @param generation
+	 * @param interestRateBasisPointsDelta
+	 * @param revenueRateDelta
+	 * @param expenseRateDelta
+	 * @param economicConditions
+	 * @param sectorOutlooks
+	 */
+	public StockExchangePeriod(StockExchange stockExchange, Date startDate, Date minimumEndDate, long generation, long interestRateBasisPointsDelta,
+			long revenueRateDelta, long expenseRateDelta, String economicConditions, Map<String, SectorOutlook> sectorOutlooks) {
 		super();
 		this.stockExchange = stockExchange;
 		this.startDate = startDate;
@@ -72,9 +96,18 @@ public class StockExchangePeriod {
 		this.revenueRateDelta = revenueRateDelta;
 		this.expenseRateDelta = expenseRateDelta;
 		this.economicConditions = economicConditions;
+		this.sectorOutlooks = sectorOutlooks;
 		this.open = true;
 	}
 
+	/**
+	 * Create a stock exchange period based on a previous period. All of the values for this period will be set based on
+	 * the previous period, and may be altered after the fact.
+	 * 
+	 * @param currentPeriod
+	 * @param startDate
+	 * @param minimumEndDate
+	 */
 	public StockExchangePeriod(StockExchangePeriod currentPeriod, Date startDate, Date minimumEndDate) {
 		this.stockExchange = currentPeriod.stockExchange;
 		this.startDate = startDate;
@@ -84,6 +117,9 @@ public class StockExchangePeriod {
 		this.revenueRateDelta = currentPeriod.revenueRateDelta;
 		this.expenseRateDelta = currentPeriod.expenseRateDelta;
 		this.economicConditions = currentPeriod.economicConditions;
+		for (SectorOutlook sectorOutlook : currentPeriod.getSectorOutlooks().values()) {
+			this.sectorOutlooks.put(sectorOutlook.getSector(), sectorOutlook);
+		}
 		this.open = true;
 
 	}
@@ -258,4 +294,43 @@ public class StockExchangePeriod {
 		this.generation = generation;
 	}
 
+	/**
+	 * @return the sectorOutlooks
+	 */
+	public Map<String, SectorOutlook> getSectorOutlooks() {
+		return sectorOutlooks;
+	}
+
+	/**
+	 * @param sectorOutlooks
+	 *            the sectorOutlooks to set
+	 */
+	public void setSectorOutlooks(Map<String, SectorOutlook> sectorOutlooks) {
+		this.sectorOutlooks = sectorOutlooks;
+	}
+
+	public void addSectorOutlook(SectorOutlook sectorOutlook) {
+		this.sectorOutlooks.put(sectorOutlook.getSector(), sectorOutlook);
+	}
+
+	public long getSectorExpenseDelta(String sector) {
+		SectorOutlook outlook = sectorOutlooks.get(sector);
+		if (outlook != null) {
+			return outlook.getExpenseModifier();
+		}
+		return 0;
+	}
+
+	public long getSectorRevenueDelta(String sector) {
+		SectorOutlook outlook = sectorOutlooks.get(sector);
+		if (outlook != null) {
+			return outlook.getRevenueModifier();
+		}
+		return 0;
+	}
+
+	public SectorOutlook getSectorOutlook(String sector) {
+		// TODO Auto-generated method stub
+		return sectorOutlooks.get(sector);
+	}
 }

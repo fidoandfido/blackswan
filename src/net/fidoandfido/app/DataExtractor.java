@@ -2,6 +2,7 @@ package net.fidoandfido.app;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 import net.fidoandfido.dao.AppStatusDAO;
 import net.fidoandfido.dao.CompanyDAO;
@@ -18,8 +19,10 @@ import net.fidoandfido.model.Company;
 import net.fidoandfido.model.CompanyPeriodReport;
 import net.fidoandfido.model.Order;
 import net.fidoandfido.model.PeriodRumour;
+import net.fidoandfido.model.SectorOutlook;
 import net.fidoandfido.model.ShareParcel;
 import net.fidoandfido.model.StockExchange;
+import net.fidoandfido.model.StockExchangePeriod;
 import net.fidoandfido.model.Trader;
 import net.fidoandfido.model.User;
 import net.fidoandfido.util.WebPageUtil;
@@ -59,8 +62,24 @@ public class DataExtractor {
 		HibernateUtil.connectToDB();
 		HibernateUtil.beginTransaction();
 		DataExtractor dataExtractor = new DataExtractor();
+		dataExtractor.something();
 		dataExtractor.loolkAtCompany("UDFO");
 		HibernateUtil.commitTransaction();
+	}
+
+	public void something() {
+		StockExchangeDAO stockExchangeDAO = new StockExchangeDAO();
+
+		List<StockExchange> stockExchangeList = stockExchangeDAO.getStockExchangeList();
+		for (StockExchange stockExchange : stockExchangeList) {
+			System.out.println(stockExchange.getName());
+			Set<String> sectors = stockExchange.getSectors();
+			System.out.println(sectors);
+			StockExchangePeriod currentPeriod = stockExchange.getCurrentPeriod();
+			for (SectorOutlook sectorOutlook : currentPeriod.getSectorOutlooks().values()) {
+				System.out.println(sectorOutlook);
+			}
+		}
 	}
 
 	private void loolkAtCompany(String code) {

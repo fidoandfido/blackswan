@@ -9,4 +9,16 @@ public class DefaultModifier implements EconomicModifier {
 		// Do not change anything!
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * net.fidoandfido.engine.economicmodfiers.EconomicModifier#modifySectors(net.fidoandfido.model.StockExchangePeriod,
+	 * net.fidoandfido.model.StockExchangePeriod)
+	 */
+	@Override
+	public void modifySectors(StockExchangePeriod currentPeriod, StockExchangePeriod previousPeriod) {
+		// Do not change anything!
+	}
+
 }

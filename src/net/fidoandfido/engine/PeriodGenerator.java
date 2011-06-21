@@ -118,7 +118,7 @@ public class PeriodGenerator implements Runnable {
 	}
 
 	/**
-	 * Generate a period for a specific date
+	 * Generate a period starting at a provided date
 	 * 
 	 * @param currentDate
 	 */
@@ -135,6 +135,7 @@ public class PeriodGenerator implements Runnable {
 		for (StockExchange exchange : exchangeGroup.getExchanges()) {
 			// Check if this is before the end date of the current stockExchange
 			// period.
+			exchange = stockExchangeDAO.getStockExchangeByName(exchange.getName());
 			StockExchangePeriod previousPeriod = exchange.getCurrentPeriod();
 			if (currentDate.before(previousPeriod.getMinimumEndDate())) {
 				// Too soon for a new period!
@@ -196,14 +197,14 @@ public class PeriodGenerator implements Runnable {
 					if (!company.isTrading()) {
 						continue;
 					}
-					companyModifier.modifyCompanyRates(company);
 
+					companyModifier.modifyCompanyRates(company);
 					if (!company.isInsolvent()) {
 						companyModifier.modifyCompanyDebts(company);
 					}
 
 					generation = currentPeriodReport.getGeneration();
-					distributeDividends(currentPeriodReport);
+					distributeDividends(currentPeriodReport, currentDate);
 					currentPeriodReport.close(currentDate);
 					companyPeriodReportDAO.savePeriodReport(currentPeriodReport);
 					company.setPreviousPeriodReport(currentPeriodReport);
@@ -212,11 +213,12 @@ public class PeriodGenerator implements Runnable {
 				CompanyPeriodReport newPeriodReport = new CompanyPeriodReport(company, currentDate, exchange.getPeriodLength(), generation + 1);
 
 				// Calculate the expected return based on the current asset/debt
-				// and
-				// so on.
+				// Use company expense rate and apply modifyers based on global and sector economic conditions.
 				long primeInterestRateBasisPoints = company.getPrimeInterestRateBasisPoints();
-				long expectedExpenses = (company.getExpenseRate() + currentPeriod.getExpenseRateDelta()) * company.getAssetValue() / 100;
-				long expectedRevenues = (company.getRevenueRate() + currentPeriod.getRevenueRateDelta()) * company.getAssetValue() / 100;
+				long expenseRate = company.getExpenseRate() + currentPeriod.getExpenseRateDelta() + currentPeriod.getSectorExpenseDelta(company.getSector());
+				long expectedExpenses = expenseRate * company.getAssetValue() / 100;
+				long m = company.getRevenueRate() + currentPeriod.getRevenueRateDelta();
+				long expectedRevenues = m * company.getAssetValue() / 100;
 				long expectedInterest = (company.getDebtValue()) * primeInterestRateBasisPoints / 10000;
 				long expectedProfit = expectedRevenues - expectedExpenses - expectedInterest;
 
@@ -265,7 +267,7 @@ public class PeriodGenerator implements Runnable {
 		}
 	}
 
-	private void distributeDividends(CompanyPeriodReport currentPeriodReport) {
+	private void distributeDividends(CompanyPeriodReport currentPeriodReport, Date currentDate) {
 		Company company = currentPeriodReport.getCompany();
 		logger.info("Distributing dividends for company: " + company.getName());
 
@@ -311,7 +313,7 @@ public class PeriodGenerator implements Runnable {
 							// logger.trace("Giving cash: " + payment +
 							// " to Trader: " + trader.getName());
 							if (!trader.isMarketMaker()) {
-								TraderEvent event = new TraderEvent(trader, TraderEvent.DIVIDEND_PAYMENT, new Date(), parcel.getCompany(),
+								TraderEvent event = new TraderEvent(trader, TraderEvent.DIVIDEND_PAYMENT, currentDate, parcel.getCompany(),
 										parcel.getShareCount(), payment, trader.getCash(), trader.getCash() + payment);
 								traderEventDAO.saveTraderEvent(event);
 							}
@@ -338,7 +340,7 @@ public class PeriodGenerator implements Runnable {
 							long payment = dividend * parcel.getShareCount();
 							logger.debug("Giving cash: " + payment + " to Trader: " + trader.getName());
 							if (!trader.isMarketMaker()) {
-								TraderEvent event = new TraderEvent(trader, TraderEvent.DIVIDEND_PAYMENT, new Date(), parcel.getCompany(),
+								TraderEvent event = new TraderEvent(trader, TraderEvent.DIVIDEND_PAYMENT, currentDate, parcel.getCompany(),
 										parcel.getShareCount(), payment, trader.getCash(), trader.getCash() + payment);
 								traderEventDAO.saveTraderEvent(event);
 							}

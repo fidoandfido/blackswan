@@ -52,10 +52,16 @@ public class Company {
 	private String sector;
 
 	/**
-	 * Profit modifier class name (currently always LinearModifier)
+	 * Profit modifier and event generator profile
 	 */
 	@Column
-	private String profitModifierName;
+	private String performanceProfileName;
+
+	/**
+	 * Performance description
+	 */
+	@Column
+	private String performanceDescription;
 
 	// Company balance sheet and share count
 	/**
@@ -104,8 +110,7 @@ public class Company {
 	private boolean keepBorrowing = false;
 
 	/**
-	 * Indicate whether the company should always pay a dividend; no matter how
-	 * sick financially!
+	 * Indicate whether the company should always pay a dividend; no matter how sick financially!
 	 */
 	@Column
 	private boolean alwaysPayDividend = false;
@@ -159,12 +164,8 @@ public class Company {
 	@Column
 	private long previousDividend = 0;
 
-	// @Column
-	// private long previousProfit = 0;
-
 	/**
-	 * Indicate how many good / bad quarters we have in a row prior to the start
-	 * of this period.
+	 * Indicate how many good / bad quarters we have in a row prior to the start of this period.
 	 */
 	@Column
 	private long quartersSinceGoodQuarter = 0;
@@ -175,11 +176,10 @@ public class Company {
 	/**
 	 * Indicate how many periods (if any) this company has left of a golden age.
 	 * 
-	 * Small chance each period a company may enter a golden age; this is set by
-	 * the period generator.
+	 * Small chance each period a company may enter a golden age; this is set by the period generator.
 	 * 
-	 * Period event generators *may* use this to override the default event
-	 * types for the company. (They also may ignore it)
+	 * Period event generators *may* use this to override the default event types for the company. (They also may ignore
+	 * it)
 	 * 
 	 */
 	@Column
@@ -197,55 +197,30 @@ public class Company {
 	@Column
 	private boolean isTrading;
 
-	/**
-	 * @return the isInsolvent
-	 */
-	public boolean isInsolvent() {
-		return isInsolvent;
-	}
-
-	/**
-	 * @param isInsolvent
-	 *            the isInsolvent to set
-	 */
-	public void setInsolvent(boolean isInsolvent) {
-		this.isInsolvent = isInsolvent;
-	}
-
-	/**
-	 * @return the isTrading
-	 */
-	public boolean isTrading() {
-		return isTrading;
-	}
-
-	/**
-	 * @param isTrading
-	 *            the isTrading to set
-	 */
-	public void setTrading(boolean isTrading) {
-		this.isTrading = isTrading;
-	}
+	@Column
+	private boolean isSpeculator;
 
 	public Company() {
 		// Default constructor for persistence
 	}
 
-	public Company(String name, String code, long assetValue, long debtValue, long outstandingShares, String sector, String profitModifierName,
-			long dividendRate, long defaultRevenueRate, long defaultExpenseRate) {
+	public Company(String name, String code, long assetValue, long debtValue, long outstandingShares, String sector, String performanceProfileName,
+			String performanceDescription, long dividendRate, long defaultRevenueRate, long defaultExpenseRate) {
 		this.name = name;
 		this.code = code;
 		this.assetValue = assetValue;
 		this.debtValue = debtValue;
 		this.outstandingShares = outstandingShares;
 		this.sector = sector;
-		this.profitModifierName = profitModifierName;
+		this.performanceProfileName = performanceProfileName;
+		this.performanceDescription = performanceDescription;
 		this.dividendRate = dividendRate;
 		this.revenueRate = defaultRevenueRate;
 		this.expenseRate = defaultExpenseRate;
 		companyStatus = TRADING_COMPANY_STATUS;
 		isTrading = true;
 		isInsolvent = false;
+		isSpeculator = false;
 	}
 
 	/*
@@ -325,7 +300,7 @@ public class Company {
 		}
 		long profit = currentPeriod.getStartingExpectedProfit();
 		if (outstandingShares == 0) {
-			return 0; 
+			return 0;
 		}
 		return (profit / outstandingShares);
 	}
@@ -481,18 +456,33 @@ public class Company {
 	}
 
 	/**
-	 * @return the profitModifierName
+	 * @return the performanceProfileName
 	 */
-	public String getProfitModifierName() {
-		return profitModifierName;
+	public String getPerformanceProfileName() {
+		return performanceProfileName;
 	}
 
 	/**
-	 * @param profitModifierName
-	 *            the profitModifierName to set
+	 * @param performanceProfileName
+	 *            the performanceProfileName to set
 	 */
-	public void setProfitModifierName(String profitModifierName) {
-		this.profitModifierName = profitModifierName;
+	public void setPerformanceProfileName(String performanceProfileName) {
+		this.performanceProfileName = performanceProfileName;
+	}
+
+	/**
+	 * @return the performanceDescription
+	 */
+	public String getPerformanceDescription() {
+		return performanceDescription;
+	}
+
+	/**
+	 * @param performanceDescription
+	 *            the performanceDescription to set
+	 */
+	public void setPerformanceDescription(String performanceDescription) {
+		this.performanceDescription = performanceDescription;
 	}
 
 	/**
@@ -616,8 +606,7 @@ public class Company {
 	}
 
 	/**
-	 * This is how much of the profits (if they are positive) will be paid out
-	 * as dividends
+	 * This is how much of the profits (if they are positive) will be paid out as dividends
 	 * 
 	 * @return the dividendRate
 	 */
@@ -790,6 +779,51 @@ public class Company {
 
 	public void incrementQuartersSinceBadQuarter() {
 		quartersSinceBadQuarter++;
+	}
+
+	/**
+	 * @return the isInsolvent
+	 */
+	public boolean isInsolvent() {
+		return isInsolvent;
+	}
+
+	/**
+	 * @param isInsolvent
+	 *            the isInsolvent to set
+	 */
+	public void setInsolvent(boolean isInsolvent) {
+		this.isInsolvent = isInsolvent;
+	}
+
+	/**
+	 * @return the isTrading
+	 */
+	public boolean isTrading() {
+		return isTrading;
+	}
+
+	/**
+	 * @param isTrading
+	 *            the isTrading to set
+	 */
+	public void setTrading(boolean isTrading) {
+		this.isTrading = isTrading;
+	}
+
+	/**
+	 * @return the isSpeculator
+	 */
+	public boolean isSpeculator() {
+		return isSpeculator;
+	}
+
+	/**
+	 * @param isSpeculator
+	 *            the isSpeculator to set
+	 */
+	public void setSpeculator(boolean isSpeculator) {
+		this.isSpeculator = isSpeculator;
 	}
 
 }

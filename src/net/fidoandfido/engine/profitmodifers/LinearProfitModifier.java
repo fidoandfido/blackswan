@@ -11,10 +11,9 @@ import net.fidoandfido.util.Constants.QuarterPerformanceType;
 import net.fidoandfido.util.WebPageUtil;
 
 /**
- * Adjust the profit in a linear fashion. The modifier is expressed as a
- * percentage change and is set to the maximum possible change; the volatility
- * will then reduce them some amount. The amount that it may vary is defined by
- * the volatility.
+ * Adjust the profit in a linear fashion. The modifier is expressed as a percentage change and is set to the maximum
+ * possible change; the volatility will then reduce them some amount. The amount that it may vary is defined by the
+ * volatility.
  * 
  */
 public class LinearProfitModifier implements EventProfitModifier {
@@ -25,7 +24,8 @@ public class LinearProfitModifier implements EventProfitModifier {
 
 	// @Override
 	@Override
-	public QuarterData adjustProfit(QuarterPerformanceType eventType, QuarterData eventData, Company company, CompanyPeriodReport companyPeriodReport, long eventCount) {
+	public QuarterData adjustProfit(QuarterPerformanceType eventType, QuarterData eventData, Company company, CompanyPeriodReport companyPeriodReport,
+			long eventCount) {
 		// Work out how much the company should, ideally, be earning/paying for
 		// this period part.
 		long interestPaid = companyPeriodReport.getStartingExpectedInterest() / eventCount;
@@ -104,7 +104,7 @@ public class LinearProfitModifier implements EventProfitModifier {
 		long revenueRate = 20;
 		long expenseRate = 12;
 		long dividendRate = 20;
-		Company company = new Company("Foobar Enterprises", "fbe", assets, debts, shareCount, "sector", "", dividendRate, revenueRate, expenseRate);
+		Company company = new Company("Foobar Enterprises", "fbe", assets, debts, shareCount, "sector", "", "", dividendRate, revenueRate, expenseRate);
 		company.setStockExchange(exchange);
 
 		long primeInterestRateBasisPoints = company.getPrimeInterestRateBasisPoints();

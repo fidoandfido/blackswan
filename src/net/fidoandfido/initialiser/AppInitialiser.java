@@ -26,6 +26,7 @@ import net.fidoandfido.model.Company;
 import net.fidoandfido.model.CompanyPeriodReport;
 import net.fidoandfido.model.ExchangeGroup;
 import net.fidoandfido.model.ReputationItem;
+import net.fidoandfido.model.SectorOutlook;
 import net.fidoandfido.model.ShareParcel;
 import net.fidoandfido.model.StockExchange;
 import net.fidoandfido.model.StockExchangePeriod;
@@ -179,8 +180,12 @@ public class AppInitialiser {
 				if (!exchangeMap.containsKey(name)) {
 					Date periodStartDate = new Date();
 					Date endDate = new Date(periodStartDate.getTime() + exchange.getPeriodLength());
-					StockExchangePeriod firstPeriod = new StockExchangePeriod(exchange, periodStartDate, endDate, 0,
-							exchange.getPrimeInterestRateBasisPoints(), 0, 0, StockExchangePeriod.NEUTRAL_CONDITIONS);
+					Map<String, SectorOutlook> sectorOutlooks = new HashMap<String, SectorOutlook>();
+					for (String sector : exchange.getSectors()) {
+						sectorOutlooks.put(sector, new SectorOutlook(sector, 0, 0, SectorOutlook.DEFAULT_NEUTRAL_MESSAGE));
+					}
+					StockExchangePeriod firstPeriod = new StockExchangePeriod(exchange, periodStartDate, endDate, 0, 0, 0, 0,
+							StockExchangePeriod.NEUTRAL_CONDITIONS, sectorOutlooks);
 					exchange.setCurrentPeriod(firstPeriod);
 					stockExchangeDAO.saveStockExchange(exchange);
 					exchangeMap.put(name, exchange);
@@ -201,11 +206,15 @@ public class AppInitialiser {
 		QuarterEventGenerator generator = new QuarterEventGenerator();
 
 		for (StockExchange exchange : exchangeMap.values()) {
-
+			System.out.println("Starting exchange: " + exchange);
+			initialiseSectorList(exchange.getSectors());
 			for (int i = 0; i < exchange.getCompanyCount(); i++) {
+				System.out.println(i);
+				if (i == 18) {
+					System.out.println("Lucky 18!");
+				}
 				Company company = getNewCompany();
 				company.setStockExchange(exchange);
-				exchange.addSector(company.getSector());
 				companyDAO.saveCompany(company);
 
 				CompanyPeriodReport periodReport = new CompanyPeriodReport(company, date, exchange.getPeriodLength(), 0);
@@ -282,14 +291,53 @@ public class AppInitialiser {
 	private Random expenseRateRandom = new Random(17);
 	private Random returnRateRandom = new Random(17);
 
+	public void initialiseSectorList(Set<String> sectorList) {
+		sectorCompatibleBodyList = bodies;
+		currentSectorList = sectorList;
+		if (sectorList != null && !sectorList.isEmpty()) {
+			sectorCompatibleBodyList = new ArrayList<CompanyNameBody>();
+			// Get a list of bodies that are ok.
+			for (CompanyNameBody currentBody : bodies) {
+				for (String sector : sectorList) {
+					if (currentBody.sectors.contains(sector)) {
+						sectorCompatibleBodyList.add(currentBody);
+						break;
+					}
+				}
+			}
+		}
+
+	}
+
 	public Company getNewCompany() {
 		String name = "";
 		String code = "";
+		String sector = "";
 		CompanyNameBody body = null;
 		boolean unique = false;
 
+		if (sectorCompatibleBodyList == null || sectorCompatibleBodyList.size() == 0) {
+			sectorCompatibleBodyList = bodies;
+		}
+
 		while (!unique) {
-			body = bodies.get(bodyRandom.nextInt(bodies.size()));
+			body = sectorCompatibleBodyList.get(bodyRandom.nextInt(sectorCompatibleBodyList.size()));
+			sector = body.sectors.get(bodyRandom.nextInt(body.sectors.size()));
+
+			// Make sure if the current sector list contains any data, that we are getting an appropriate company.
+			if (currentSectorList != null && currentSectorList.size() > 0) {
+				if (!currentSectorList.contains(sector)) {
+					// build a list of sectors and get an appropriate one!
+					List<String> goodSectors = new ArrayList<String>();
+					for (String goodSector : currentSectorList) {
+						if (body.sectors.contains(goodSector)) {
+							goodSectors.add(goodSector);
+						}
+					}
+					sector = goodSectors.get(bodyRandom.nextInt(goodSectors.size()));
+				}
+			}
+
 			boolean prefixed = false;
 			code = body.code;
 			name = body.value;
@@ -329,22 +377,6 @@ public class AppInitialiser {
 				names.add(name);
 			}
 		}
-
-		// Can't be null - must drop through while loop at least once.
-		@SuppressWarnings("null")
-		String sector = body.sector;
-		String modifierName = body.strategy;
-		//
-		// // At the moment, companies start out all the same.
-		// // This should be tweaked!!!
-		// // formatting retarded for clarity!
-		// long assets = /* */100000000;
-		// long debt = /* */50000000;
-		// long shareCount = /* */100000;
-		// long dividendRate = 25;
-		// long defaultRevenueRate = 20;
-		// long defaultExpenseRate = 12;
-		//
 
 		// Psuedo-randomly generate companies!
 		// For the assets, lets get a number between 1 and 200, and multiply it
@@ -407,12 +439,16 @@ public class AppInitialiser {
 		long defaultExpenseRate = expenseRateRandom.nextInt(18) + 8;
 
 		// Return will be calculated slightly differently. Bias towards a return
-		// rate of 4%
-		int possibleReturns[] = { 2, 3, 3, 4, 4, 4, 5, 5, 6, 7, 8 };
+		// rate of 5%
+		int possibleReturns[] = { 2, 3, 3, 4, 4, 5, 5, 5, 6, 7, 8 };
 		int returnRate = possibleReturns[returnRateRandom.nextInt(possibleReturns.length)];
 		long defaultRevenueRate = defaultExpenseRate + returnRate;
 
-		Company company = new Company(name, code, assets, debt, shareCount, sector, modifierName, dividendRate, defaultRevenueRate, defaultExpenseRate);
+		String performanceProfile = "";
+		String performanceProfileDescription = "";
+
+		Company company = new Company(name, code, assets, debt, shareCount, sector, performanceProfile, performanceProfileDescription, dividendRate,
+				defaultRevenueRate, defaultExpenseRate);
 
 		// Last trade price will effectively be capitalisation / share count
 		company.setLastTradePrice(company.getCapitalisation() / shareCount);
@@ -426,14 +462,27 @@ public class AppInitialiser {
 
 	private String fixCode(String originalCode) {
 		if (originalCode.length() < CODE_LENGTH) {
-			// ????
 			System.out.println("SHORT CODE: " + originalCode);
 			return originalCode;
 		}
 
 		String code = originalCode.substring(0, CODE_LENGTH);
+		int attempts = 0;
 		while (codes.contains(code)) {
 			code = originalCode;
+			if (attempts++ > 10) {
+				// triple the length of the code.
+				code = code + code + code;
+			}
+			if (attempts > 20) {
+				// add some random instead.
+				code = originalCode;
+				for (int i = 0; i < originalCode.length(); i++) {
+					char c = (char) ('A' + companyCodeSelectorRandom.nextInt(26));
+					code = code + c;
+				}
+
+			}
 			while (code.length() > CODE_LENGTH) {
 				// Remove a random char
 				int charToRemove = companyCodeSelectorRandom.nextInt(code.length());
@@ -460,6 +509,8 @@ public class AppInitialiser {
 
 	public List<CompanyNamePrefix> prefixes = new ArrayList<CompanyNamePrefix>();
 	public List<CompanyNameBody> bodies = new ArrayList<CompanyNameBody>();
+	private List<CompanyNameBody> sectorCompatibleBodyList = new ArrayList<CompanyNameBody>();
+	private Set<String> currentSectorList = new HashSet<String>();
 	public List<CompanyNameSuffix> suffixes = new ArrayList<CompanyNameSuffix>();
 	private Trader marketMakerTrader;
 

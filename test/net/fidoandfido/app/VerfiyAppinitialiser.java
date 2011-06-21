@@ -1,5 +1,8 @@
 package net.fidoandfido.app;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import net.fidoandfido.initialiser.AppInitialiser;
 import net.fidoandfido.model.Company;
 import net.fidoandfido.util.WebPageUtil;
@@ -53,7 +56,50 @@ public class VerfiyAppinitialiser {
 			Company company = appInitialiser.getNewCompany();
 			// System.out.print(company.getName());
 			// System.out.print("\t");
+			System.out.println(company.getName());
 			System.out.print(company.getCode());
+			System.out.print("\t");
+			System.out.print(company.getSector());
+			System.out.print("\t");
+			System.out.print(WebPageUtil.formatCurrency(company.getAssetValue()));
+			System.out.print("\t");
+			System.out.print(WebPageUtil.formatCurrency(company.getDebtValue()));
+			System.out.print("\t");
+			System.out.print(WebPageUtil.formatCurrency(company.getCapitalisation()));
+			System.out.print("\t");
+			System.out.print(company.getOutstandingShares());
+			System.out.print("\t");
+			System.out.print(WebPageUtil.formatCurrency(company.getShareBookValue()));
+			System.out.print("\t");
+			System.out.print(company.getExpenseRate());
+			System.out.print("\t");
+			System.out.print(company.getRevenueRate());
+			System.out.print("\t");
+			System.out.print(company.getRevenueRate() - company.getExpenseRate());
+			System.out.print("\t");
+			System.out.print(!company.isNeverPayDividend());
+			System.out.print("\t");
+			System.out.print(company.getDividendRate());
+			System.out.print("\t");
+			System.out.println();
+		}
+
+		System.out.println("---------------------------------------------");
+		System.out.println("MINING AND RESOURCES");
+		System.out.println("---------------------------------------------");
+		// Now just get resources and mining stocks.
+		Set<String> sectors = new HashSet<String>();
+		sectors.add("mining");
+		sectors.add("resources");
+		for (int i = 0; i < 20; i++) {
+			appInitialiser.initialiseSectorList(sectors);
+			Company company = appInitialiser.getNewCompany();
+			// System.out.print(company.getName());
+			// System.out.print("\t");
+			System.out.println(company.getName());
+			System.out.print(company.getCode());
+			System.out.print("\t");
+			System.out.print(company.getSector());
 			System.out.print("\t");
 			System.out.print(WebPageUtil.formatCurrency(company.getAssetValue()));
 			System.out.print("\t");
@@ -79,5 +125,4 @@ public class VerfiyAppinitialiser {
 		}
 
 	}
-
 }

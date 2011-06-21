@@ -18,6 +18,8 @@ public class ExchangeParser extends DefaultHandler {
 	// description="The MX is the mining exchange. A little volatility here - mainly from companies that strike it big in their mines, and then lose it all if their mines run out."/>
 
 	private static final String EXCHANGE_TAG = "exchange";
+	private static final String SECTOR_TAG = "sector";
+	private static final String EXCHANGE_GROUP_TAG = "exchange-group";
 	private static final String NAME_ATTRIB = "name";
 	private static final String COMPANIES_ATTRIB = "company-count";
 	private static final String DESCRIPTION_ATTRIB = "description";
@@ -27,10 +29,10 @@ public class ExchangeParser extends DefaultHandler {
 	private static final String ECONOMIC_MODIFIER_NAME = "economic-modifier";
 	private static final String COMPANY_MODIFIER_NAME = "company-modifier";
 	private static final String MAX_SHARE_PRICE_ATTRIB = "max-share-price";
-	private static final String EXCHANGE_GROUP_TAG = "exchange-group";
 	private static final String REQUIRED_XP_TAG = "required-xp";
 
 	private ExchangeGroup currentExchangeGroup;
+	private StockExchange stockExchange;
 
 	@Override
 	public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
@@ -48,33 +50,33 @@ public class ExchangeParser extends DefaultHandler {
 			}
 			currentExchangeGroup = new ExchangeGroup(name, description, periodLength);
 			exchangeGroupList.add(currentExchangeGroup);
-		} else {
+		} else if (localName.equals(EXCHANGE_TAG)) {
+			String name = attributes.getValue(NAME_ATTRIB);
+			String description = attributes.getValue(DESCRIPTION_ATTRIB);
+			int companyCount = Integer.parseInt(attributes.getValue(COMPANIES_ATTRIB));
+			String eventGeneratorName = attributes.getValue(EVENT_GENERATOR_NAME);
+			String economicModifierName = attributes.getValue(ECONOMIC_MODIFIER_NAME);
+			String companyModifierName = attributes.getValue(COMPANY_MODIFIER_NAME);
+			long maxSharePrice = Long.parseLong(attributes.getValue(MAX_SHARE_PRICE_ATTRIB));
+			long interestRate = Long.parseLong(attributes.getValue(STARTING_INTEREST));
 
-			if (localName.equals(EXCHANGE_TAG)) {
-				String name = attributes.getValue(NAME_ATTRIB);
-				String description = attributes.getValue(DESCRIPTION_ATTRIB);
-				int companyCount = Integer.parseInt(attributes.getValue(COMPANIES_ATTRIB));
-				String eventGeneratorName = attributes.getValue(EVENT_GENERATOR_NAME);
-				String economicModifierName = attributes.getValue(ECONOMIC_MODIFIER_NAME);
-				String companyModifierName = attributes.getValue(COMPANY_MODIFIER_NAME);
-				long maxSharePrice = Long.parseLong(attributes.getValue(MAX_SHARE_PRICE_ATTRIB));
-				long interestRate = Long.parseLong(attributes.getValue(STARTING_INTEREST));
-
-				String xpString = attributes.getValue(REQUIRED_XP_TAG);
-				long requiredExperiencePoints = 0;
-				try {
-					requiredExperiencePoints = Long.parseLong(xpString);
-				} catch (NumberFormatException nfe) {
-					// and ignore it.
-				}
-
-				// EventGenerator generator =
-				// EventGeneratorFactory.getGeneratorByName(eventGeneratorName);
-				StockExchange stockExchange = new StockExchange(currentExchangeGroup, name, description, companyCount, eventGeneratorName,
-						currentExchangeGroup.getPeriodLength(), interestRate, economicModifierName, companyModifierName, maxSharePrice,
-						requiredExperiencePoints);
-				currentExchangeGroup.addExchange(stockExchange);
+			String xpString = attributes.getValue(REQUIRED_XP_TAG);
+			long requiredExperiencePoints = 0;
+			try {
+				requiredExperiencePoints = Long.parseLong(xpString);
+			} catch (NumberFormatException nfe) {
+				// and ignore it.
 			}
+
+			// EventGenerator generator =
+			// EventGeneratorFactory.getGeneratorByName(eventGeneratorName);
+			stockExchange = new StockExchange(currentExchangeGroup, name, description, companyCount, eventGeneratorName,
+					currentExchangeGroup.getPeriodLength(), interestRate, economicModifierName, companyModifierName, maxSharePrice, requiredExperiencePoints);
+			currentExchangeGroup.addExchange(stockExchange);
+
+		} else if (localName.equals(SECTOR_TAG)) {
+			String name = attributes.getValue(NAME_ATTRIB);
+			stockExchange.addSector(name);
 		}
 	}
 }
