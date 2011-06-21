@@ -22,7 +22,7 @@
 		<sector name="produce" />
 		<sector name="motor vehicles" />
 	</exchange>
-	<exchange name="SMX" required-xp="100" company-count="100" event-generator="cyclicEvents" description="SMX: Southern Mercantile exchange, specialising in resources and energy" period-length-mins="60" interest-rate="400" economic-modifier="GENTLE_MODIFIER" company-modifier="GENTLE_COMPANY_MODIFIER" max-share-price="10000">
+	<exchange name="SMX" required-level="2" company-count="100" event-generator="cyclicEvents" description="SMX: Southern Mercantile exchange, specialising in resources and energy" period-length-mins="60" interest-rate="400" economic-modifier="GENTLE_MODIFIER" company-modifier="GENTLE_COMPANY_MODIFIER" max-share-price="10000">
 		<sector name="energy" />
 		<sector name="resources" />
 		<sector name="mining" />
@@ -36,7 +36,7 @@
 	</exchange>
 	
 <!--
-	<exchange name="HTSX" required-xp="100" company-count="100" event-generator="cyclicEvents" description="HTSX: High Technology Stock Exchange." period-length-mins="60" interest-rate="400" economic-modifier="GENTLE_MODIFIER" company-modifier="GENTLE_COMPANY_MODIFIER" max-share-price="10000">
+	<exchange name="HTSX" required-level="2" company-count="100" event-generator="cyclicEvents" description="HTSX: High Technology Stock Exchange." period-length-mins="60" interest-rate="400" economic-modifier="GENTLE_MODIFIER" company-modifier="GENTLE_COMPANY_MODIFIER" max-share-price="10000">
 		<sector name="aerospace" />
 		<sector name="IT" />
 		<sector name="energy" />

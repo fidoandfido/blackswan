@@ -12,6 +12,8 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
+import net.fidoandfido.engine.experience.LevelManager;
+
 import org.hibernate.annotations.GenericGenerator;
 
 @Entity
@@ -333,6 +335,10 @@ public class Trader {
 
 	public void addExperiencePoints(long points) {
 		this.experiencePoints += points;
+	}
+
+	public int getLevel() {
+		return new LevelManager().getLevel(this);
 	}
 
 }

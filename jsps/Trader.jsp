@@ -96,6 +96,8 @@ function removeElement(parentDivId, childDivId){
 				<h2 class="title">Trader Page - <%=trader.getName()%></h2>
 				<div class="entry">
 				<p>Hello <%=user.getUserName()%> and Welcome to the new Black Swan application!</p>
+				<p>Your current experience points: <%= trader.getExperiencePoints() %></p>
+				<p>Your current trader level: <%= trader.getLevel() %></p>
 <%
 	// Generate total net worth of the trader.
 	long totalValue = trader.getCash();

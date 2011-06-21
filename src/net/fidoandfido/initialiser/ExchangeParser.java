@@ -29,7 +29,7 @@ public class ExchangeParser extends DefaultHandler {
 	private static final String ECONOMIC_MODIFIER_NAME = "economic-modifier";
 	private static final String COMPANY_MODIFIER_NAME = "company-modifier";
 	private static final String MAX_SHARE_PRICE_ATTRIB = "max-share-price";
-	private static final String REQUIRED_XP_TAG = "required-xp";
+	private static final String REQUIRED_LEVEL_TAG = "required-level";
 
 	private ExchangeGroup currentExchangeGroup;
 	private StockExchange stockExchange;
@@ -60,10 +60,10 @@ public class ExchangeParser extends DefaultHandler {
 			long maxSharePrice = Long.parseLong(attributes.getValue(MAX_SHARE_PRICE_ATTRIB));
 			long interestRate = Long.parseLong(attributes.getValue(STARTING_INTEREST));
 
-			String xpString = attributes.getValue(REQUIRED_XP_TAG);
-			long requiredExperiencePoints = 0;
+			String requiredLevelString = attributes.getValue(REQUIRED_LEVEL_TAG);
+			long requiredLevel = 0;
 			try {
-				requiredExperiencePoints = Long.parseLong(xpString);
+				requiredLevel = Long.parseLong(requiredLevelString);
 			} catch (NumberFormatException nfe) {
 				// and ignore it.
 			}
@@ -71,7 +71,7 @@ public class ExchangeParser extends DefaultHandler {
 			// EventGenerator generator =
 			// EventGeneratorFactory.getGeneratorByName(eventGeneratorName);
 			stockExchange = new StockExchange(currentExchangeGroup, name, description, companyCount, eventGeneratorName,
-					currentExchangeGroup.getPeriodLength(), interestRate, economicModifierName, companyModifierName, maxSharePrice, requiredExperiencePoints);
+					currentExchangeGroup.getPeriodLength(), interestRate, economicModifierName, companyModifierName, maxSharePrice, requiredLevel);
 			currentExchangeGroup.addExchange(stockExchange);
 
 		} else if (localName.equals(SECTOR_TAG)) {

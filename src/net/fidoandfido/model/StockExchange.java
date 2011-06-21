@@ -69,7 +69,7 @@ public class StockExchange {
 	private long maxSharePrice = 0;
 
 	@Column
-	long requiredExperiencePoints = 0;
+	long requiredLevel = 0;
 
 	@OneToOne
 	@Cascade(value = CascadeType.ALL)
@@ -86,7 +86,7 @@ public class StockExchange {
 	}
 
 	public StockExchange(ExchangeGroup exchangeGroup, String name, String description, int companyCount, String eventGeneratorName, long companyPeriodLength,
-			long defaultPrimeInterestRateBasisPoints, String economicModifierName, String companyModifierName, long maxSharePrice, long requiredExperiencePoints)
+			long defaultPrimeInterestRateBasisPoints, String economicModifierName, String companyModifierName, long maxSharePrice, long requiredLevel)
 
 	{
 		super();
@@ -100,7 +100,7 @@ public class StockExchange {
 		this.economicModifierName = economicModifierName;
 		this.companyModifierName = companyModifierName;
 		this.maxSharePrice = maxSharePrice;
-		this.requiredExperiencePoints = requiredExperiencePoints;
+		this.requiredLevel = requiredLevel;
 	}
 
 	/**
@@ -338,16 +338,16 @@ public class StockExchange {
 	/**
 	 * @return the requiredExperiencePoints
 	 */
-	public long getRequiredExperiencePoints() {
-		return requiredExperiencePoints;
+	public long getRequiredLevel() {
+		return requiredLevel;
 	}
 
 	/**
 	 * @param requiredExperiencePoints
 	 *            the requiredExperiencePoints to set
 	 */
-	public void setRequiredExperiencePoints(long requiredExperiencePoints) {
-		this.requiredExperiencePoints = requiredExperiencePoints;
+	public void setRequiredLevel(long requiredExperiencePoints) {
+		this.requiredLevel = requiredExperiencePoints;
 	}
 
 	/**

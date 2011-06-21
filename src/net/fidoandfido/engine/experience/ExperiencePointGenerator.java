@@ -1,4 +1,4 @@
-package net.fidoandfido.engine;
+package net.fidoandfido.engine.experience;
 
 import net.fidoandfido.model.Trader;
 
