@@ -412,20 +412,20 @@ to access (or create) your trader profile.</p>
 		}
 %>				
 
-<%			
-		} else {
-			StockExchangeDAO stockExchangeDAO = new StockExchangeDAO();
-			Collection<StockExchange> exchangeList = stockExchangeDAO.getStockExchangeList();
-			// List all the companies
-			for (StockExchange exchange : exchangeList) {
-				Iterable<Company> companyList = companyDAO.getCompaniesByExchange(exchange);
-				if (trader.getExperiencePoints() >= exchange.getRequiredExperiencePoints() && companyList != null && companyList.iterator().hasNext()) {
-%>
+<%
+					} else {
+					StockExchangeDAO stockExchangeDAO = new StockExchangeDAO();
+					Collection<StockExchange> exchangeList = stockExchangeDAO.getStockExchangeList();
+					// List all the companies
+					for (StockExchange exchange : exchangeList) {
+						Iterable<Company> companyList = companyDAO.getCompaniesByExchange(exchange);
+						if (trader.getExperiencePoints() >= exchange.getRequiredLevel() && companyList != null && companyList.iterator().hasNext()) {
+				%>
 			<div class="post">
 				<h2 class="title">Companies on <%= exchange.getName() %> (Showing <%= exchange.getCompanyCount() %> entries)</h2>
 				<div class="entry">
 				Current Economic Conditions: <%= exchange.getCurrentPeriod().getEconomicConditions() %><p>
-				Prime Interest Rate: <%=  ( exchange.getPrimeInterestRateBasisPoints() +  exchange.getCurrentPeriod().getInterestRateBasisPointsDelta() ) / 100 %> %			
+				Current Interest Rate: <%=  ( exchange.getPrimeInterestRateBasisPoints() +  exchange.getCurrentPeriod().getInterestRateBasisPointsDelta() ) / 100 %> %			
 				
 					<table>
 					<thead>
