@@ -15,16 +15,16 @@ public class LevelManager {
 	public int getLevel(Trader trader) {
 		// Figure out the current level of a trader.
 		long xp = trader.getExperiencePoints();
-		if (xp < 100) {
+		if (xp < 50) {
 			return 1;
 		}
-		if (xp < 200) {
+		if (xp < 100) {
 			return 2;
 		}
-		if (xp < 500) {
+		if (xp < 200) {
 			return 3;
 		}
-		if (xp < 1000) {
+		if (xp < 500) {
 			return 4;
 		}
 		return 5;
@@ -38,6 +38,7 @@ public class LevelManager {
 			TraderMessage level2Message = new TraderMessage(trader, new Date(), "Welcome to the real trading floor rookie!",
 					"Congratulations, you have now been promoted to rookie trader. You will now have access to additional exchanges. Keep trading and good luck!");
 			messageDAO.saveMessage(level2Message);
+			// Add achivement?
 		}
 
 	}

@@ -334,7 +334,13 @@ public class Trader {
 	}
 
 	public void addExperiencePoints(long points) {
+		// Notify the level manager if we level up.
+		LevelManager levelManager = new LevelManager();
+		int level = levelManager.getLevel(this);
 		this.experiencePoints += points;
+		if (levelManager.getLevel(this) > level) {
+			levelManager.levelUp(this);
+		}
 	}
 
 	public int getLevel() {

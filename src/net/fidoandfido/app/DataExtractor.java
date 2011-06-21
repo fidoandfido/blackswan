@@ -9,6 +9,7 @@ import net.fidoandfido.dao.CompanyDAO;
 import net.fidoandfido.dao.CompanyPeriodReportDAO;
 import net.fidoandfido.dao.HibernateUtil;
 import net.fidoandfido.dao.OrderDAO;
+import net.fidoandfido.dao.PeriodPartInformationDAO;
 import net.fidoandfido.dao.ReputationItemDAO;
 import net.fidoandfido.dao.RumourDAO;
 import net.fidoandfido.dao.ShareParcelDAO;
@@ -18,6 +19,7 @@ import net.fidoandfido.dao.UserDAO;
 import net.fidoandfido.model.Company;
 import net.fidoandfido.model.CompanyPeriodReport;
 import net.fidoandfido.model.Order;
+import net.fidoandfido.model.PeriodQuarter;
 import net.fidoandfido.model.PeriodRumour;
 import net.fidoandfido.model.SectorOutlook;
 import net.fidoandfido.model.ShareParcel;
@@ -62,8 +64,11 @@ public class DataExtractor {
 		HibernateUtil.connectToDB();
 		HibernateUtil.beginTransaction();
 		DataExtractor dataExtractor = new DataExtractor();
-		dataExtractor.something();
-		dataExtractor.loolkAtCompany("UDFO");
+		// dataExtractor.something();
+		// dataExtractor.loolkAtCompany("UDFO");
+
+		dataExtractor.getNews();
+
 		HibernateUtil.commitTransaction();
 	}
 
@@ -91,6 +96,22 @@ public class DataExtractor {
 			System.out.println(companyPeriodReport.getStartingAssets());
 			System.out.println(companyPeriodReport.getFinalProfit());
 
+		}
+
+	}
+
+	private void getNews() {
+		Trader trader = traderDAO.getTraderByName("blob");
+
+		PeriodPartInformationDAO infoDAO = new PeriodPartInformationDAO();
+		List<PeriodQuarter> latestEvents = infoDAO.getLatestEvents(100, new Date(), trader);
+		for (PeriodQuarter periodQuarter : latestEvents) {
+			System.out.println("Exchange: " + periodQuarter.getCompany().getStockExchange().getName());
+		}
+		System.out.println("--------------");
+		latestEvents = infoDAO.getLatestEvents(20, new Date());
+		for (PeriodQuarter periodQuarter : latestEvents) {
+			System.out.println("Exchange: " + periodQuarter.getCompany().getStockExchange().getName());
 		}
 
 	}

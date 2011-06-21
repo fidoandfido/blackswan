@@ -425,7 +425,7 @@ function deleteMessage_<%=message.getId()%>() {
 								
 <%
 	PeriodPartInformationDAO periodPartInformationDAO = new PeriodPartInformationDAO();
-	List<PeriodQuarter> events = periodPartInformationDAO.getLatestEvents(10, currentDate);
+	List<PeriodQuarter> events = periodPartInformationDAO.getLatestEvents(10, currentDate, trader);
 	for (PeriodQuarter event : events) {
 								%>
 				<tr>
