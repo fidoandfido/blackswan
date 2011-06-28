@@ -1,3 +1,4 @@
+<%@page import="net.fidoandfido.model.Company"%>
 <%@page import="java.util.HashSet"%>
 <%@page import="net.fidoandfido.servlets.MessageServlet"%>
 <%@page import="net.fidoandfido.model.TraderMessage"%>
@@ -95,7 +96,6 @@ function removeElement(parentDivId, childDivId){
 			<div class="post">
 				<h2 class="title">Trader Page - <%=trader.getName()%></h2>
 				<div class="entry">
-				<p>Hello <%=user.getUserName()%> and Welcome to the new Black Swan application!</p>
 				<p>Your current experience points: <%= trader.getExperiencePoints() %></p>
 				<p>Your current trader level: <%= trader.getLevel() %></p>
 <%
@@ -151,10 +151,11 @@ function removeElement(parentDivId, childDivId){
 
 				<table id="table-1">
 
-				<tr class="table-head">							
+				<tr class="table-head">	
+					<th></th>						
 					<th>Company Name</th>
 					<th>Quantity</th>
-					<th>Book Price</th>
+					<th>Avg. Purchase Price</th>
 					<th>Market Price</th>
 					<th>Market Value</th>
 					<th></th>
@@ -192,6 +193,7 @@ function sell_<%=companyCode%>() {
 </script>
 
 				<tr>
+					<td><%= shareParcel.getCompany().getStockExchange().getName() %></td>
 					<!-- Company Name  -->
 					<td><a href="Companies.jsp?<%=Constants.COMPANY_CODE_PARM%>=<%=companyCode%>"><%=companyName%></a></td>
 					<!-- Share Quantity  -->
@@ -225,23 +227,28 @@ function sell_<%=companyCode%>() {
 <%
 	}
 %>
+				</div><!-- end entry -->
+			</div><!-- end post -->
+			
+			<div class="post">
+				<h2 class="title">Messages</h2>
+				<div class="entry">
 <%
 	TraderMessageDAO messageDAO = new TraderMessageDAO();
 	List<TraderMessage> messages = messageDAO.getCurrentMessages(trader);
 	if (messages.size() != 0) {
 %>
 				<p>There are messages for you to view.</p>
-
 				<div id="messages">
 <%
-	for (TraderMessage message : messages) {
-	boolean isNew = false;
-	if (!message.isRead()) {
-		isNew = true;
-		message.setRead(true);
-		messageDAO.saveMessage(message);
-	}
-	// Add a javascript function to remove this message.
+		for (TraderMessage message : messages) {
+			boolean isNew = false;
+			if (!message.isRead()) {
+				isNew = true;
+				message.setRead(true);
+				messageDAO.saveMessage(message);
+			}
+			// Add a javascript function to remove this message.
 %>
 		
 
@@ -294,7 +301,7 @@ function deleteMessage_<%=message.getId()%>() {
 				</p>
 				</div>
 <%
-	}
+		}
 %>
 			</div>
 <%
@@ -309,10 +316,15 @@ function deleteMessage_<%=message.getId()%>() {
 	List<Order> openOrders = OrderDAO.getOpenOrdersByTrader(trader);
 	if (openOrders.size() != 0) {
 %>
-				<p> Outstanding orders </p>
+				</div><!-- end entry -->
+			</div><!-- end post -->
+			
+			<div class="post">
+				<h2 class="title">Current orders</h2>
+				<div class="entry">
 				<ul>
 <%
-	for (Order order : openOrders) {
+		for (Order order : openOrders) {
 %>
 				<li>
 					Order Type: <%=order.getOrderType()%><br/>
@@ -325,44 +337,42 @@ function deleteMessage_<%=message.getId()%>() {
 				</form>
 				</li>
 <%
-	}
+		}
 %>
 				</ul>
 <%
-	} else {
-%>
-		<p>No orders currently outstanding.</p>
-<%
 	}
-%>
-				
-				</div><!-- end entry -->
-			</div><!-- end post -->
-			<div class="post">
-				<h2 class="title">News - All the latest!</h2>
-				<div class="entry">
-				<p><b>Latest Rumours:</b></p>
-<%
+
 	RumourDAO rumourDAO = new RumourDAO();
-	List<PeriodRumour> rumours = rumourDAO.getLatestRumours(5, currentDate);
-	Set<String> sectors = new HashSet<String>();
-	sectors.add("foo");
-	boolean rumourShown = false;
-	for (PeriodRumour rumour : rumours) {
-		if (rumour.getDateRumourExpires().before(currentDate)) {
-			continue;
-		}
-		String sector = rumour.getSector();
-		if (trader.getReputation(sector) < rumour.getReputationRequired()) {
-			sectors.add(sector);
-		} else {
-			if (!rumourShown) {
-				//set up the rumour table
-				rumourShown = true;
+	List<PeriodRumour> rumours = rumourDAO.getLatestRumours(10, currentDate, trader);
+	if (rumours.size() != 0) {
+%>				
+		</div><!-- end entry -->
+	</div><!-- end post -->
+	<div class="post">
+		<h2 class="title">Latest Rumours</h2>
+		<div class="entry">
+<%
+		Set<String> sectors = new HashSet<String>();
+		boolean rumourShown = false;
+		for (PeriodRumour rumour : rumours) {
+			Company company = rumour.getCompany();
+			String companyCode = company.getCode();
+			if (rumour.getDateRumourExpires().before(currentDate)) {
+				continue;
+			}
+			String sector = rumour.getSector();
+			if (trader.getReputation(sector) < rumour.getReputationRequired()) {
+				sectors.add(sector);
+			} else {
+				if (!rumourShown) {
+					//set up the rumour table
+						rumourShown = true;
 %>
 			<table id="table-1">
 
 				<tr class="table-head">							
+					<th></th>
 					<th>Company Name</th>
 					<th>Date Rumour Released</th>
 					<th>Message</th>
@@ -372,47 +382,98 @@ function deleteMessage_<%=message.getId()%>() {
 				</tr>
 			
 <%				
-			}
+					}
 %>
+<script type="text/javascript">
+function rumour_buy_<%=company.getCode()%>() {
+   	remove('tradeDiv');
+    var div = document.createElement('div');
+    div.id = 'tradeDiv'; 
+    document.body.appendChild(div);
+    div.innerHTML = 'Buy More Shares: (Max buying power at market rate: <%=trader.getAvailableCash() / company.getLastTradePrice()%>)<br/><form action="/myapp/buyshares" method="post"><input type="hidden" name="<%=BuySharesServlet.COMPANY_CODE_PARM%>" value="<%=company.getCode()%>" ></input><table id="tradeTable"><tr><td>Share Count:</td><td><input name="<%=BuySharesServlet.SHARE_COUNT%>" value="<%=trader.getAvailableCash() / company.getLastTradePrice()%>" cols="60"></input></td></tr><tr><td>Offer price (in cents):</td><td><input name="<%=BuySharesServlet.OFFER_PRICE%>" value="<%=company.getLastTradePrice()%>" cols="30"></input></td></tr><tr><td><input type="submit" value="Buy Shares" /></td><td><button id="cancel_button">Cancel</button></td></tr></table></form>';
+    var button = document.getElementById("cancel_button");
+    button.setAttribute('onclick', 'remove("tradeDiv")'); 
+    popUpDiv('tradeDiv', -400, 0);
+}
+<%
+					ShareParcel parcel = shareParcelDAO.getHoldingsByTraderForCompany(trader, company);
+					if (parcel != null) {
+%>
+function rumour_sell_<%=companyCode%>() {
+   	remove('tradeDiv');
+    var div = document.createElement('div');
+    div.id = 'tradeDiv'; 
+    document.body.appendChild(div);
+    div.innerHTML = 'Sell Shares: (Maximum: <%=parcel.getShareCount()%>)<br/><form action="/myapp/sellshares" method="post"><input type="hidden" name="<%=BuySharesServlet.COMPANY_CODE_PARM%>" value="<%=companyCode%>" ></input><table id="tradeTable"><tr><td>Share Count:</td><td><input name="<%=SellSharesServlet.SHARE_COUNT%>" value="<%=parcel.getShareCount()%>" cols="60"></input></td></tr><tr><td>Asking price (in cents):</td><td><input name="<%=SellSharesServlet.ASKING_PRICE%>" value="<%=company.getLastTradePrice()%>" cols="30"></input></td></tr><tr><td><input type="submit" value="Sell Shares" /></td><td><button id="cancel_button">Cancel</button></td></tr></table></form>';
+    var button = document.getElementById("cancel_button");
+    button.setAttribute('onclick', 'remove("tradeDiv")'); 
+    popUpDiv('tradeDiv', -400, 0);
+}
+<%
+					}
+%>
+</script>
+
+
+
 			<tr>
+			<td><%= rumour.getCompany().getStockExchange().getName() %></td>
 			<td><a href="Companies.jsp?<%=Constants.COMPANY_CODE_PARM%>=<%=rumour.getCompany().getCode()%>"><%=rumour.getCompany().getName()%></a></td>
 			<td><%=rumour.getDateInformationAvailable()%></td>
 			<td><%=rumour.getMessage()%></td>
 			<td><%=rumour.getEventType()%></td>
-			<td>Buy</td>
-			<td>Sell</td>
+			
+			<td onclick='javascript:rumour_buy_<%=companyCode%>()'style="cursor: pointer;"><b>Buy</b></td>
+<%
+				if (parcel != null) {
+					%>
+			<td onclick='javascript:rumour_sell_<%=companyCode%>()' style="cursor: pointer;"><b>Sell</b></td>
+					<%
+				} else {
+%>
+				<td></td>
+					<%
+				} 
+%>
 			</tr>
 <%
-			}
+				}
 		}
-	if (rumourShown) {
+		if (rumourShown) {
 		//close off the rumour table
 %>
 			</table>
 <%			
-	}
-	if (sectors.size() != 0) {
+		}
+		if (sectors.size() != 0) {
 %>
 
 			<br/>
 				Rumours are available in the following sectors:
 				<ul>
 <%
-		for (String sector : sectors) {
+			for (String sector : sectors) {
 %>
 					<li><%=sector%></li>
 <%
-		}
+			}
 %>				
 				</ul> 
 				but you require more reputation points.
 				Perhaps you should visit the <a href="/myapp/ItemShop.jsp">store</a> to buy some items?
 <%
+		}
 	}
 %>
-				<p><b>Latest Announcements:</b></p>
+
+		</div><!-- end entry -->
+	</div><!-- end post -->
+	<div class="post">
+		<h2 class="title">Latest Announcements</h2>
+		<div class="entry">
 				<table id="table-1">
-				<tr class="table-head">							
+				<tr class="table-head">
+					<th></th>
 					<th>Company Name</th>
 					<th>Event</th>
 					<th>Date Released</th>
@@ -427,15 +488,60 @@ function deleteMessage_<%=message.getId()%>() {
 	PeriodPartInformationDAO periodPartInformationDAO = new PeriodPartInformationDAO();
 	List<PeriodQuarter> events = periodPartInformationDAO.getLatestEvents(10, currentDate, trader);
 	for (PeriodQuarter event : events) {
+		Company company = event.getCompany();
+		String companyCode = company.getCode();
+		
 								%>
+								
+								
+<script type="text/javascript">
+function announcement_buy_<%=company.getCode()%>() {
+   	remove('tradeDiv');
+    var div = document.createElement('div');
+    div.id = 'tradeDiv'; 
+    document.body.appendChild(div);
+    div.innerHTML = 'Buy More Shares: (Max buying power at market rate: <%=trader.getAvailableCash() / company.getLastTradePrice()%>)<br/><form action="/myapp/buyshares" method="post"><input type="hidden" name="<%=BuySharesServlet.COMPANY_CODE_PARM%>" value="<%=company.getCode()%>" ></input><table id="tradeTable"><tr><td>Share Count:</td><td><input name="<%=BuySharesServlet.SHARE_COUNT%>" value="<%=trader.getAvailableCash() / company.getLastTradePrice()%>" cols="60"></input></td></tr><tr><td>Offer price (in cents):</td><td><input name="<%=BuySharesServlet.OFFER_PRICE%>" value="<%=company.getLastTradePrice()%>" cols="30"></input></td></tr><tr><td><input type="submit" value="Buy Shares" /></td><td><button id="cancel_button">Cancel</button></td></tr></table></form>';
+    var button = document.getElementById("cancel_button");
+    button.setAttribute('onclick', 'remove("tradeDiv")'); 
+    popUpDiv('tradeDiv', -400, 0);
+}
+<%
+			ShareParcel parcel = shareParcelDAO.getHoldingsByTraderForCompany(trader, company);
+			if (parcel != null) {
+%>
+function announcement_sell_<%=companyCode%>() {
+   	remove('tradeDiv');
+    var div = document.createElement('div');
+    div.id = 'tradeDiv'; 
+    document.body.appendChild(div);
+    div.innerHTML = 'Sell Shares: (Maximum: <%=parcel.getShareCount()%>)<br/><form action="/myapp/sellshares" method="post"><input type="hidden" name="<%=BuySharesServlet.COMPANY_CODE_PARM%>" value="<%=companyCode%>" ></input><table id="tradeTable"><tr><td>Share Count:</td><td><input name="<%=SellSharesServlet.SHARE_COUNT%>" value="<%=parcel.getShareCount()%>" cols="60"></input></td></tr><tr><td>Asking price (in cents):</td><td><input name="<%=SellSharesServlet.ASKING_PRICE%>" value="<%=company.getLastTradePrice()%>" cols="30"></input></td></tr><tr><td><input type="submit" value="Sell Shares" /></td><td><button id="cancel_button">Cancel</button></td></tr></table></form>';
+    var button = document.getElementById("cancel_button");
+    button.setAttribute('onclick', 'remove("tradeDiv")'); 
+    popUpDiv('tradeDiv', -400, 0);
+}
+<%
+					}
+%>			
+</script>
 				<tr>
+				<td><%= event.getCompany().getStockExchange().getName() %></td>
 				<td><a href="Companies.jsp?<%= Constants.COMPANY_CODE_PARM %>=<%=event.getCompany().getCode()%>"><%= event.getCompany().getName() %></a></td>
 				<td><%= event.getAnnouncementType() %></td>
 				<td><%= event.getDateInformationAvailable() %></td>
 				<td><%= event.getMessage() %></td>
 				<td><%= event.getEventType() %></td>
-				<td>Buy</td>
-				<td>Sell</td>
+				<td onclick='javascipr:announcement_buy_<%=companyCode%>()' style="cursor: pointer;">Buy</td>
+				<%
+				if (parcel != null) {
+					%>
+				<td onclick='javascript:sell_<%=companyCode%>()' style="cursor: pointer;"><b>Sell</b></td>
+					<%
+				} else {
+%>
+				<td></td>
+<%
+				} 
+%>
 				</tr>
 <% 				
 	}
@@ -484,54 +590,6 @@ function deleteMessage_<%=message.getId()%>() {
 				</div><!-- end entry -->
 			</div><!-- end post -->
 			
-			<div class="post">
-				<h2 class="title">Trader Audit Events</h2>
-				<div class="entry">
-			
-<%
-	
-	TraderEventDAO traderEventDAO = new TraderEventDAO();
-	List<TraderEvent> eventList = traderEventDAO.getTraderEventList(trader);
-	if (eventList.size() != 0) {
-%>
-		<table>
-			<tr>
-			<td>Date</td>
-			<td>Type</td>
-			<td>Company()</td>
-			<td>ShareCount</td>
-			<td>Amount Transferred</td>
-			<td>Starting Cash</td>
-			<td>Ending Cash</td>
-			</tr>
-<%
-		for (TraderEvent  event : eventList) {			
-%>
-			<tr>
-			<td><%= event.getDate() %></td>
-			<td><%= event.getEventType() %></td>
-			<td><%= event.getCompany() == null ? event.getItem().getName() : event.getCompany().getName() %></td>
-			<td><%= event.getCompany() == null ? 1 : event.getShareCount() %></td>
-			<td><%= WebPageUtil.formatCurrency(event.getAmountTransferred()) %></td>
-			<td><%= WebPageUtil.formatCurrency(event.getStartingCash()) %></td>
-			<td><%= WebPageUtil.formatCurrency(event.getEndingCash()) %></td>
-			</tr>
-<%	
-		}
-%>
-		</table>
-<%
-	} else {
-%>
-	<p>No Trader events</p>		
-<%	
-	}
-%>
-				
-				</div><!-- end entry -->
-			</div><!-- end post -->
-
-
 </div>
 <!-- end #content -->
 <%=WebPageUtil.generateSideBar(trader, user)%>
