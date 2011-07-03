@@ -33,8 +33,7 @@ p, ul, ol {
 	line-height: 240%;
 	text-align: justify;
 	font-family: "Trebuchet MS", Arial, He	line-height: 240%;
-
-	font-size: 11px;
+	font-size: 12px;
 }
 
 
@@ -289,56 +288,18 @@ hr { display: none; }
 	color: #FFFFFF;
 }
 
-/* Search */
-
-#search {
-	float: right;
-	width: 305px;
-	height: 76px;
-}
-
-#search form {
-	float: right;
-	margin: 0;
-	padding: 30px 20px 0 0;
-}
-
-#search fieldset {
-	margin: 0;
-	padding: 0;
-	border: none;
-}
-
-#search input {
-	float: left;
-	font: 12px Georgia, "Times New Roman", Times, serif;
-	border: none;
-}
-
-#search-text {
-	width: 135px;
-	height: 18px;
-	padding: 3px 0 0 5px;
-	background: #ECF9E4;
-	color: #658453;
-}
-
-#search-submit {
-	height: 21px;
-	margin-left: 12px;
-	color: #39561D;
-}
 
 /* Page */
 
 #page {
-	width: 840px;
+	width: 880px;
 	margin: 0 auto;
-	padding: 30px 20px 0px 20px;
+	padding: 30px 0px 0px 0px;
 	background: #FFFFFF;
 	border-left: 10px solid #FFFFFF;
 	border-right: 10px solid #FFFFFF;
 	border-bottom: 10px solid #FFFFFF;
+	
 }
 
 /** LOGO */
@@ -382,7 +343,7 @@ hr { display: none; }
 
 #content {
 	float: left;
-	width: 800px;
+	width: 880px;
 }
 
 /* Post */
@@ -399,126 +360,10 @@ hr { display: none; }
 	color: #000000;
 }
 
-.post .date {
-	float: right;
-	margin-top: -60px;
-	padding-right: 40px;
-	font-weight: bold;
-	font-size: 14px;
-	color: #333333;
-}
-
-.post .meta {
-	margin: -40px  0 3px 25px;
-	padding: 2px 30px 2px 0px;
-	font-family: Arial, Helvetica, sans-serif;
-	font-weight: normal;
-	font-size: 10px;
-	color: #B6ACA2;
-}
-
-.post .meta a { color: #B6ACA2; }
-
 .post .entry {
-	padding: 25px 20px;
+	padding: 25px 10px;
 }
 
-.post .links {
-	margin: 0 250px 0 0;
-	padding: 0 0 0 0px;
-}
-
-.post .links .comments {
-}
-
-.post .links .permalink {
-	padding-left: 17px;
-}
-
-/* Sidebar */
-
-#sidebar {
-	float: right;
-	width: 222px;
-}
-
-#sidebar ul {
-	margin: 0;
-	padding: 0;
-	list-style: none;
-	line-height: normal;
-}
-
-#sidebar li {
-	margin-bottom: 30px;
-	padding: 0 0 20px 0px;
-}
-
-#sidebar li ul {
-	line-height: 200%;
-}
-
-#sidebar li li {
-	margin: 0;
-	padding: 0 20px;
-}
-
-#sidebar h2 {
-	height: 33px;
-	margin: 0 0 20px 0px;
-	padding: 15px 0 2px 20px;
-	background: url(images/img04.jpg) no-repeat left top;
-	font-size: 18px;
-	color: #FFFFFF;
-}
-
-
-#sidebar p {
-	line-height: 200%;
-}
-
-/* Calendar */
-
-#calendar {
-}
-
-#calendar caption {
-	padding-bottom: 5px;
-	font-weight: bold;
-}
-
-#calendar table {
-	width: 100%;
-	border-collapse: collapse;
-	border-right: 1px solid #F5F2EF;
-}
-
-#calendar thead th {
-	padding: 5px 0;
-	text-align: center;
-	border-top: 1px solid #F5F2EF;
-	border-left: 1px solid #F5F2EF;
-	background: #F5F2EF;
-}
-
-#calendar tbody td {
-	padding: 5px 0;
-	text-align: center;
-	border-top: 1px solid #F5F2EF;
-	border-left: 1px solid #F5F2EF;
-}
-
-#calendar tfoot td {
-	padding: 5px;
-}
-
-#calendar tfoot #next {
-	text-align: right;
-}
-
-#calendar #today {
-	background: #E7F1E1;
-}
 
 /* Footer */
 

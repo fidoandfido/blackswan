@@ -1,3 +1,4 @@
+<%@page import="java.util.Date"%>
 <%@page import="net.fidoandfido.model.UserSession"%>
 <%@page import="net.fidoandfido.dao.UserSessionDAO"%>
 <%@page import="net.fidoandfido.servlets.LogInServlet"%>
@@ -13,11 +14,13 @@
 <%@page session="true" %>
 <%	
 	HibernateUtil.beginTransaction();
+	User user = null;
+	Trader trader = null;
+	Date currentDate = new Date();
+
 	UserSessionDAO userSessionDAO = new UserSessionDAO();
 	UserSession userSession = userSessionDAO.getUserSessionBySessionId(request.getSession().getId());
 
-	User user = null;
-	Trader trader = null;
 	if (userSession != null && userSession.isActive()) {
 		user = userSession.getUser();
 		trader = user.getTrader();
@@ -30,9 +33,34 @@
 %>
 
 <html>
-<%@ include file="webTemplates/header.txt" %>
-<%@ include file="webTemplates/pageHeaderA.txt" %>
-<%@ include file="webTemplates/pageHeaderB.txt" %>
+
+<script type="text/javascript" src="/myapp/scripts/popup.js""></script>
+
+
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+	<title>Black Swan Trading</title>
+
+	<link href="stylesheets/new-style.css" rel="stylesheet" type="text/css" media="screen" />
+</head>
+
+
+<!--  PAGE HEADER -->
+<div id="header-wrapper">
+	<div id="logo">
+		<h1><a href="/myapp/Welcome.jsp">Black Swan Trading</a></h1>
+	</div>
+	<hr />
+	<!--  end #logo -->
+	<div id="header">
+		<div id="menu">
+			<ul>
+				<li class="current_page_item"><a href="/myapp/Welcome.jsp">Home</a></li>
+			</ul>
+		</div>
+	</div>
+</div>
+
 
 <div id="page">
 	<div id="content">
@@ -100,13 +128,12 @@
 <%
 	}
 %>
+	</div>
+	<!-- end #content -->
 
-</div>
-<!-- end #content -->
-<%=WebPageUtil.generateSideBar(trader, user)%>
+
 	<div style="clear: both;">&nbsp;</div>
 </div>
-<!--  end page -->
 
 <%@ include file="webTemplates/footer.txt" %>
 

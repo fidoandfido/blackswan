@@ -1,3 +1,5 @@
+<%@page import="net.fidoandfido.model.UserSession"%>
+<%@page import="net.fidoandfido.dao.UserSessionDAO"%>
 <%@page import="net.fidoandfido.engine.quarter.QuarterEventGenerator"%>
 <%@page import="java.util.Map"%>
 <%@page import="net.fidoandfido.model.PeriodQuarter"%>
@@ -19,14 +21,22 @@
 <%@page session="true" %>
 <%
 	HibernateUtil.beginTransaction();
-	User user = WebUtil.getCurrentUserBySession(request.getSession().getId());
-	boolean isAdmin = user == null ? false : user.isUserAdmin();
-	TraderDAO traderDAO = new TraderDAO();
+	User user = null;
 	Trader trader = null;
-	if (user != null) {
-		trader = traderDAO.getTraderByUser(user);	
-	}
 	Date currentDate = new Date();
+	
+	UserSessionDAO userSessionDAO = new UserSessionDAO();
+	UserSession userSession = userSessionDAO.getUserSessionBySessionId(request.getSession().getId());
+	
+	if (userSession != null && userSession.isActive()) {
+		user = userSession.getUser();
+		trader = user.getTrader();
+	}
+	
+	if (user == null || trader == null) {
+		response.sendRedirect("/myapp/Welcome.jsp");
+		return;
+	}
 
 	// initialise relevant data here.
 	List<String> someList = new ArrayList<String>();	
@@ -41,39 +51,46 @@
 
 <html>
 
-<%@ include file="webTemplates/header.txt" %>
-<%@ include file="webTemplates/pageHeaderA.txt" %>
-<%@ include file="webTemplates/pageHeaderB.txt" %>
+<script type="text/javascript" src="/myapp/scripts/popup.js""></script>
+
+
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+	<title>Black Swan Trading</title>
+
+	<link href="stylesheets/new-style.css" rel="stylesheet" type="text/css" media="screen" />
+</head>
+
+
+<!--  PAGE HEADER -->
+<div id="header-wrapper">
+	<div id="logo">
+		<h1><a href="/myapp/Welcome.jsp">Black Swan Trading</a></h1>
+	</div>
+	<hr />
+	<!--  end #logo -->
+	<div id="header">
+		<div id="menu">
+			<ul>
+				<li class="current_page_item"><a href="/myapp/Welcome.jsp">Home</a></li>
+				<li class="current_page_item"><a href="/myapp/Exchange.jsp">Exchanges</a></li>
+				<li class="current_page_item"><a href="/myapp/logout">Log out</a><li>
+			</ul>
+		</div>
+	</div>
+</div>
 
 <div id="page">
 	<div id="content">
-<%
-	if (user == null) {
-%>
-<p>Hello!
-<a href="/myapp/Welcome.jsp">Sign in</a>
-to access (or create) your trader profile.</p>
-<%
-	} else if (trader == null) {
-		// Show trader registration form
-%>
-	<form action="/myapp/register" method="post">
-		<div>Enter a name for you trader:<input name="trader_name"  cols="60"></input></div>
-		<div><input type="submit" value="Create Trader" /></div>
-	</form>
-<%
-	} else {
-%>
+	
 			<div class="post">
 				<h2 class="title">Template Heading</h2>
 				<div class="entry">
-				
 				Your current balance is: <%=WebPageUtil.formatCurrency(trader.getCash())%><br/>
-									
 				</div>
 			</div>	
 <%	
-			if (someList.size() > 0) {
+		if (someList.size() > 0) {
 %>
 			<div class="post">
 				<h2 class="title">Some Data</h2>
@@ -81,18 +98,18 @@ to access (or create) your trader profile.</p>
 					Pets:
 					<ul>
 <%
-				for (String petString : someList) {
+			for (String petString : someList) {
 %>
 						<li><%= petString %></li>
 <%
-				}
+			}
 %>				
 					</ul>
 
 				</div>
 			</div>
 <%
-			} else {
+		} else {
 %>			
 			<div class="post">
 				<h2 class="title">No Data!</h2>
@@ -103,12 +120,12 @@ to access (or create) your trader profile.</p>
 				</div>
 			</div>
 <%
-			} 
+		} 
 %>			
 			
 			
 <%
-			if (isAdmin) {
+		if (user.isUserAdmin()) {
 				// Show the time that all the bits will be available.
 %>
 			<div class="post">
@@ -118,18 +135,12 @@ to access (or create) your trader profile.</p>
 				</div>
 			</div>	
 <%
-			}
-%>				
-
-<%			
 		}
-%>
+%>	
 
 	</div>
 	<!-- end #content -->
 
-
-<%= WebPageUtil.generateSideBar(trader, user) %>
 
 	<div style="clear: both;">&nbsp;</div>
 </div>

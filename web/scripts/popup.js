@@ -83,6 +83,13 @@ function popUpDiv(divId, offsetx, offsety) {
     div.style.top = Y+'px';
 }
 
+function removeElement(parentDivId, childDivId){
+	if (document.getElementById(childDivId)) {     
+          var child = document.getElementById(childDivId);
+          var parent = document.getElementById(parentDivId);
+          parent.removeChild(child);
+     }
+}
 
 function popUpGraph(companyCode)
 {
@@ -115,7 +122,7 @@ function showgraph() {
 		    div.style.display = (div.style.display==''||div.style.display=='block')?'none':'block';
 		    
 		    // Off-sets the X position by 15px
-		    X = X - 250;
+		    X = X - 400;
 		    Y = Y + 10;
 		    // Sets the position of the DIV
 		    div.style.left = X+'px';

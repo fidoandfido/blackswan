@@ -1,3 +1,5 @@
+<%@page import="java.util.HashMap"%>
+<%@page import="java.util.Map"%>
 <%@page import="net.fidoandfido.model.Company"%>
 <%@page import="java.util.HashSet"%>
 <%@page import="net.fidoandfido.servlets.MessageServlet"%>
@@ -51,19 +53,20 @@
 		response.sendRedirect("/myapp/Welcome.jsp");
 		return;
 	}
+	
+	// Set up a map of company codes to share parcels for this user.
+	ShareParcelDAO shareParcelDAO = new ShareParcelDAO();
+	Iterable<ShareParcel> traderHoldings = shareParcelDAO.getHoldingsByTrader(trader);
+	Map<String, ShareParcel> holdingsMap = new HashMap<String, ShareParcel>();
+	for (ShareParcel parcel : traderHoldings) {
+		holdingsMap.put(parcel.getCompany().getCode(), parcel);
+	}
+	
+	
 %>
 <html>
 
 <script type="text/javascript" src="/myapp/scripts/popup.js""></script>
-<script type="text/javascript">
-function removeElement(parentDivId, childDivId){
-	if (document.getElementById(childDivId)) {     
-          var child = document.getElementById(childDivId);
-          var parent = document.getElementById(parentDivId);
-          parent.removeChild(child);
-     }
-}
-</script>
 
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
@@ -84,6 +87,7 @@ function removeElement(parentDivId, childDivId){
 		<div id="menu">
 			<ul>
 				<li class="current_page_item"><a href="/myapp/Welcome.jsp">Home</a></li>
+				<li class="current_page_item"><a href="/myapp/Exchange.jsp">Exchanges</a></li>
 				<li class="current_page_item"><a href="/myapp/logout">Log out</a><li>
 			</ul>
 		</div>
@@ -104,7 +108,6 @@ function removeElement(parentDivId, childDivId){
 	
 	// Add the portfolio value.
 	long portfolioValue = 0;
-	ShareParcelDAO shareParcelDAO = new ShareParcelDAO();
 	Iterable<ShareParcel> shareParcels = shareParcelDAO.getHoldingsByTrader(trader);
 	for (ShareParcel shareParcel : shareParcels) {
 		portfolioValue += shareParcel.getShareCount() * shareParcel.getCompany().getLastTradePrice();
@@ -396,7 +399,7 @@ function rumour_buy_<%=company.getCode()%>() {
     popUpDiv('tradeDiv', -400, 0);
 }
 <%
-					ShareParcel parcel = shareParcelDAO.getHoldingsByTraderForCompany(trader, company);
+					ShareParcel parcel = holdingsMap.get(company.getCode());
 					if (parcel != null) {
 %>
 function rumour_sell_<%=companyCode%>() {
@@ -506,7 +509,7 @@ function announcement_buy_<%=company.getCode()%>() {
     popUpDiv('tradeDiv', -400, 0);
 }
 <%
-			ShareParcel parcel = shareParcelDAO.getHoldingsByTraderForCompany(trader, company);
+			ShareParcel parcel = holdingsMap.get(company.getCode());
 			if (parcel != null) {
 %>
 function announcement_sell_<%=companyCode%>() {
@@ -592,7 +595,6 @@ function announcement_sell_<%=companyCode%>() {
 			
 </div>
 <!-- end #content -->
-<%=WebPageUtil.generateSideBar(trader, user)%>
 	<div style="clear: both;">&nbsp;</div>
 </div>
 <!--  end page -->

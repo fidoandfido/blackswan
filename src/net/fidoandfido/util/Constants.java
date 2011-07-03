@@ -4,6 +4,7 @@ public class Constants {
 
 	public static final String COMPANY_CODE_PARM = "company_code";
 	public static final String COMPANY_NAME_PARM = "company_name";
+	public static final String EXCHANGE_NAME_PARM = "exchange_name";
 
 	public static final long MILLIS_IN_MINUTE = 1000 * 60;
 	public static final long MILLIS_IN_HOUR = 1000 * 60 * 60;
