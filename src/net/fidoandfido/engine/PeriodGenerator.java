@@ -192,7 +192,7 @@ public class PeriodGenerator implements Runnable {
 					// Close this period off
 					// distribute the dividends
 					// Finally - save it!
-					splitStocks(company);
+					splitStocks(company, currentPeriodReport);
 
 					companyModifier.updateCompanyTradingStatus(company);
 					if (!company.isTrading()) {
@@ -240,18 +240,19 @@ public class PeriodGenerator implements Runnable {
 		return;
 	}
 
-	private void splitStocks(Company company) {
+	private void splitStocks(Company company, CompanyPeriodReport currentPeriodReport) {
 		if (company.getLastTradePrice() > company.getStockExchange().getMaxSharePrice()) {
 			logger.info("Splitting stocks for company: " + company.getName());
 			// Time to split the stock!
 			// Rounding not a huge issue - the market will correct the price
-			// anyhow :)
+			// anyhow
 			long newPrice = company.getLastTradePrice() / 2;
 			company.setLastTradePrice(newPrice);
 
 			long outstandingShares = company.getOutstandingShares() * 2;
 			company.setOutstandingShares(outstandingShares);
 
+			currentPeriodReport.setStockSplit(true);
 			companyDAO.saveCompany(company);
 
 			// Now get all share parcels and update the price (and reduce the

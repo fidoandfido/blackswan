@@ -94,6 +94,9 @@ public class CompanyPeriodReport {
 	private long finalInterest;
 
 	@Column
+	private boolean stockSplit = false;
+
+	@Column
 	private Date minimumEndDate;
 
 	@Column
@@ -292,6 +295,21 @@ public class CompanyPeriodReport {
 	}
 
 	/**
+	 * @return the stockSplit
+	 */
+	public boolean isStockSplit() {
+		return stockSplit;
+	}
+
+	/**
+	 * @param stockSplit
+	 *            the stockSplit to set
+	 */
+	public void setStockSplit(boolean stockSplit) {
+		this.stockSplit = stockSplit;
+	}
+
+	/**
 	 * @return the minimumEndDate
 	 */
 	public Date getMinimumEndDate() {
@@ -461,4 +479,5 @@ public class CompanyPeriodReport {
 		}
 		return quarterCount;
 	}
+
 }
