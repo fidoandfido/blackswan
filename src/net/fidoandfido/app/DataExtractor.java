@@ -67,7 +67,7 @@ public class DataExtractor {
 		// dataExtractor.something();
 		// dataExtractor.loolkAtCompany("UDFO");
 
-		dataExtractor.getNews();
+		dataExtractor.getExchangeList();
 
 		HibernateUtil.commitTransaction();
 	}
@@ -98,6 +98,24 @@ public class DataExtractor {
 
 		}
 
+	}
+
+	private void getExchangeList() {
+		Trader blobTrader = traderDAO.getTraderByName("blob");
+		List<StockExchange> blobExchange = stockExchangeDAO.getStockExchangeListForTrader(blobTrader);
+		System.out.println("BLOB EXCHANGES:");
+		for (StockExchange stockExchange : blobExchange) {
+			System.out.println(stockExchange.getName());
+		}
+		System.out.println("--------------------");
+
+		Trader asdfTrader = traderDAO.getTraderByName("asdf");
+		List<StockExchange> stockExchangeListForTrader = stockExchangeDAO.getStockExchangeListForTrader(asdfTrader);
+		System.out.println("ASDF EXCHANGES:");
+		for (StockExchange stockExchange : stockExchangeListForTrader) {
+			System.out.println(stockExchange.getName());
+		}
+		System.out.println();
 	}
 
 	private void getNews() {

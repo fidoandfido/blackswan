@@ -3,6 +3,7 @@ package net.fidoandfido.dao;
 import java.util.List;
 
 import net.fidoandfido.model.StockExchange;
+import net.fidoandfido.model.Trader;
 
 import org.hibernate.Criteria;
 import org.hibernate.Query;
@@ -20,6 +21,15 @@ public class StockExchangeDAO {
 	public List<StockExchange> getStockExchangeList() {
 		Session session = HibernateUtil.getSession();
 		Criteria crit = session.createCriteria(StockExchange.class);
+		List<StockExchange> results = crit.list();
+		return results;
+	}
+
+	@SuppressWarnings("unchecked")
+	public List<StockExchange> getStockExchangeListForTrader(Trader trader) {
+		Session session = HibernateUtil.getSession();
+		Criteria crit = session.createCriteria(StockExchange.class);
+		crit.add(Restrictions.le("requiredLevel", (long) trader.getLevel()));
 		List<StockExchange> results = crit.list();
 		return results;
 	}
