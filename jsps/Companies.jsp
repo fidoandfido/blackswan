@@ -61,6 +61,7 @@
 		response.sendRedirect("/myapp/Welcome.jsp");
 		return;
 	}
+	boolean isAdmin = user == null ? false : user.isUserAdmin();
 	
 	CompanyDAO companyDAO = new CompanyDAO();
 	Company company = null;
@@ -68,7 +69,10 @@
 	if (companyCode != null) {
 		company = companyDAO.getCompanyByCode(companyCode);
 	}
-	boolean isAdmin = user == null ? false : user.isUserAdmin();
+	if (company == null) {
+		response.sendRedirect("/myapp/Trader.jsp");
+		return;
+	}
 %>
 
 
@@ -94,6 +98,7 @@
 		<div id="menu">
 			<ul>
 				<li class="current_page_item"><a href="/myapp/Welcome.jsp">Home</a></li>
+				<li class="current_page_item"><a href="/myapp/News.jsp">News</a></li>
 				<li class="current_page_item"><a href="/myapp/Exchange.jsp">Exchanges</a></li>
 				<li class="current_page_item"><a href="/myapp/logout">Log out</a><li>
 			</ul>
@@ -108,8 +113,7 @@
 
 %>
 <%
-	if (company != null) {	
-		if (!company.isTrading()) {
+	if (!company.isTrading()) {
 %>
 				<div class="post">
 				<h2 class="title"><%=company.getName()%></h2>
@@ -123,16 +127,16 @@
 				</div>
 			</div>	
 <%
-		} else {
+	} else {
 		
-			// Show company information!
-			CompanyPeriodReport currentReport = company.getCurrentPeriod();
-			Map<String, PeriodQuarter> events = currentReport.getPeriodPartInformationMappedByEvent();
-			PeriodQuarter firstQuarterEvent = events.get(QuarterEventGenerator.FIRST_QUARTER);
-			PeriodQuarter secondQuarterEvent = events.get(QuarterEventGenerator.SECOND_QUARTER);
-			PeriodQuarter thirdQuarterEvent = events.get(QuarterEventGenerator.THIRD_QUARTER);
-			PeriodQuarter fourthQuarterEvent = events.get(QuarterEventGenerator.FOURTH_QUARTER);
-	%>
+		// Show company information!
+		CompanyPeriodReport currentReport = company.getCurrentPeriod();
+		Map<String, PeriodQuarter> events = currentReport.getPeriodPartInformationMappedByEvent();
+		PeriodQuarter firstQuarterEvent = events.get(QuarterEventGenerator.FIRST_QUARTER);
+		PeriodQuarter secondQuarterEvent = events.get(QuarterEventGenerator.SECOND_QUARTER);
+		PeriodQuarter thirdQuarterEvent = events.get(QuarterEventGenerator.THIRD_QUARTER);
+		PeriodQuarter fourthQuarterEvent = events.get(QuarterEventGenerator.FOURTH_QUARTER);
+%>
 			<div class="post">
 				<h2 class="title"><%= company.getName() %></h2>
 				<div class="entry">
@@ -144,13 +148,13 @@
 					<li>Company Status: <%= company.getCompanyStatus() %></li>
 					<li>Company Outstanding shares: <%= company.getOutstandingShares() %></li>
 					<li>Dividend Scheme: 
-<%				if (company.isNeverPayDividend()) {  %>					
-						Never pays dividend.
-<%				} else if (company.isAlwaysPayDividend()) {   %>
-						Always pays dividend. </li><li>Rate: <%= company.getDividendRate() %>% of profits, miminum dividend: <%= WebPageUtil.formatCurrency(company.getMinimumDividend()) %>
-<%				} else { %>					
-						Dividend paid when profits allow.  </li><li>Rate: <%= company.getDividendRate() %>% of profits.
-<%				} %>										
+<%			if (company.isNeverPayDividend()) {  %>					
+					Never pays dividend.
+<%			} else if (company.isAlwaysPayDividend()) {   %>
+					Always pays dividend. </li><li>Rate: <%= company.getDividendRate() %>% of profits, miminum dividend: <%= WebPageUtil.formatCurrency(company.getMinimumDividend()) %>
+<%			} else { %>					
+					Dividend paid when profits allow.  </li><li>Rate: <%= company.getDividendRate() %>% of profits.
+<%			} %>										
 					</li>
 					</ul>
 					<b>Balance Sheet</b>
@@ -172,9 +176,9 @@
 					<li>Starting Profit outlook: <%= currentReport == null ? WebPageUtil.formatCurrency(0) : WebPageUtil.formatCurrency(currentReport.getStartingExpectedProfit()) %></li>
 					<li>Current Economic climate: <%= company.getStockExchange().getCurrentPeriod().getEconomicConditions() %></li>
 					</ul>
-<% 				if (currentReport != null) {
-					if (firstQuarterEvent != null && currentDate.after(firstQuarterEvent.getDateInformationAvailable())) { 
-					// Show the long term sector forecast...
+<% 			if (currentReport != null) {
+				if (firstQuarterEvent != null && currentDate.after(firstQuarterEvent.getDateInformationAvailable())) { 
+					// Show the first quarter results...
 %>
 
 					<b>First quarter results</b>
@@ -185,10 +189,9 @@
 					<li>Updated Projected Yearly Profit: <%= WebPageUtil.formatCurrency(firstQuarterEvent.getProfit() + ( (currentReport.getStartingExpectedProfit() / 4) * 3) ) %></li>
 					</ul>
 <%
-					}
-					if (secondQuarterEvent != null && currentDate.after(secondQuarterEvent.getDateInformationAvailable())) { 
-				
-					// Show the long term company forecast...
+				}
+				if (secondQuarterEvent != null && currentDate.after(secondQuarterEvent.getDateInformationAvailable())) { 
+					// Show the second quarter results...
 %>
 					<b>Second  quarter results</b>
 					<ul>
@@ -198,9 +201,9 @@
 					<li>Updated Projected Yearly Profit: <%= WebPageUtil.formatCurrency(secondQuarterEvent.getRunningProfit() + ((currentReport.getStartingExpectedProfit() / 4) * 2)) %></li>
 					</ul>
 <%
-					}
-					if (thirdQuarterEvent != null && currentDate.after(thirdQuarterEvent.getDateInformationAvailable())) { 
-					// Show the short term sector forecast...
+				}
+				if (thirdQuarterEvent != null && currentDate.after(thirdQuarterEvent.getDateInformationAvailable())) { 
+					// Show the third quarter results...
 %>
 					<b>Third quarter results</b>
 					<ul>
@@ -211,9 +214,9 @@
 					</ul>
 		
 <%
-					}
-					if (fourthQuarterEvent != null && currentDate.after(fourthQuarterEvent.getDateInformationAvailable())) { 
-					// Show the short term company forecast...
+				}
+				if (fourthQuarterEvent != null && currentDate.after(fourthQuarterEvent.getDateInformationAvailable())) { 
+					// Show the fourth quarter results...
 %>
 					<b>Fourth quarter results</b>
 					<ul>
@@ -222,8 +225,8 @@
 					<li>Quarter Profit: <%= WebPageUtil.formatCurrency(fourthQuarterEvent.getProfit()) %></li>
 					<li>Updated Projected Yearly Profit: <%= WebPageUtil.formatCurrency(fourthQuarterEvent.getRunningProfit()) %></li>
 					</ul>
-<% 					}%>				
-<% 				} %>
+<% 				}%>				
+<% 			} %>
 
 				Your current balance is: <%=WebPageUtil.formatCurrency(trader.getCash())%><br/>
 				Last sale price: <%=WebPageUtil.formatCurrency(company.getLastTradePrice()) %><br/>
@@ -240,76 +243,76 @@
 
 <%
 				// And this is where we will put the chart!!! 
-				TimeSeries sharePrice = new TimeSeries("Traded Value");
-				TimeSeries bookValue = new TimeSeries("Book Value");
-				TimeSeries earningPerShare = new TimeSeries("Earning Per Share");
-				TimeSeriesCollection dataset = new TimeSeriesCollection();
-		
-				Date startOfChartDate = new Date();
-				CompanyPeriodReportDAO companyPeriodReportDAO = new CompanyPeriodReportDAO();
-				List<CompanyPeriodReport> reportList = companyPeriodReportDAO.getRecentPeriodReportListByCompany(company, 10);
-				for (CompanyPeriodReport report : reportList) {
-					earningPerShare.add(new Second(report.getStartDate()), report.getFinalProfit() / report.getOutstandingShareCount());
-					bookValue.add(new Second(report.getStartDate()), (report.getStartingAssets() - report.getStartingDebt()) / report.getOutstandingShareCount());
-					if (startOfChartDate.after(report.getStartDate())) {
-						startOfChartDate = report.getStartDate();
-					}
+			TimeSeries sharePrice = new TimeSeries("Traded Value");
+			TimeSeries bookValue = new TimeSeries("Book Value");
+			TimeSeries earningPerShare = new TimeSeries("Earning Per Share");
+			TimeSeriesCollection dataset = new TimeSeriesCollection();
+	
+			Date startOfChartDate = new Date();
+			CompanyPeriodReportDAO companyPeriodReportDAO = new CompanyPeriodReportDAO();
+			List<CompanyPeriodReport> reportList = companyPeriodReportDAO.getRecentPeriodReportListByCompany(company, 10);
+			for (CompanyPeriodReport report : reportList) {
+				earningPerShare.add(new Second(report.getStartDate()), report.getFinalProfit() / report.getOutstandingShareCount());
+				bookValue.add(new Second(report.getStartDate()), (report.getStartingAssets() - report.getStartingDebt()) / report.getOutstandingShareCount());
+				if (startOfChartDate.after(report.getStartDate())) {
+					startOfChartDate = report.getStartDate();
 				}
-				TradeRecordDAO tradeRecordDAO = new TradeRecordDAO();
-				List<TradeRecord> recordList = tradeRecordDAO.getLastTradeRecords(company, startOfChartDate);
-				// This list is sorted in reverse order; this is okay for our graph.
-				Date previousDate = new Date();
-				for (TradeRecord record : recordList) {
-					if ( record.getDate().getTime() < previousDate.getTime() - 10000) {
-						sharePrice.addOrUpdate(new Second(record.getDate()), record.getSharePrice());
-						previousDate = record.getDate();
-					}
+			}
+			TradeRecordDAO tradeRecordDAO = new TradeRecordDAO();
+			List<TradeRecord> recordList = tradeRecordDAO.getLastTradeRecords(company, startOfChartDate);
+			// This list is sorted in reverse order; this is okay for our graph.
+			Date previousDate = new Date();
+			for (TradeRecord record : recordList) {
+				if ( record.getDate().getTime() < previousDate.getTime() - 10000) {
+					sharePrice.addOrUpdate(new Second(record.getDate()), record.getSharePrice());
+					previousDate = record.getDate();
 				}
-				
-				// Add data points to bring the lines to the edge of the graph.
-				Date latestDatePointDate = new Date();
-				earningPerShare.add(new Second(latestDatePointDate), currentReport.getStartingExpectedProfit() / currentReport.getOutstandingShareCount());
-				bookValue.add(new Second(latestDatePointDate), ((currentReport.getStartingAssets() - currentReport.getStartingDebt()) / currentReport.getOutstandingShareCount()));
-				sharePrice.add(new Second(latestDatePointDate), company.getLastTradePrice());
-				
-				
-				dataset.addSeries(bookValue);
-				dataset.addSeries(sharePrice);
-				dataset.addSeries(earningPerShare);
-				
-		
-				JFreeChart chart = ChartFactory.createTimeSeriesChart("Share Price", // title
-						"Date", // x-axis label
-						"Price (cents)", // y-axis label
-						dataset, // data
-						true, // create legend?
-						true, // generate tooltips?
-						false // generate URLs?
-						);
-		
-				chart.setBackgroundPaint(Color.white);
-		
-				XYPlot plot = (XYPlot) chart.getPlot();
-				plot.setBackgroundPaint(Color.lightGray);
-				plot.setDomainGridlinePaint(Color.white);
-				plot.setRangeGridlinePaint(Color.white);
-				plot.setAxisOffset(new RectangleInsets(5.0, 5.0, 5.0, 5.0));
-				plot.setDomainCrosshairVisible(true);
-				plot.setRangeCrosshairVisible(true);
-				plot.getRenderer().setSeriesPaint(0, Color.MAGENTA);
-				plot.getRenderer().setSeriesPaint(1, Color.BLUE);
-				plot.getRenderer().setSeriesPaint(2, Color.BLACK);
-		
-				XYItemRenderer r = plot.getRenderer();
-				if (r instanceof XYLineAndShapeRenderer) {
-					XYLineAndShapeRenderer renderer = (XYLineAndShapeRenderer) r;
-					renderer.setBaseShapesVisible(false);
-					renderer.setBaseShapesFilled(false);
-					renderer.setDrawSeriesLineAsPath(false);
-				}
-				DateAxis axis = (DateAxis) plot.getDomainAxis();
-				axis.setDateFormatOverride(new SimpleDateFormat("HH:mm:ss"));
-				session.setAttribute(GraphServlet.CHART_ATTRIBUTE + company.getCode(), chart);
+			}
+			
+			// Add data points to bring the lines to the edge of the graph.
+			Date latestDatePointDate = new Date();
+			earningPerShare.add(new Second(latestDatePointDate), currentReport.getStartingExpectedProfit() / currentReport.getOutstandingShareCount());
+			bookValue.add(new Second(latestDatePointDate), ((currentReport.getStartingAssets() - currentReport.getStartingDebt()) / currentReport.getOutstandingShareCount()));
+			sharePrice.add(new Second(latestDatePointDate), company.getLastTradePrice());
+			
+			
+			dataset.addSeries(bookValue);
+			dataset.addSeries(sharePrice);
+			dataset.addSeries(earningPerShare);
+			
+	
+			JFreeChart chart = ChartFactory.createTimeSeriesChart("Share Price", // title
+					"Date", // x-axis label
+					"Price (cents)", // y-axis label
+					dataset, // data
+					true, // create legend?
+					true, // generate tooltips?
+					false // generate URLs?
+					);
+	
+			chart.setBackgroundPaint(Color.white);
+	
+			XYPlot plot = (XYPlot) chart.getPlot();
+			plot.setBackgroundPaint(Color.lightGray);
+			plot.setDomainGridlinePaint(Color.white);
+			plot.setRangeGridlinePaint(Color.white);
+			plot.setAxisOffset(new RectangleInsets(5.0, 5.0, 5.0, 5.0));
+			plot.setDomainCrosshairVisible(true);
+			plot.setRangeCrosshairVisible(true);
+			plot.getRenderer().setSeriesPaint(0, Color.MAGENTA);
+			plot.getRenderer().setSeriesPaint(1, Color.BLUE);
+			plot.getRenderer().setSeriesPaint(2, Color.BLACK);
+	
+			XYItemRenderer r = plot.getRenderer();
+			if (r instanceof XYLineAndShapeRenderer) {
+				XYLineAndShapeRenderer renderer = (XYLineAndShapeRenderer) r;
+				renderer.setBaseShapesVisible(false);
+				renderer.setBaseShapesFilled(false);
+				renderer.setDrawSeriesLineAsPath(false);
+			}
+			DateAxis axis = (DateAxis) plot.getDomainAxis();
+			axis.setDateFormatOverride(new SimpleDateFormat("HH:mm:ss"));
+			session.setAttribute(GraphServlet.CHART_ATTRIBUTE + company.getCode(), chart);
 %>
 				
 				<img src="/myapp/graph?<%=GraphServlet.COMPANY_CODE%>=<%=company.getCode()%>"/>
@@ -317,7 +320,7 @@
 				</div>
 			</div>	
 <%
-				if (isAdmin) {
+			if (isAdmin) {
 				// Show the time that all the bits will be available.
 %>
 
@@ -371,9 +374,9 @@
 				<table>
 <%
 
-				OrderDAO orderDAO = new OrderDAO();
-				Iterable<Order> orders = orderDAO.getLastExecutedOrders(company, 30);
-				for (Order order : orders)	{
+			OrderDAO orderDAO = new OrderDAO();
+			Iterable<Order> orders = orderDAO.getLastExecutedOrders(company, 30);
+			for (Order order : orders)	{
 %>
 				<tr>
 					<td><%= order.getTrader().getName() %></td>
@@ -383,7 +386,7 @@
 					<td><%= order.getTrader().getAiStrategyName() %></td>
 				</tr>
 <%
-				}
+			}
 %>
 				</table>
 				</div>
@@ -396,131 +399,45 @@
 				<table>
 <%
 
-				ShareParcelDAO shareParcelDAO = new ShareParcelDAO();
-				Iterable<ShareParcel> holdings = shareParcelDAO.getHoldingsByCompany(company);
-				for (ShareParcel holding : holdings)	{
+			ShareParcelDAO shareParcelDAO = new ShareParcelDAO();
+			Iterable<ShareParcel> holdings = shareParcelDAO.getHoldingsByCompany(company);
+			for (ShareParcel holding : holdings)	{
 %>
 				<tr>
 					<td><%= holding.getTrader().getName() %></td>
 					<td><%= holding.getTrader().isAITrader() %></td>
 					<td>
 <% 
-					if (holding.getTrader().isAITrader()) {
+				if (holding.getTrader().isAITrader()) {
 %>
 						<%= holding.getTrader().getAiStrategyName() %>
 <%
-						trader.getAiStrategyName();
-					} else {
+					trader.getAiStrategyName();
+				} else {
 %>
-						---
+					---
 <%
-					}
+				}
 %>						 					
 					</td>
 					<td><%= holding.getShareCount() %></td>
 					<td><%= WebPageUtil.formatCurrency(holding.getPurchasePrice()) %></td>
 				</tr>
 <%
-				}
+			}
 %>
 				</table>
 				</div>
 			</div>	
 <%
-			}
 		}
+	}
 %>				
 
 <%
-	} else {
-		StockExchangeDAO stockExchangeDAO = new StockExchangeDAO();
-		Collection<StockExchange> exchangeList = stockExchangeDAO.getStockExchangeList();
-		// List all the companies
-		for (StockExchange exchange : exchangeList) {
-			Iterable<Company> companyList = companyDAO.getCompaniesByExchange(exchange);
-			if (trader.getExperiencePoints() >= exchange.getRequiredLevel() && companyList != null && companyList.iterator().hasNext()) {
-	%>
-			<div class="post">
-				<h2 class="title">Companies on <%= exchange.getName() %> (Showing <%= exchange.getCompanyCount() %> entries)</h2>
-				<div class="entry">
-				Current Economic Conditions: <%= exchange.getCurrentPeriod().getEconomicConditions() %><p>
-				Current Interest Rate: <%=  ( exchange.getPrimeInterestRateBasisPoints() +  exchange.getCurrentPeriod().getInterestRateBasisPointsDelta() ) / 100 %> %			
-				
-					<table>
-					<thead>
-					<tr>
-					<td>Company</td>
-					<td>Code</td>
-					<td>Share<br/>Book<br/>value</td>
-					<td>Earning<br/>per<br/>share</td>
-					<td>Dividend</td>
-					<td></td>
-					<td>Last Trade</td>
-					<td>Change</td>
-					<td></td>
-					<tr>
-					</thead>
-
-<%
-			for (Company currentCompany : companyList) {
-				if (!currentCompany.isTrading()) {
-					continue;
-				}
-				CompanyPeriodReport currentPeriodReport = currentCompany.getCurrentPeriod();				
-%>
-					<tr>
-					<td><a href="Companies.jsp?<%= Constants.COMPANY_CODE_PARM %>=<%=currentCompany.getCode()%>"><%= currentCompany.getName() %></a></td>
-					<td>
-					<script type="text/javascript">
-					</script>
-					<b onclick='javascript:popUpData("<%=currentCompany.getCode()%>");' style="cursor: pointer;" ><%=currentCompany.getCode()%></b>
-					</td>
-					<td><%= WebPageUtil.formatCurrency(currentCompany.getShareBookValue()) %></td>
-					<td><%= WebPageUtil.formatCurrency(currentCompany.getPreviousEarningPerShare()) %></td>
-					<td><%= WebPageUtil.formatCurrency(currentCompany.getPreviousDividend()) %></td>
-					<td></td>
-					<td>
-						<b onclick='javascript:popUpGraph("<%=currentCompany.getCode()%>");' style="cursor: pointer;" >
-						<%= WebPageUtil.formatCurrency(currentCompany.getLastTradePrice()) %></b>
-					</td>
-					<td><%= WebPageUtil.formatCurrency(currentCompany.getLastTradeChange()) %></td>
-					<td><% if (currentCompany.getLastTradeChange() > 0) { %>
-						<img src="/myapp/images/arrow-up.png"/>
-						<% } else if (currentCompany.getLastTradeChange() < 0) { %>
-						<img src="/myapp/images/arrow-down.png"/>
-						<% } else if (currentCompany.getLastTradeChange() == 0) { %>
-						<img src="/myapp/images/flat-line.png"/>
-						<% }  %></td>
-					</tr>
-<%	
-			}
-%>
-					</table>
-				</div>
-			</div>
-<%
-		} else {
-		// No companies!
-%>
-		<div class="post">
-			<h2 class="title">No Companies</h2>
-			<div class="entry">
-				There are no companies to show. This could be because there are no companies
-				defined in the data store, or because there was a problem accessing them. I am
-				sure this will be sorted out presently. 	
-			</div>
-		</div>
-<%
-		}
-	}
-}
-
 %>
 	</div>
 	<!-- end #content -->
-
-
-<%= WebPageUtil.generateSideBar(trader, user) %>
 
 	<div style="clear: both;">&nbsp;</div>
 </div>
