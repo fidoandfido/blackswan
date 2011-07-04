@@ -17,7 +17,7 @@ public class ReputationItemDAO {
 	}
 
 	@SuppressWarnings("unchecked")
-	public static List<ReputationItem> getItems() {
+	public List<ReputationItem> getItems() {
 		Session session = HibernateUtil.getSession();
 		Criteria crit = session.createCriteria(ReputationItem.class);
 		crit.addOrder(Order.asc("cost"));

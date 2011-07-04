@@ -120,7 +120,8 @@ public class AppDataLister {
 			System.out.println("Active? " + order.isActive());
 		}
 
-		List<ReputationItem> itemList = ReputationItemDAO.getItems();
+		ReputationItemDAO reputationItemDAO = new ReputationItemDAO();
+		List<ReputationItem> itemList = reputationItemDAO.getItems();
 		for (ReputationItem item : itemList) {
 			System.out.println("Item:" + item.getName());
 			System.out.println("Cost:" + item.getCost());
