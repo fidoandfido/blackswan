@@ -69,7 +69,7 @@ public class StockExchange {
 	private long maxSharePrice = 0;
 
 	@Column
-	long requiredLevel = 0;
+	private long requiredLevel = 0;
 
 	@OneToOne
 	@Cascade(value = CascadeType.ALL)

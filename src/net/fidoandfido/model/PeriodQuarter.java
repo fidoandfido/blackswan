@@ -100,6 +100,9 @@ public class PeriodQuarter {
 	@Column
 	private String announcementType;
 
+	@Column
+	private long requiredLevel;
+
 	public PeriodQuarter() {
 		// Default constructor required for persistence
 	}
@@ -113,6 +116,7 @@ public class PeriodQuarter {
 		this.message = message;
 		this.eventType = eventType;
 		this.announcementType = forecastType;
+		this.requiredLevel = company.getStockExchange().getRequiredLevel();
 	}
 
 	/**
@@ -317,6 +321,21 @@ public class PeriodQuarter {
 	 */
 	public void setAnnouncementType(String forecastType) {
 		this.announcementType = forecastType;
+	}
+
+	/**
+	 * @return the requiredLevel
+	 */
+	public long getRequiredLevel() {
+		return requiredLevel;
+	}
+
+	/**
+	 * @param requiredLevel
+	 *            the requiredLevel to set
+	 */
+	public void setRequiredLevel(long requiredLevel) {
+		this.requiredLevel = requiredLevel;
 	}
 
 	public void setData(QuarterData currentData) {
