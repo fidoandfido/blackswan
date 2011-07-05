@@ -295,6 +295,8 @@ public class CompanyPeriodReport {
 	}
 
 	/**
+	 * Stocks will always split at the *end* of a period.
+	 * 
 	 * @return the stockSplit
 	 */
 	public boolean isStockSplit() {
