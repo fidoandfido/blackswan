@@ -1,3 +1,6 @@
+<%@page import="org.jfree.chart.title.TextTitle"%>
+<%@page import="java.util.Comparator"%>
+<%@page import="java.util.Collections"%>
 <%@page import="org.apache.log4j.Logger"%>
 <%@page import="net.fidoandfido.model.Order"%>
 <%@page import="net.fidoandfido.dao.OrderDAO"%>
@@ -86,24 +89,75 @@
 				Date startOfChartDate = new Date();
 				CompanyPeriodReportDAO companyPeriodReportDAO = new CompanyPeriodReportDAO();
 				List<CompanyPeriodReport> reportList = companyPeriodReportDAO.getRecentPeriodReportListByCompany(company, 10);
-				for (CompanyPeriodReport report : reportList) {
-					earningPerShare.add(new Second(report.getStartDate()), report.getFinalProfit() / report.getOutstandingShareCount());
-					bookValue.add(new Second(report.getStartDate()), (report.getStartingAssets() - report.getStartingDebt()) / report.getOutstandingShareCount());
-					if (startOfChartDate.after(report.getStartDate())) {
-						startOfChartDate = report.getStartDate();
+				
+				// Sort the list based on generation.
+				Collections.sort(reportList, new Comparator<CompanyPeriodReport>() {
+					@Override
+					// Simple implementation - can safely assume no null / identical reports
+					public int compare(CompanyPeriodReport o1, CompanyPeriodReport o2) {
+						if (o1.getGeneration() < o2.getGeneration()) {
+							return -1;
+						}
+						return 1;
+
 					}
-				}
+				});
+
+				// Now that the list is sorted, we can get the 'start' time of the chart.
+				startOfChartDate = reportList.get(0).getStartDate();
+
+				// Draw the stock price line
+				// This done first to allow us to 'update' this TimeSeries with null values in the
+				// event of a stock split.
 				TradeRecordDAO tradeRecordDAO = new TradeRecordDAO();
 				List<TradeRecord> recordList = tradeRecordDAO.getLastTradeRecords(company, startOfChartDate);
 				// This list is sorted in reverse order; this is okay for our graph.
 				Date previousDate = new Date();
 				for (TradeRecord record : recordList) {
-					if ( record.getDate().getTime() < previousDate.getTime() - 10000) {
+					if (record.getDate().getTime() < previousDate.getTime() - 10000) {
 						sharePrice.addOrUpdate(new Second(record.getDate()), record.getSharePrice());
 						previousDate = record.getDate();
 					}
 				}
+
+				// Flag to indicate a stock split occurred. This will be used to update the title.
+				boolean stockSplit = false;
+				// Flag to indicate the stock split occured at the end of the previous period.
+				boolean stockJustSplit = false;
 				
+				for (CompanyPeriodReport report : reportList) {
+					if (stockJustSplit) {
+						// If stock split, add a null value and also add the pre-split value
+						// 1 and 2 seconds before the split.
+						// Create times for our null value 
+						Date reportDate = report.getStartDate();
+						Date nullValueDate = new Date(reportDate.getTime() - 1000);
+						Date preSplitDate = new Date(reportDate.getTime() - 2000);
+						
+						// Add the pre-split values earning and bookvalue series
+						earningPerShare.add(new Second(preSplitDate), (report.getFinalProfit() / report.getOutstandingShareCount()) * 2);
+						bookValue.add(new Second(preSplitDate), ((report.getStartingAssets() - report.getStartingDebt()) / report.getOutstandingShareCount()) * 2);
+
+						// Add null values to *all* our lines
+						earningPerShare.add(new Second(nullValueDate), null);
+						bookValue.add(new Second(nullValueDate), null);
+						sharePrice.addOrUpdate(new Second(nullValueDate), null);
+						
+						// Update our flags.
+						stockSplit = true;
+						stockJustSplit = false;
+					}
+					
+					// Add the entries for the current report.
+					earningPerShare.add(new Second(report.getStartDate()), report.getFinalProfit() / report.getOutstandingShareCount());
+					bookValue.add(new Second(report.getStartDate()), (report.getStartingAssets() - report.getStartingDebt()) / report.getOutstandingShareCount());
+
+					// Check if the stock split at the end of this period.
+					if (report.isStockSplit()) {
+						stockJustSplit = true;
+					}
+				}
+							
 				// Add data points to bring the lines to the edge of the graph.
 				Date latestDatePointDate = new Date();
 				earningPerShare.add(new Second(latestDatePointDate), currentReport.getStartingExpectedProfit() / currentReport.getOutstandingShareCount());
@@ -115,7 +169,6 @@
 				dataset.addSeries(sharePrice);
 				dataset.addSeries(earningPerShare);
 				
-		
 				JFreeChart chart = ChartFactory.createTimeSeriesChart("Share Price: " + company.getName(), // title
 						"Date", // x-axis label
 						"Price (cents)", // y-axis label
@@ -126,7 +179,10 @@
 						);
 		
 				chart.setBackgroundPaint(Color.white);
-		
+				if (stockSplit) {
+					chart.addSubtitle(new TextTitle("Break in graph denotes stock splitting event"));
+				}
+				
 				XYPlot plot = (XYPlot) chart.getPlot();
 				plot.setBackgroundPaint(Color.lightGray);
 				plot.setDomainGridlinePaint(Color.white);
