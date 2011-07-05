@@ -33,7 +33,7 @@ public class PeriodPartInformationDAO {
 
 		Session session = HibernateUtil.getSession();
 		Query query = session
-				.createQuery("from PeriodQuarter p where p.dateInformationAvailable < :date and p.company.stockExchange.requiredLevel <= :level order by p.dateInformationAvailable desc");
+				.createQuery("from PeriodQuarter p where p.dateInformationAvailable < :date and p.requiredLevel <= :level order by p.dateInformationAvailable desc");
 		query.setParameter("date", date);
 		long level = trader.getLevel();
 		query.setParameter("level", level);
