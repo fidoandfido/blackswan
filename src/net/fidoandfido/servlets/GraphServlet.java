@@ -34,10 +34,8 @@ public class GraphServlet extends HttpServlet {
 		response.setContentType("image/png");
 		ChartUtilities.writeChartAsPNG(out, chart, width, height);
 
-		// JPEGImageEncoder encoder =
-		// JPEGCodec.createJPEGEncoder(response.getOutputStream());
-		// JPEGEncodeParam param = encoder.getDefaultJPEGEncodeParam(buf);
-		// param.setQuality(1f, true);
-		// encoder.encode(buf, param);
+		// Clear this chart from the session.
+		session.setAttribute(CHART_ATTRIBUTE + companyCode, null);
+
 	}
 }
