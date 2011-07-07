@@ -30,9 +30,8 @@ public class ItemStoreServlet extends HttpServlet {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * javax.servlet.http.HttpServlet#doPost(javax.servlet.http.HttpServletRequest
-	 * , javax.servlet.http.HttpServletResponse)
+	 * @see javax.servlet.http.HttpServlet#doPost(javax.servlet.http.HttpServletRequest ,
+	 * javax.servlet.http.HttpServletResponse)
 	 */
 	public static String ITEM_NAME = "item_name";
 	public static String COST = "cost";
@@ -79,6 +78,8 @@ public class ItemStoreServlet extends HttpServlet {
 				return false;
 			}
 
+			long salePrice = item.getSalePrice();
+
 			if (BUY.equals(buyOrSell)) {
 				// Attempt to buy the item.
 				if (trader.canMakeTrade(cost)) {
@@ -95,10 +96,10 @@ public class ItemStoreServlet extends HttpServlet {
 			} else if (SELL.equals(buyOrSell)) {
 				// Attempt to sell the item
 				if (trader.hasItem(item)) {
-					logger.info("Trader selling item! " + trader.getName() + " -- " + item.getName() + " for: " + item.getCost());
-					TraderEvent event = new TraderEvent(trader, "sell item", new Date(), item, cost, trader.getAvailableCash(), trader.getAvailableCash()
-							+ cost);
-					trader.giveCash(cost);
+					logger.info("Trader selling item! " + trader.getName() + " -- " + item.getName() + " for: " + salePrice);
+					TraderEvent event = new TraderEvent(trader, "sell item", new Date(), item, salePrice, trader.getAvailableCash(), trader.getAvailableCash()
+							+ salePrice);
+					trader.giveCash(salePrice);
 					trader.removeItem(item);
 					traderEventDAO.saveTraderEvent(event);
 					traderDAO.saveTrader(trader);

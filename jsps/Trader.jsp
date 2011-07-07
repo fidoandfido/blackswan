@@ -1,3 +1,4 @@
+<%@page import="net.fidoandfido.servlets.ItemStoreServlet"%>
 <%@page import="java.util.HashMap"%>
 <%@page import="java.util.Map"%>
 <%@page import="net.fidoandfido.model.Company"%>
@@ -401,20 +402,7 @@ function rumour_buy_<%=company.getCode()%>() {
 }
 <%
 					ShareParcel parcel = holdingsMap.get(company.getCode());
-					if (parcel != null) {
-%>
-function rumour_sell_<%=companyCode%>() {
-   	remove('tradeDiv');
-    var div = document.createElement('div');
-    div.id = 'tradeDiv'; 
-    document.body.appendChild(div);
-    div.innerHTML = 'Sell Shares: (Maximum: <%=parcel.getShareCount()%>)<br/><form action="/myapp/sellshares" method="post"><input type="hidden" name="<%=BuySharesServlet.COMPANY_CODE_PARM%>" value="<%=companyCode%>" ></input><table id="tradeTable"><tr><td>Share Count:</td><td><input name="<%=SellSharesServlet.SHARE_COUNT%>" value="<%=parcel.getShareCount()%>" cols="60"></input></td></tr><tr><td>Asking price (in cents):</td><td><input name="<%=SellSharesServlet.ASKING_PRICE%>" value="<%=company.getLastTradePrice()%>" cols="30"></input></td></tr><tr><td><input type="submit" value="Sell Shares" /></td><td><button id="cancel_button">Cancel</button></td></tr></table></form>';
-    var button = document.getElementById("cancel_button");
-    button.setAttribute('onclick', 'remove("tradeDiv")'); 
-    popUpDiv('tradeDiv', -400, 0);
-}
-<%
-					}
+
 %>
 </script>
 
@@ -431,7 +419,7 @@ function rumour_sell_<%=companyCode%>() {
 <%
 				if (parcel != null) {
 					%>
-			<td onclick='javascript:rumour_sell_<%=companyCode%>()' style="cursor: pointer;"><b>Sell</b></td>
+			<td onclick='javascript:sell_<%=companyCode%>()' style="cursor: pointer;"><b>Sell</b></td>
 					<%
 				} else {
 %>
@@ -511,20 +499,6 @@ function announcement_buy_<%=company.getCode()%>() {
 }
 <%
 			ShareParcel parcel = holdingsMap.get(company.getCode());
-			if (parcel != null) {
-%>
-function announcement_sell_<%=companyCode%>() {
-   	remove('tradeDiv');
-    var div = document.createElement('div');
-    div.id = 'tradeDiv'; 
-    document.body.appendChild(div);
-    div.innerHTML = 'Sell Shares: (Maximum: <%=parcel.getShareCount()%>)<br/><form action="/myapp/sellshares" method="post"><input type="hidden" name="<%=BuySharesServlet.COMPANY_CODE_PARM%>" value="<%=companyCode%>" ></input><table id="tradeTable"><tr><td>Share Count:</td><td><input name="<%=SellSharesServlet.SHARE_COUNT%>" value="<%=parcel.getShareCount()%>" cols="60"></input></td></tr><tr><td>Asking price (in cents):</td><td><input name="<%=SellSharesServlet.ASKING_PRICE%>" value="<%=company.getLastTradePrice()%>" cols="30"></input></td></tr><tr><td><input type="submit" value="Sell Shares" /></td><td><button id="cancel_button">Cancel</button></td></tr></table></form>';
-    var button = document.getElementById("cancel_button");
-    button.setAttribute('onclick', 'remove("tradeDiv")'); 
-    popUpDiv('tradeDiv', -400, 0);
-}
-<%
-					}
 %>			
 </script>
 				<tr>
@@ -576,17 +550,38 @@ function announcement_sell_<%=companyCode%>() {
 <%
 		for (ReputationItem item : reputationItems) {
 %>
+<script type="text/javascript">
+function item_sell_<%=item.getName()%>() {
+   	remove('tradeDiv');
+    var div = document.createElement('div');
+    div.id = 'tradeDiv'; 
+    document.body.appendChild(div);
+    div.innerHTML = '<form></form>';
+    var button = document.getElementById("cancel_button");
+    button.setAttribute('onclick', 'remove("tradeDiv")'); 
+    popUpDiv('tradeDiv', -400, 0);
+}	
+</script>
 						<tr>
 							<td><%= item.getName() %></td>
 							<td><%= WebPageUtil.formatCurrency(item.getCost()) %></td>
 							<td><img src="<%= WebPageUtil.getImageLocation(item.getImage()) %>" width="60" height="60"/></td>
-							<td>Sell</td>
+							<td>
+							<form action="/myapp/itemstore" method="post">
+							<input type="hidden" name="<%=ItemStoreServlet.BUY_OR_SELL%>" value="<%=ItemStoreServlet.SELL%>"></input></li>
+							<input type="hidden" name="<%=ItemStoreServlet.COST%>" value="<%=item.getCost()%>"></input></li>
+							<input type="hidden" name="<%=ItemStoreServlet.ITEM_NAME%>" value="<%=item.getName()%>"></input></li>
+							<input type="submit" value="Sell!" />
+							</form>
+							</td>
 						</tr>
 <%
 		}
 %>		
 					
-					</table>			
+					</table>
+					
+					You may purchase more reputation enhancing items at the <a href="/myapp/ItemShop.jsp">Item Store</a>.			
 <%
 	}
 			

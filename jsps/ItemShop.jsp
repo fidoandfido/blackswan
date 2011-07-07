@@ -112,14 +112,20 @@
 							<td><%= item.getName() %></td>
 							<td><%= WebPageUtil.formatCurrency(item.getCost()) %></td>
 							<td><img src="<%= WebPageUtil.getImageLocation(item.getImage()) %>" width="60" height="60"/></td>
-							<td>0</td>
+							<td><%= trader.getReputationItems().contains(item) ? "Yes" : "No" %></td>
 							<td>
+<%
+							if (!trader.getReputationItems().contains(item)) {
+%>
 							<form action="/myapp/itemstore" method="post">
 							<input type="hidden" name="<%=ItemStoreServlet.BUY_OR_SELL%>" value="<%=ItemStoreServlet.BUY%>"></input></li>
 							<input type="hidden" name="<%=ItemStoreServlet.COST%>" value="<%=item.getCost()%>"></input></li>
 							<input type="hidden" name="<%=ItemStoreServlet.ITEM_NAME%>" value="<%=item.getName()%>"></input></li>
 							<input type="submit" value="Buy!" />
 							</form>
+<%
+							}
+%>
 							</td>
 						</tr>
 <%
