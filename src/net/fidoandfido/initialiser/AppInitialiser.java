@@ -209,10 +209,7 @@ public class AppInitialiser {
 			System.out.println("Starting exchange: " + exchange);
 			initialiseSectorList(exchange.getSectors());
 			for (int i = 0; i < exchange.getCompanyCount(); i++) {
-				System.out.println(i);
-				if (i == 18) {
-					System.out.println("Lucky 18!");
-				}
+
 				Company company = getNewCompany();
 				company.setStockExchange(exchange);
 				companyDAO.saveCompany(company);
