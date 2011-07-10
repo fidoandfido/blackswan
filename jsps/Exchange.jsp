@@ -117,8 +117,9 @@ if (exchange == null) {
 			<div class="post">
 				<h2 class="title">Companies trading on <%= exchange.getName() %></h2>
 				<div class="entry">
-					Put info about the exchange here.
-				
+					
+					
+					
 				</div>
 			</div>
 			<div class="post">

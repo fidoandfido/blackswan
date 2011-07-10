@@ -126,7 +126,7 @@
 					<b>Summary:</b>
 				</p>
 				
-				<table id="table-2">
+				<table id="table-1">
 					<tr>
 						<th>Net Wealth</th>
 					</tr>
@@ -154,7 +154,7 @@
 	if (shareParcels.iterator().hasNext()) {
 %>
 
-				<table id="table-1">
+				<table class="table-balance-sheet">
 
 				<tr class="table-head">	
 					<th></th>						

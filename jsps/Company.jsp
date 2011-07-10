@@ -120,7 +120,6 @@
 				<h2 class="title"><%=company.getName()%></h2>
 				<div class="entry">
 					<ul>
-					<li>Company Name: <%=company.getName()%></li>
 					<li>Company Code: <%=company.getCode()%></li>
 					<li>Company Sector: <%=company.getSector()%></li>
 					<li>Stock Exchange: <%=company.getStockExchange().getName()%></li>
@@ -129,7 +128,6 @@
 			</div>	
 <%
 	} else {
-		
 		// Show company information!
 		CompanyPeriodReport currentReport = company.getCurrentPeriod();
 		Map<String, PeriodQuarter> events = currentReport.getPeriodPartInformationMappedByEvent();
@@ -137,6 +135,16 @@
 		PeriodQuarter secondQuarterEvent = events.get(QuarterEventGenerator.SECOND_QUARTER);
 		PeriodQuarter thirdQuarterEvent = events.get(QuarterEventGenerator.THIRD_QUARTER);
 		PeriodQuarter fourthQuarterEvent = events.get(QuarterEventGenerator.FOURTH_QUARTER);
+		
+		// Get the previous period reports (if they exist)
+		
+		CompanyPeriodReportDAO companyPeriodReportDAO = new CompanyPeriodReportDAO();
+		List<CompanyPeriodReport> reportList = companyPeriodReportDAO.getRecentPeriodReportListByCompany(company, 3);
+		
+		
+		
+		
+		
 %>
 			<div class="post">
 				<h2 class="title"><%= company.getName() %></h2>
@@ -170,11 +178,9 @@
 					</tr>
 					</table>
 					
-<%
-			if (company.getPreviousPeriodReport() != null) {
-%>					
+					
 					<!-- Previous profit loss statement -->
-					<p><b>Previous Year Profit Loss Statement</b></p>
+					<p><b>Profit Loss Statement</b></p>
 					<table class="table-balance-sheet">
 					<tr>
 						<th></th>
@@ -202,9 +208,7 @@
 						<td class="table-balance-sheet-value"><%=WebPageUtil.formatCurrency(company.getPreviousPeriodReport().getFinalProfit())%></td>
 					</tr>
 					</table>
-<%
-			}
-%>	
+					
 					<p><b>Share Information</b></p>
 					<ul>
 					<li>Company Outstanding shares: <%= company.getOutstandingShares() %></li>
@@ -295,7 +299,6 @@
 <%
 			ChartGenerator chartGenerator = new ChartGenerator();
 			session.setAttribute(GraphServlet.CHART_ATTRIBUTE + company.getCode(), chartGenerator.generateChart(company));
-			
 %>
 				
 				<img src="/myapp/graph?<%=GraphServlet.COMPANY_CODE%>=<%=company.getCode()%>"/>
@@ -415,6 +418,9 @@
 <%
 		}
 	}
+%>				
+
+<%
 %>
 	</div>
 	<!-- end #content -->

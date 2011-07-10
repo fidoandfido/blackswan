@@ -138,8 +138,53 @@ hr { display: none; }
 }
 
 
+/* table-balance-sheet class */
+.table-balance-sheet {
+	margin-top: 1;
+	border-width: 2px;
+	border-color:#d4d4d4;
+	border-style: outset;
+	border-collapse:collapse;
+	line-height: 120%;
+	text-align: left;
+	font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+	font-size: 12px; 
+	width: 400;
+}
 
-/* Table Format 1 - numerical */
+
+.table-balance-sheet th, td,tr
+{
+	
+		border-width: 2px;
+		border-color:#d4d4d4;
+		padding: 10px 20px;
+}
+
+.table-balance-sheet-value
+{
+		padding: 10px 20px;
+		text-align: right;
+}
+
+.table-balance-sheet-label
+{
+		padding: 10px 20px;
+		text-align: left;
+}
+
+.table-balance-sheet tr:hover td
+{
+	color: #2B3856;
+	background: #E3E4FA;
+}
+
+.table-foot {
+	border: #d4d4d4;
+	padding: 10px 20px;
+	border-top: dotted thin;		
+}
+
 
 #table-1 {
 	margin-top: 1;
