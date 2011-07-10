@@ -26,6 +26,7 @@ public class GentleModifier implements EconomicModifier {
 
 	private static Random SHIFT_CONDITIONS_RANDOM = new Random(17);
 	private static Random SHIFT_SECTOR_RANDOM = new Random(17);
+	private static Random CREATE_NEW_COMPANY_RANDOM = new Random(17);
 
 	private static final int CHANCE_OF_SHIFT = 3;
 
@@ -34,6 +35,8 @@ public class GentleModifier implements EconomicModifier {
 
 	public static final long STANDARD_SECTOR_SHIFT = 1;
 	public static final long EXTREME_SECTOR_SHIFT = 3;
+
+	private static final int CHANCE_OF_NEW_COMPANY = 3;
 
 	@Override
 	public void modifiyExchangePeriod(StockExchangePeriod currentPeriod, StockExchangePeriod previousPeriod) {
@@ -148,6 +151,17 @@ public class GentleModifier implements EconomicModifier {
 			}
 
 		}
+	}
+
+	@Override
+	public boolean newCompanyToBeFounded(StockExchangePeriod currentPeriod) {
+		if (currentPeriod.getEconomicConditions().equals(RECESSION)) {
+			return false;
+		}
+		if (CREATE_NEW_COMPANY_RANDOM.nextInt(CHANCE_OF_NEW_COMPANY) == 0) {
+			return true;
+		}
+		return false;
 	}
 
 	public static void main(String argv[]) {

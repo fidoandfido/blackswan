@@ -21,4 +21,10 @@ public class DefaultModifier implements EconomicModifier {
 		// Do not change anything!
 	}
 
+	@Override
+	public boolean newCompanyToBeFounded(StockExchangePeriod currentPeriod) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
 }

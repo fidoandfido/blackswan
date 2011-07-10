@@ -65,7 +65,6 @@ public class DataExtractor {
 		HibernateUtil.beginTransaction();
 		DataExtractor dataExtractor = new DataExtractor();
 		// dataExtractor.something();
-		// dataExtractor.loolkAtCompany("UDFO");
 
 		dataExtractor.getExchangeList();
 
@@ -91,30 +90,31 @@ public class DataExtractor {
 
 		Company company = companyDAO.getCompanyByCode(code);
 		List<CompanyPeriodReport> recentPeriodReportListByCompany = companyPeriodReportDAO.getRecentPeriodReportListByCompany(company, 5);
-
 		for (CompanyPeriodReport companyPeriodReport : recentPeriodReportListByCompany) {
 			System.out.println(companyPeriodReport.getStartingAssets());
 			System.out.println(companyPeriodReport.getFinalProfit());
-
 		}
 
 	}
 
 	private void getExchangeList() {
-		Trader blobTrader = traderDAO.getTraderByName("blob");
-		List<StockExchange> blobExchange = stockExchangeDAO.getStockExchangeListForTrader(blobTrader);
-		System.out.println("BLOB EXCHANGES:");
-		for (StockExchange stockExchange : blobExchange) {
-			System.out.println(stockExchange.getName());
-		}
-		System.out.println("--------------------");
 
-		Trader asdfTrader = traderDAO.getTraderByName("asdf");
-		List<StockExchange> stockExchangeListForTrader = stockExchangeDAO.getStockExchangeListForTrader(asdfTrader);
-		System.out.println("ASDF EXCHANGES:");
-		for (StockExchange stockExchange : stockExchangeListForTrader) {
-			System.out.println(stockExchange.getName());
+		List<StockExchange> stockExchangeList = stockExchangeDAO.getStockExchangeList();
+		System.out.println("EXCHANGES:");
+		for (StockExchange stockExchange : stockExchangeList) {
+			System.out.println("Name: " + stockExchange.getName());
+			System.out.println("Company count: " + stockExchange.getCompanyCount());
+			System.out.println("Still trading company count: " + stockExchangeDAO.getTradingCompaniesForExchange(stockExchange));
+			System.out.println("Max trading count: " + stockExchange.getMaxTradingCompanyCount());
 		}
+
+		List<String> names = companyDAO.getAllCompanyNames();
+		System.out.println("Names: " + names.size());
+		System.out.println(names);
+		List<String> codes = companyDAO.getAllCompanyCodes();
+		System.out.println("Codes: " + codes.size());
+		System.out.println(codes);
+
 		System.out.println();
 	}
 
@@ -230,7 +230,7 @@ public class DataExtractor {
 	public void foo() {
 		Company company = companyDAO.getCompanyList().get(0);
 
-		List<CompanyPeriodReport> reportList = companyPeriodReportDAO.getPeriodPerpotListForCompany(company);
+		List<CompanyPeriodReport> reportList = companyPeriodReportDAO.getPeriodReportListForCompany(company);
 		System.out.println("Report list length:" + reportList.size());
 
 		for (CompanyPeriodReport companyPeriodReport : reportList) {

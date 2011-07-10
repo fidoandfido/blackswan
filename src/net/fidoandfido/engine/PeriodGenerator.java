@@ -18,6 +18,7 @@ import net.fidoandfido.engine.economicmodfiers.EconomicModifierFactory;
 import net.fidoandfido.engine.experience.ExperiencePointGenerator;
 import net.fidoandfido.engine.experience.ExperiencePointGenerator.ExperienceEvent;
 import net.fidoandfido.engine.quarter.QuarterEventGenerator;
+import net.fidoandfido.initialiser.AppInitialiser;
 import net.fidoandfido.model.Company;
 import net.fidoandfido.model.CompanyPeriodReport;
 import net.fidoandfido.model.ExchangeGroup;
@@ -150,32 +151,36 @@ public class PeriodGenerator implements Runnable {
 			Date minimumEndDate = new Date(currentDate.getTime() + exchange.getPeriodLength());
 
 			// Update the stock exchange period.
-			StockExchangePeriod currentPeriod = new StockExchangePeriod(previousPeriod, currentDate, minimumEndDate);
+			StockExchangePeriod currentExchangePeriod = new StockExchangePeriod(previousPeriod, currentDate, minimumEndDate);
 
 			EconomicModifier economicModifier = EconomicModifierFactory.getEconomicModifier(exchange.getEconomicModifierName());
-			economicModifier.modifiyExchangePeriod(currentPeriod, previousPeriod);
+			economicModifier.modifiyExchangePeriod(currentExchangePeriod, previousPeriod);
 
-			exchange.setCurrentPeriod(currentPeriod);
+			exchange.setCurrentPeriod(currentExchangePeriod);
+
+			// Create company modifier and event generator
 			CompanyModifier companyModifier = CompanyModiferFactory.getCompanyModifier(exchange.getCompanyModifierName());
-
-			// Get the current period for the stock exchange.
-			// Create a period event generator...
 			QuarterEventGenerator generator = new QuarterEventGenerator();
 			Iterable<Company> companyList = companyDAO.getCompaniesByExchange(exchange);
 
 			for (Company company : companyList) {
+				// Refresh our handle (since we may have flushed the hibernate session.
 				company = CompanyDAO.getCompanyById(company.getId());
 
 				if (!company.isTrading()) {
 					continue;
 				}
-
 				logger.info("Updating company: " + company.getName());
+
+				if (company.getCompanyStatus().equals(Company.IPO_COMPANY_STATUS)) {
+					logger.info("Company: " + company.getName() + " NOW OFF IPO STATUS!!!");
+					company.setCompanyStatus(Company.TRADING_COMPANY_STATUS);
+				}
+
 				// Create a new company report entry..
 				CompanyPeriodReport currentPeriodReport = company.getCurrentPeriod();
 
 				long generation = 0;
-
 				if (currentPeriodReport != null) {
 					if (currentPeriodReport.getMinimumEndDate().after(currentDate)) {
 						// Can't end a period report before now...
@@ -214,13 +219,19 @@ public class PeriodGenerator implements Runnable {
 				CompanyPeriodReport newPeriodReport = new CompanyPeriodReport(company, currentDate, exchange.getPeriodLength(), generation + 1);
 
 				// Calculate the expected return based on the current asset/debt
-				// Use company expense rate and apply modifyers based on global and sector economic conditions.
-				long primeInterestRateBasisPoints = company.getPrimeInterestRateBasisPoints();
-				long expenseRate = company.getExpenseRate() + currentPeriod.getExpenseRateDelta() + currentPeriod.getSectorExpenseDelta(company.getSector());
+				// Use company expense rate and apply modifiers based on global and sector economic conditions.
+				// 1. Revenues
+				long revenueRate = company.getRevenueRate() + currentExchangePeriod.getRevenueRateDelta()
+						+ currentExchangePeriod.getSectorRevenueDelta(company.getSector());
+				long expectedRevenues = revenueRate * company.getAssetValue() / 100;
+				// 2. Expenses
+				long expenseRate = company.getExpenseRate() + currentExchangePeriod.getExpenseRateDelta()
+						+ currentExchangePeriod.getSectorExpenseDelta(company.getSector());
 				long expectedExpenses = expenseRate * company.getAssetValue() / 100;
-				long m = company.getRevenueRate() + currentPeriod.getRevenueRateDelta();
-				long expectedRevenues = m * company.getAssetValue() / 100;
+				// 3. Interest
+				long primeInterestRateBasisPoints = company.getPrimeInterestRateBasisPoints();
 				long expectedInterest = (company.getDebtValue()) * primeInterestRateBasisPoints / 10000;
+				// 4. PROFIT!!!
 				long expectedProfit = expectedRevenues - expectedExpenses - expectedInterest;
 
 				// Set the expected profit data for the year.
@@ -236,8 +247,26 @@ public class PeriodGenerator implements Runnable {
 				companyDAO.saveCompany(company);
 				HibernateUtil.flushAndClearSession();
 			}
+
+			// Now create a new company for the exchange (if that is applicable)
+			// Since we have flushed and cleared the session, best to get a new handle on our exchange :(
+			exchange = stockExchangeDAO.getStockExchangeById(exchange.getId());
+			int currentTradingCount = stockExchangeDAO.getTradingCompaniesForExchange(exchange);
+			if (currentTradingCount < exchange.getMaxTradingCompanyCount()) {
+				if (economicModifier.newCompanyToBeFounded(currentExchangePeriod)) {
+					createNewCompany(exchange);
+				}
+			}
+
 		}
 		return;
+	}
+
+	private void createNewCompany(StockExchange exchange) {
+
+		// SHOULD BE CREATING A NEW COMPANY NOW!!!
+		AppInitialiser initialiser = new AppInitialiser();
+		Company company = initialiser.createNewCompany(exchange, companyDAO.getAllCompanyCodes(), companyDAO.getAllCompanyNames(), traderDAO.getMarketMaker());
 	}
 
 	private void splitStocks(Company company, CompanyPeriodReport currentPeriodReport) {

@@ -14,4 +14,6 @@ public interface EconomicModifier {
 
 	public void modifySectors(StockExchangePeriod currentPeriod, StockExchangePeriod previousPeriod);
 
+	boolean newCompanyToBeFounded(StockExchangePeriod currentPeriod);
+
 }

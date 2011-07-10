@@ -16,12 +16,11 @@ public class CompanyPeriodReportDAO {
 		session.saveOrUpdate(periodReport);
 	}
 
-	public List<CompanyPeriodReport> getPeriodPerpotListForCompany(Company company) {
+	public List<CompanyPeriodReport> getPeriodReportListForCompany(Company company) {
 		Session session = HibernateUtil.getSession();
 		Query query = session.createQuery("from CompanyPeriodReport where company = :company order by generation");
 		query.setParameter("company", company);
 		return query.list();
-
 	}
 
 	public List<CompanyPeriodReport> getPeriodPerpotListByExchange(StockExchange stockExchange) {

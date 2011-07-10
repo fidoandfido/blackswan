@@ -6,6 +6,7 @@ import net.fidoandfido.model.Company;
 import net.fidoandfido.model.StockExchange;
 
 import org.hibernate.Criteria;
+import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
@@ -47,6 +48,18 @@ public class CompanyDAO {
 		Criteria crit = session.createCriteria(Company.class);
 		crit.add(Restrictions.eq("id", id));
 		return (Company) crit.uniqueResult();
+	}
+
+	public List<String> getAllCompanyNames() {
+		Session session = HibernateUtil.getSession();
+		Query query = session.createQuery("select company.name from Company company");
+		return query.list();
+	}
+
+	public List<String> getAllCompanyCodes() {
+		Session session = HibernateUtil.getSession();
+		Query query = session.createQuery("select company.code from Company company");
+		return query.list();
 	}
 
 }

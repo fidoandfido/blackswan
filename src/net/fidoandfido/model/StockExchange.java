@@ -42,6 +42,9 @@ public class StockExchange {
 	private int companyCount;
 
 	@Column
+	private long maxTradingCompanyCount = 0;
+
+	@Column
 	private String eventGeneratorName;
 
 	@Column
@@ -61,7 +64,6 @@ public class StockExchange {
 
 	@ManyToOne
 	private ExchangeGroup exchangeGroup;
-
 	/**
 	 * Maximum price a share can be before it is split 2-1.
 	 */
@@ -86,7 +88,8 @@ public class StockExchange {
 	}
 
 	public StockExchange(ExchangeGroup exchangeGroup, String name, String description, int companyCount, String eventGeneratorName, long companyPeriodLength,
-			long defaultPrimeInterestRateBasisPoints, String economicModifierName, String companyModifierName, long maxSharePrice, long requiredLevel)
+			long defaultPrimeInterestRateBasisPoints, String economicModifierName, String companyModifierName, long maxSharePrice, long requiredLevel,
+			long maxTradingCompanyCount)
 
 	{
 		super();
@@ -101,6 +104,7 @@ public class StockExchange {
 		this.companyModifierName = companyModifierName;
 		this.maxSharePrice = maxSharePrice;
 		this.requiredLevel = requiredLevel;
+		this.maxTradingCompanyCount = maxTradingCompanyCount;
 	}
 
 	/**
@@ -367,6 +371,21 @@ public class StockExchange {
 
 	public void addSector(String sector) {
 		this.sectors.add(sector);
+	}
+
+	/**
+	 * @return the maxCompanyCount
+	 */
+	public long getMaxTradingCompanyCount() {
+		return maxTradingCompanyCount;
+	}
+
+	/**
+	 * @param maxCompanyCount
+	 *            the maxCompanyCount to set
+	 */
+	public void setMaxTradingCompanyCount(long maxCompanyCount) {
+		this.maxTradingCompanyCount = maxCompanyCount;
 	}
 
 }

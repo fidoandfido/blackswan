@@ -24,7 +24,7 @@ public class Company {
 	public static final String INSOLVENT_COMPANY_STATUS = "The company has been declared insolvent!";
 	public static final String NO_MORE_INSOLVENT_COMPANY_STATUS = "The company is no longer insolvent! It is now trading as normal.";
 	public static final String DISSOLVED_COMPANY_STATUS = "The comapny has been dissolved; it is no longer able to be traded.";
-	public static final String UNLISTED_COMPANY_STATUS = "The company has not been formally listed.";
+	public static final String IPO_COMPANY_STATUS = "The company has not been formally listed.";
 
 	@Id
 	@Column(name = "company_id")

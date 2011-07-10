@@ -198,6 +198,34 @@ public class AppInitialiser {
 	// Seeded!
 	Random aiSelectorRandom = new Random(17);
 
+	public Company createNewCompany(StockExchange exchange, List<String> existingCodes, List<String> existingNames, Trader marketMakerTrader) {
+		for (String code : existingCodes) {
+			this.codes.add(code);
+		}
+		for (String name : existingNames) {
+			this.names.add(name);
+		}
+		this.marketMakerTrader = marketMakerTrader;
+		try {
+			initCompanyGenerator();
+			initialiseSectorList(exchange.getSectors());
+			Company company = getNewCompany();
+			company.setStockExchange(exchange);
+			company.setCompanyStatus(Company.IPO_COMPANY_STATUS);
+			// Set up the initial profit for the first period report
+			companyDAO.saveCompany(company);
+			long currentShareCount = company.getOutstandingShares();
+			// The market maker will get all of the shares initially
+			long marketMakerCount = currentShareCount;
+			ShareParcel mmShareParcel = new ShareParcel(marketMakerTrader, marketMakerCount, company, company.getShareBookValue());
+			shareParcelDAO.saveShareParcel(mmShareParcel);
+
+		} catch (Exception e) {
+			// Cock.
+		}
+		return null;
+	}
+
 	private void createAndSaveCompanies() throws SAXException, IOException {
 		// Initialise our company lists...
 		initCompanyGenerator();
@@ -303,7 +331,6 @@ public class AppInitialiser {
 				}
 			}
 		}
-
 	}
 
 	public Company getNewCompany() {
