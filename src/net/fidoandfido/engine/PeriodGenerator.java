@@ -1,5 +1,6 @@
 package net.fidoandfido.engine;
 
+import java.io.IOException;
 import java.util.Date;
 
 import net.fidoandfido.dao.CompanyDAO;
@@ -30,6 +31,7 @@ import net.fidoandfido.model.TraderEvent;
 import net.fidoandfido.util.ServerUtil;
 
 import org.apache.log4j.Logger;
+import org.xml.sax.SAXException;
 
 public class PeriodGenerator implements Runnable {
 
@@ -266,7 +268,17 @@ public class PeriodGenerator implements Runnable {
 
 		// SHOULD BE CREATING A NEW COMPANY NOW!!!
 		AppInitialiser initialiser = new AppInitialiser();
-		Company company = initialiser.createNewCompany(exchange, companyDAO.getAllCompanyCodes(), companyDAO.getAllCompanyNames(), traderDAO.getMarketMaker());
+		try {
+			Company company = initialiser.createNewCompany(exchange, companyDAO.getAllCompanyCodes(), companyDAO.getAllCompanyNames(),
+					traderDAO.getMarketMaker());
+			companyDAO.saveCompany(company);
+		} catch (SAXException e) {
+			logger.error(e.getMessage());
+			ServerUtil.logError(logger, e);
+		} catch (IOException e) {
+			logger.error(e.getMessage());
+			ServerUtil.logError(logger, e);
+		}
 	}
 
 	private void splitStocks(Company company, CompanyPeriodReport currentPeriodReport) {
