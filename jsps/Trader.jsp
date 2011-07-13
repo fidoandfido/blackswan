@@ -179,7 +179,7 @@ function buy_<%=companyCode%>() {
     var div = document.createElement('div');
     div.id = 'tradeDiv'; 
     document.body.appendChild(div);
-    div.innerHTML = 'Buy More Shares: (Max buying power at market rate: <%=trader.getAvailableCash() / shareParcel.getCompany().getLastTradePrice()%>)<br/><form action="/myapp/buyshares" method="post"><input type="hidden" name="<%=BuySharesServlet.COMPANY_CODE_PARM%>" value="<%=shareParcel.getCompany().getCode()%>" ></input><table id="tradeTable"><tr><td>Share Count:</td><td><input name="<%=BuySharesServlet.SHARE_COUNT%>" value="<%=trader.getAvailableCash() / shareParcel.getCompany().getLastTradePrice()%>" cols="60"></input></td></tr><tr><td>Offer price (in cents):</td><td><input name="<%=BuySharesServlet.OFFER_PRICE%>" value="<%=shareParcel.getCompany().getLastTradePrice()%>" cols="30"></input></td></tr><tr><td><input type="submit" value="Buy Shares" /></td><td><button id="cancel_button">Cancel</button></td></tr></table></form>';
+    div.innerHTML = '<b>Buy More Shares</b> (Max buying power at market rate: <%=trader.getAvailableCash() / shareParcel.getCompany().getLastTradePrice()%>)<br/><form action="/myapp/buyshares" method="post"><input type="hidden" name="<%=BuySharesServlet.COMPANY_CODE_PARM%>" value="<%=shareParcel.getCompany().getCode()%>" ></input><table class="tradeTable"><tr><td>Share Count:</td><td><input name="<%=BuySharesServlet.SHARE_COUNT%>" value="<%=trader.getAvailableCash() / shareParcel.getCompany().getLastTradePrice()%>" cols="60"></input></td></tr><tr><td>Offer price (in cents):</td><td><input name="<%=BuySharesServlet.OFFER_PRICE%>" value="<%=shareParcel.getCompany().getLastTradePrice()%>" cols="30"></input></td></tr><tr><td><input type="submit" value="Buy Shares" /></td><td><button id="cancel_button">Cancel</button></td></tr></table></form>';
     var button = document.getElementById("cancel_button");
     button.setAttribute('onclick', 'remove("tradeDiv")'); 
     popUpDiv('tradeDiv', -400, 0);
@@ -188,9 +188,9 @@ function buy_<%=companyCode%>() {
 function sell_<%=companyCode%>() {
    	remove('tradeDiv');
     var div = document.createElement('div');
-    div.id = 'tradeDiv'; 
+    div.id = 'tradeDiv';
     document.body.appendChild(div);
-    div.innerHTML = 'Sell Shares: (Maximum: <%=shareParcel.getShareCount()%>)<br/><form action="/myapp/sellshares" method="post"><input type="hidden" name="<%=BuySharesServlet.COMPANY_CODE_PARM%>" value="<%=shareParcel.getCompany().getCode()%>" ></input><table id="tradeTable"><tr><td>Share Count:</td><td><input name="<%=SellSharesServlet.SHARE_COUNT%>" value="<%=shareParcel.getShareCount()%>" cols="60"></input></td></tr><tr><td>Asking price (in cents):</td><td><input name="<%=SellSharesServlet.ASKING_PRICE%>" value="<%=shareParcel.getCompany().getLastTradePrice()%>" cols="30"></input></td></tr><tr><td><input type="submit" value="Sell Shares" /></td><td><button id="cancel_button">Cancel</button></td></tr></table></form>';
+    div.innerHTML = '<b>Sell Shares</b> (Maximum: <%=shareParcel.getShareCount()%>)<br/><form action="/myapp/sellshares" method="post"><input type="hidden" name="<%=BuySharesServlet.COMPANY_CODE_PARM%>" value="<%=shareParcel.getCompany().getCode()%>" ></input><table class="tradeTable"><tr><td>Share Count:</td><td><input name="<%=SellSharesServlet.SHARE_COUNT%>" value="<%=shareParcel.getShareCount()%>" cols="60"></input></td></tr><tr><td>Asking price (in cents):</td><td><input name="<%=SellSharesServlet.ASKING_PRICE%>" value="<%=shareParcel.getCompany().getLastTradePrice()%>" cols="30"></input></td></tr><tr><td><input type="submit" value="Sell Shares" /></td><td><button id="cancel_button">Cancel</button></td></tr></table></form>';
     var button = document.getElementById("cancel_button");
     button.setAttribute('onclick', 'remove("tradeDiv")'); 
     popUpDiv('tradeDiv', -400, 0);
