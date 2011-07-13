@@ -158,6 +158,9 @@ public class GentleModifier implements EconomicModifier {
 		if (currentPeriod.getEconomicConditions().equals(RECESSION)) {
 			return false;
 		}
+		if (currentPeriod.getStockExchange().getMinTradingCompanyCount() > currentPeriod.getStockExchange().getCompanyCount()) {
+			return true;
+		}
 		if (CREATE_NEW_COMPANY_RANDOM.nextInt(CHANCE_OF_NEW_COMPANY) == 0) {
 			return true;
 		}

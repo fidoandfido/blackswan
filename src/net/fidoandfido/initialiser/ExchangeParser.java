@@ -31,6 +31,7 @@ public class ExchangeParser extends DefaultHandler {
 	private static final String MAX_SHARE_PRICE_ATTRIB = "max-share-price";
 	private static final String REQUIRED_LEVEL_TAG = "required-level";
 	private static final String MAX_TRADING_COMPANY_COUNT = "max-trading-company-count";
+	private static final String MIN_TRADING_COMPANY_COUNT = "min-trading-company-count";
 
 	private ExchangeGroup currentExchangeGroup;
 	private StockExchange stockExchange;
@@ -60,7 +61,8 @@ public class ExchangeParser extends DefaultHandler {
 			String companyModifierName = attributes.getValue(COMPANY_MODIFIER_NAME);
 			long maxSharePrice = Long.parseLong(attributes.getValue(MAX_SHARE_PRICE_ATTRIB));
 			long interestRate = Long.parseLong(attributes.getValue(STARTING_INTEREST));
-			long maxCompantTradingCount = Long.parseLong(attributes.getValue(MAX_TRADING_COMPANY_COUNT));
+			int maxCompantTradingCount = Integer.parseInt(attributes.getValue(MAX_TRADING_COMPANY_COUNT));
+			int minTradingCount = Integer.parseInt(attributes.getValue(MIN_TRADING_COMPANY_COUNT));
 			String requiredLevelString = attributes.getValue(REQUIRED_LEVEL_TAG);
 			long requiredLevel = 0;
 			try {
@@ -73,7 +75,7 @@ public class ExchangeParser extends DefaultHandler {
 			// EventGeneratorFactory.getGeneratorByName(eventGeneratorName);
 			stockExchange = new StockExchange(currentExchangeGroup, name, description, companyCount, eventGeneratorName,
 					currentExchangeGroup.getPeriodLength(), interestRate, economicModifierName, companyModifierName, maxSharePrice, requiredLevel,
-					maxCompantTradingCount);
+					maxCompantTradingCount, minTradingCount);
 			currentExchangeGroup.addExchange(stockExchange);
 
 		} else if (localName.equals(SECTOR_TAG)) {

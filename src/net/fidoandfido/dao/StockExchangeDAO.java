@@ -51,11 +51,20 @@ public class StockExchangeDAO {
 		return query.list();
 	}
 
-	public int getTradingCompaniesForExchange(StockExchange exchange) {
+	public int getTradingCompaniesCountForExchange(StockExchange exchange) {
 		Session session = HibernateUtil.getSession();
 		Criteria crit = session.createCriteria(Company.class);
 		crit.add(Restrictions.eq("stockExchange", exchange));
 		crit.add(Restrictions.eq("isTrading", Boolean.TRUE));
+		crit.setProjection(Projections.rowCount());
+		Integer rowCount = (Integer) crit.uniqueResult();
+		return rowCount.intValue();
+	}
+
+	public int getCompaniesCountForExchange(StockExchange exchange) {
+		Session session = HibernateUtil.getSession();
+		Criteria crit = session.createCriteria(Company.class);
+		crit.add(Restrictions.eq("stockExchange", exchange));
 		crit.setProjection(Projections.rowCount());
 		Integer rowCount = (Integer) crit.uniqueResult();
 		return rowCount.intValue();

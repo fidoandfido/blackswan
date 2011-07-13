@@ -11,6 +11,7 @@
 			economic-modifier="GENTLE_MODIFIER"
 			company-modifier="GENTLE_COMPANY_MODIFIER"
 			max-share-price="10000"
+			min-trading-company-count="150"
 			max-trading-company-count="300">
 		<sector name="aerospace" />
 		<sector name="IT" />
@@ -40,6 +41,7 @@
 			economic-modifier="GENTLE_MODIFIER" 
 			company-modifier="GENTLE_COMPANY_MODIFIER" 
 			max-share-price="10000" 
+			min-trading-company-count="100"
 			max-trading-company-count="200">
 		<sector name="energy" />
 		<sector name="resources" />

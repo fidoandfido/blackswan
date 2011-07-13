@@ -103,8 +103,9 @@ public class DataExtractor {
 		System.out.println("EXCHANGES:");
 		for (StockExchange stockExchange : stockExchangeList) {
 			System.out.println("Name: " + stockExchange.getName());
-			System.out.println("Company count: " + stockExchange.getCompanyCount());
-			System.out.println("Still trading company count: " + stockExchangeDAO.getTradingCompaniesForExchange(stockExchange));
+			System.out.println("Original Company count: " + stockExchange.getCompanyCount());
+			System.out.println("Current company count: " + stockExchangeDAO.getCompaniesCountForExchange(stockExchange));
+			System.out.println("Still trading company count: " + stockExchangeDAO.getTradingCompaniesCountForExchange(stockExchange));
 			System.out.println("Max trading count: " + stockExchange.getMaxTradingCompanyCount());
 		}
 

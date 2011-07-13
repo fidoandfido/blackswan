@@ -253,7 +253,7 @@ public class PeriodGenerator implements Runnable {
 			// Now create a new company for the exchange (if that is applicable)
 			// Since we have flushed and cleared the session, best to get a new handle on our exchange :(
 			exchange = stockExchangeDAO.getStockExchangeById(exchange.getId());
-			int currentTradingCount = stockExchangeDAO.getTradingCompaniesForExchange(exchange);
+			int currentTradingCount = stockExchangeDAO.getTradingCompaniesCountForExchange(exchange);
 			if (currentTradingCount < exchange.getMaxTradingCompanyCount()) {
 				if (economicModifier.newCompanyToBeFounded(currentExchangePeriod)) {
 					createNewCompany(exchange);

@@ -39,10 +39,13 @@ public class StockExchange {
 	private String description;
 
 	@Column
-	private int companyCount;
+	private int minTradingCompanyCount = 0;
 
 	@Column
-	private long maxTradingCompanyCount = 0;
+	private int companyCount = 0;
+
+	@Column
+	private int maxTradingCompanyCount = 0;
 
 	@Column
 	private String eventGeneratorName;
@@ -89,7 +92,7 @@ public class StockExchange {
 
 	public StockExchange(ExchangeGroup exchangeGroup, String name, String description, int companyCount, String eventGeneratorName, long companyPeriodLength,
 			long defaultPrimeInterestRateBasisPoints, String economicModifierName, String companyModifierName, long maxSharePrice, long requiredLevel,
-			long maxTradingCompanyCount)
+			int maxTradingCompanyCount, int minTradingCompanyCount)
 
 	{
 		super();
@@ -105,6 +108,7 @@ public class StockExchange {
 		this.maxSharePrice = maxSharePrice;
 		this.requiredLevel = requiredLevel;
 		this.maxTradingCompanyCount = maxTradingCompanyCount;
+		this.minTradingCompanyCount = minTradingCompanyCount;
 	}
 
 	/**
@@ -374,18 +378,33 @@ public class StockExchange {
 	}
 
 	/**
-	 * @return the maxCompanyCount
+	 * @return the minTradingCompanyCount
 	 */
-	public long getMaxTradingCompanyCount() {
+	public int getMinTradingCompanyCount() {
+		return minTradingCompanyCount;
+	}
+
+	/**
+	 * @param minTradingCompanyCount
+	 *            the minTradingCompanyCount to set
+	 */
+	public void setMinTradingCompanyCount(int minTradingCompanyCount) {
+		this.minTradingCompanyCount = minTradingCompanyCount;
+	}
+
+	/**
+	 * @return the maxTradingCompanyCount
+	 */
+	public int getMaxTradingCompanyCount() {
 		return maxTradingCompanyCount;
 	}
 
 	/**
-	 * @param maxCompanyCount
-	 *            the maxCompanyCount to set
+	 * @param maxTradingCompanyCount
+	 *            the maxTradingCompanyCount to set
 	 */
-	public void setMaxTradingCompanyCount(long maxCompanyCount) {
-		this.maxTradingCompanyCount = maxCompanyCount;
+	public void setMaxTradingCompanyCount(int maxTradingCompanyCount) {
+		this.maxTradingCompanyCount = maxTradingCompanyCount;
 	}
 
 }
