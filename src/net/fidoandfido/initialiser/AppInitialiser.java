@@ -220,7 +220,7 @@ public class AppInitialiser {
 		ShareParcel mmShareParcel = new ShareParcel(marketMakerTrader, marketMakerCount, company, company.getShareBookValue());
 		shareParcelDAO.saveShareParcel(mmShareParcel);
 
-		return null;
+		return company;
 	}
 
 	private void createAndSaveCompanies() throws SAXException, IOException {
