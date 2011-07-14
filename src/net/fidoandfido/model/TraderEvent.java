@@ -18,6 +18,7 @@ public class TraderEvent {
 	public static final String DIVIDEND_PAYMENT = "dividend";
 	public static final String BUY_SHARES_PAYMENT = "buy";
 	public static final String SELL_SHARES_PAYMENT = "sell";
+	public static final String COMPANY_DISSOLVED = "company dissolved";
 
 	@Id
 	@Column(name = "trader_id")
