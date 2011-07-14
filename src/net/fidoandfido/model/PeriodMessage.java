@@ -1,11 +1,10 @@
 package net.fidoandfido.model;
 
-import java.util.Date;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.GenericGenerator;
@@ -20,19 +19,23 @@ public class PeriodMessage {
 	@GenericGenerator(name = "uuid", strategy = "uuid")
 	String id;
 
+	@ManyToOne
 	private StockExchange exchange;
 
+	@ManyToOne
 	private StockExchangePeriod exchangePeriod;
 
+	@Column
 	private String sector;
 
+	@ManyToOne
 	private Company company;
 
+	@ManyToOne
 	private CompanyPeriodReport companyPeriod;
 
+	@Column
 	private String message;
-
-	private Date date;
 
 	/**
 	 * Default constructor for persistence layer.
@@ -47,14 +50,12 @@ public class PeriodMessage {
 	 * @param exchange
 	 * @param exchangePeriod
 	 * @param message
-	 * @param date
 	 */
-	public PeriodMessage(StockExchange exchange, StockExchangePeriod exchangePeriod, String message, Date date) {
+	public PeriodMessage(StockExchange exchange, StockExchangePeriod exchangePeriod, String message) {
 		super();
 		this.exchange = exchange;
 		this.exchangePeriod = exchangePeriod;
 		this.message = message;
-		this.date = date;
 	}
 
 	/**
@@ -64,15 +65,13 @@ public class PeriodMessage {
 	 * @param exchangePeriod
 	 * @param sector
 	 * @param message
-	 * @param date
 	 */
-	public PeriodMessage(StockExchange exchange, StockExchangePeriod exchangePeriod, String sector, String message, Date date) {
+	public PeriodMessage(StockExchange exchange, StockExchangePeriod exchangePeriod, String sector, String message) {
 		super();
 		this.exchange = exchange;
 		this.exchangePeriod = exchangePeriod;
 		this.sector = sector;
 		this.message = message;
-		this.date = date;
 	}
 
 	/**
@@ -84,10 +83,9 @@ public class PeriodMessage {
 	 * @param company
 	 * @param companyPeriod
 	 * @param message
-	 * @param date
 	 */
 	public PeriodMessage(StockExchange exchange, StockExchangePeriod exchangePeriod, String sector, Company company, CompanyPeriodReport companyPeriod,
-			String message, Date date) {
+			String message) {
 		super();
 		this.exchange = exchange;
 		this.exchangePeriod = exchangePeriod;
@@ -95,7 +93,24 @@ public class PeriodMessage {
 		this.company = company;
 		this.companyPeriod = companyPeriod;
 		this.message = message;
-		this.date = date;
+	}
+
+	/**
+	 * Company level message
+	 * 
+	 * @param sector
+	 * @param company
+	 * @param companyPeriod
+	 * @param message
+	 */
+	public PeriodMessage(String sector, Company company, CompanyPeriodReport companyPeriod, String message) {
+		super();
+		this.exchange = company.getStockExchange();
+		this.exchangePeriod = exchange.getCurrentPeriod();
+		this.sector = sector;
+		this.company = company;
+		this.companyPeriod = companyPeriod;
+		this.message = message;
 	}
 
 	/**
@@ -201,21 +216,6 @@ public class PeriodMessage {
 	 */
 	public void setMessage(String message) {
 		this.message = message;
-	}
-
-	/**
-	 * @return the date
-	 */
-	public Date getDate() {
-		return date;
-	}
-
-	/**
-	 * @param date
-	 *            the date to set
-	 */
-	public void setDate(Date date) {
-		this.date = date;
 	}
 
 }
