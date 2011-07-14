@@ -7,11 +7,13 @@ import net.fidoandfido.dao.CompanyDAO;
 import net.fidoandfido.dao.CompanyPeriodReportDAO;
 import net.fidoandfido.dao.ExchangeGroupDAO;
 import net.fidoandfido.dao.HibernateUtil;
+import net.fidoandfido.dao.PeriodMessageDAO;
 import net.fidoandfido.dao.ShareParcelDAO;
 import net.fidoandfido.dao.StockExchangeDAO;
 import net.fidoandfido.dao.StockExchangePeriodDAO;
 import net.fidoandfido.dao.TraderDAO;
 import net.fidoandfido.dao.TraderEventDAO;
+import net.fidoandfido.dao.TraderMessageDAO;
 import net.fidoandfido.engine.companymodifiers.CompanyModiferFactory;
 import net.fidoandfido.engine.companymodifiers.CompanyModifier;
 import net.fidoandfido.engine.economicmodfiers.EconomicModifier;
@@ -23,11 +25,13 @@ import net.fidoandfido.initialiser.AppInitialiser;
 import net.fidoandfido.model.Company;
 import net.fidoandfido.model.CompanyPeriodReport;
 import net.fidoandfido.model.ExchangeGroup;
+import net.fidoandfido.model.PeriodMessage;
 import net.fidoandfido.model.ShareParcel;
 import net.fidoandfido.model.StockExchange;
 import net.fidoandfido.model.StockExchangePeriod;
 import net.fidoandfido.model.Trader;
 import net.fidoandfido.model.TraderEvent;
+import net.fidoandfido.model.TraderMessage;
 import net.fidoandfido.util.ServerUtil;
 
 import org.apache.log4j.Logger;
@@ -45,6 +49,7 @@ public class PeriodGenerator implements Runnable {
 	private TraderEventDAO traderEventDAO;
 	private CompanyPeriodReportDAO companyPeriodReportDAO;
 	private ExchangeGroupDAO exchangeGroupDAO;
+	private TraderMessageDAO traderMessageDAO;
 
 	private void initDAOs() {
 		traderDAO = new TraderDAO();
@@ -55,12 +60,16 @@ public class PeriodGenerator implements Runnable {
 		stockExchangePeriodDAO = new StockExchangePeriodDAO();
 		traderEventDAO = new TraderEventDAO();
 		companyPeriodReportDAO = new CompanyPeriodReportDAO();
+		traderMessageDAO = new TraderMessageDAO();
+		periodMessageDAO = new PeriodMessageDAO();
 	}
 
 	private final String groupName;
 	private final long periodLength;
 
 	private boolean running = true;
+
+	private PeriodMessageDAO periodMessageDAO;
 
 	public PeriodGenerator(String groupName) {
 		initDAOs();
@@ -157,26 +166,29 @@ public class PeriodGenerator implements Runnable {
 
 			EconomicModifier economicModifier = EconomicModifierFactory.getEconomicModifier(exchange.getEconomicModifierName());
 			economicModifier.modifiyExchangePeriod(currentExchangePeriod, previousPeriod);
+			economicModifier.modifySectors(currentExchangePeriod, previousPeriod);
 
 			exchange.setCurrentPeriod(currentExchangePeriod);
 
 			// Create company modifier and event generator
 			CompanyModifier companyModifier = CompanyModiferFactory.getCompanyModifier(exchange.getCompanyModifierName());
 			QuarterEventGenerator generator = new QuarterEventGenerator();
+
 			Iterable<Company> companyList = companyDAO.getCompaniesByExchange(exchange);
-
 			for (Company company : companyList) {
-				// Refresh our handle (since we may have flushed the hibernate session.
+				// Refresh our handle (since we may have flushed the hibernate session.)
 				company = CompanyDAO.getCompanyById(company.getId());
-
 				if (!company.isTrading()) {
 					continue;
 				}
 				logger.info("Updating company: " + company.getName());
 
 				if (company.getCompanyStatus().equals(Company.IPO_COMPANY_STATUS)) {
-					logger.info("Company: " + company.getName() + " NOW OFF IPO STATUS!!!");
 					company.setCompanyStatus(Company.TRADING_COMPANY_STATUS);
+					String message = company.getName() + " is now trading on " + exchange.getName() + ".";
+					PeriodMessage newCompanyMessage = new PeriodMessage(exchange, exchange.getCurrentPeriod(), company.getSector(), company,
+							company.getCurrentPeriod(), message);
+					periodMessageDAO.saveMessage(newCompanyMessage);
 				}
 
 				// Create a new company report entry..
@@ -192,24 +204,31 @@ public class PeriodGenerator implements Runnable {
 					}
 
 					// Update the company:
+					// Check if the company is to be dissolved, and do so if required.
 					// Split stocks (if required)
-					// Update the company status
+					// Update the company trading status
 					// Update revenue / expense based on company stats modifier
 					// Update debt based company stats modifier
 					// Close this period off
 					// distribute the dividends
 					// Finally - save it!
-					splitStocks(company, currentPeriodReport);
 
-					companyModifier.updateCompanyTradingStatus(company);
-					if (!company.isTrading()) {
+					if (economicModifier.isCompanyToBeDissolved(company)) {
+						dissolveCompany(company, currentDate);
 						continue;
 					}
 
-					companyModifier.modifyCompanyRates(company);
+					if (company.getLastTradePrice() > company.getStockExchange().getMaxSharePrice()) {
+						splitStocks(company, currentPeriodReport, currentDate);
+					}
+
+					economicModifier.updateCompanyTradingStatus(company);
+
 					if (!company.isInsolvent()) {
 						companyModifier.modifyCompanyDebts(company);
 					}
+
+					companyModifier.modifyCompanyRates(company);
 
 					generation = currentPeriodReport.getGeneration();
 					distributeDividends(currentPeriodReport, currentDate);
@@ -222,16 +241,20 @@ public class PeriodGenerator implements Runnable {
 
 				// Calculate the expected return based on the current asset/debt
 				// Use company expense rate and apply modifiers based on global and sector economic conditions.
+				// Ensure revenue and expenses are always at least 1 %, interest can hit 0.
 				// 1. Revenues
 				long revenueRate = company.getRevenueRate() + currentExchangePeriod.getRevenueRateDelta()
 						+ currentExchangePeriod.getSectorRevenueDelta(company.getSector());
+				revenueRate = (revenueRate <= 0 ? 1 : revenueRate);
 				long expectedRevenues = revenueRate * company.getAssetValue() / 100;
 				// 2. Expenses
 				long expenseRate = company.getExpenseRate() + currentExchangePeriod.getExpenseRateDelta()
 						+ currentExchangePeriod.getSectorExpenseDelta(company.getSector());
+				expenseRate = (expenseRate <= 0 ? 1 : expenseRate);
 				long expectedExpenses = expenseRate * company.getAssetValue() / 100;
 				// 3. Interest
 				long primeInterestRateBasisPoints = company.getPrimeInterestRateBasisPoints();
+				primeInterestRateBasisPoints = (primeInterestRateBasisPoints < 0 ? 0 : primeInterestRateBasisPoints);
 				long expectedInterest = (company.getDebtValue()) * primeInterestRateBasisPoints / 10000;
 				// 4. PROFIT!!!
 				long expectedProfit = expectedRevenues - expectedExpenses - expectedInterest;
@@ -264,14 +287,72 @@ public class PeriodGenerator implements Runnable {
 		return;
 	}
 
-	private void createNewCompany(StockExchange exchange) {
+	private void dissolveCompany(Company company, Date currentDate) {
+		// TODO Auto-generated method stub
+		logger.info("Setting company status of Company: " + company.getName() + " = ---" + Company.DISSOLVED_COMPANY_STATUS);
+		company.setCompanyStatus(Company.DISSOLVED_COMPANY_STATUS);
+		long shareBookValue = company.getShareBookValue();
+		if (shareBookValue < 0) {
+			shareBookValue = 0;
+		}
 
+		company.setAssetValue(0);
+		company.setDebtValue(0);
+		company.setAlwaysPayDividend(false);
+		company.setExpenseRate(0);
+		company.setRevenueRate(0);
+		company.setOutstandingShares(0);
+		company.setTrading(false);
+		Date date = new Date();
+
+		StockExchange exchange = company.getStockExchange();
+
+		exchange.incrementCompanyCount(-1);
+		stockExchangeDAO.saveStockExchange(exchange);
+
+		String announcemnt = exchange.getName() + " has received a formal declaration that " + company.getName() + " has been dissolved."
+				+ " All assets for this company have been liquidated, and it's debts repaid. Any remaining capital has been paid out"
+				+ " to remaining shareholders.";
+		PeriodMessage newCompanyMessage = new PeriodMessage(exchange, exchange.getCurrentPeriod(), company.getSector(), company, company.getCurrentPeriod(),
+				announcemnt);
+		periodMessageDAO.saveMessage(newCompanyMessage);
+		Iterable<ShareParcel> shareParcels = shareParcelDAO.getHoldingsByCompany(company);
+		for (ShareParcel shareParcel : shareParcels) {
+			Trader trader = shareParcel.getTrader();
+			long shareCount = shareParcel.getShareCount();
+			long amount = shareBookValue * shareParcel.getShareCount();
+			if (!trader.isAITrader()) {
+				TraderEvent event = new TraderEvent(trader, TraderEvent.COMPANY_DISSOLVED, date, company, shareCount, amount, trader.getCash(),
+						trader.getCash() + amount);
+				traderEventDAO.saveTraderEvent(event);
+				trader.giveCash(amount);
+				// Send them a message to let them know the company dissovled.
+				// Send them a message.
+				TraderMessage message = new TraderMessage(trader, currentDate, "Company dissolved - " + company.getName(), company.getName()
+						+ " has been dissolved. After the debts were repaid, any remaining assets have been distributed liquidated "
+						+ "and the proceeds distribute to shareholders. Your portfolio has been adjusted accordingly.");
+				traderMessageDAO.saveMessage(message);
+			}
+			shareParcelDAO.deleteShareParcel(shareParcel);
+		}
+		return;
+	}
+
+	public void createNewCompany(StockExchange exchange) {
 		// SHOULD BE CREATING A NEW COMPANY NOW!!!
 		AppInitialiser initialiser = new AppInitialiser();
 		try {
 			Company company = initialiser.createNewCompany(exchange, companyDAO.getAllCompanyCodes(), companyDAO.getAllCompanyNames(),
 					traderDAO.getMarketMaker());
+			exchange.incrementCompanyCount(1);
+			stockExchangeDAO.saveStockExchange(exchange);
 			companyDAO.saveCompany(company);
+			// This deserves an announcement!
+			String message = company.getName() + " has announced it's intention to list on " + exchange.getName() + ". Orders for shares may be placed"
+					+ " this period, shares will begin trading normally at the commencement of the next financial period.";
+			PeriodMessage newCompanyMessage = new PeriodMessage(exchange, exchange.getCurrentPeriod(), company.getSector(), company,
+					company.getCurrentPeriod(), message);
+			periodMessageDAO.saveMessage(newCompanyMessage);
 		} catch (SAXException e) {
 			logger.error(e.getMessage());
 			ServerUtil.logError(logger, e);
@@ -281,33 +362,42 @@ public class PeriodGenerator implements Runnable {
 		}
 	}
 
-	private void splitStocks(Company company, CompanyPeriodReport currentPeriodReport) {
-		if (company.getLastTradePrice() > company.getStockExchange().getMaxSharePrice()) {
-			logger.info("Splitting stocks for company: " + company.getName());
-			// Time to split the stock!
-			// Rounding not a huge issue - the market will correct the price
-			// anyhow
-			long newPrice = company.getLastTradePrice() / 2;
-			company.setLastTradePrice(newPrice);
+	private void splitStocks(Company company, CompanyPeriodReport currentPeriodReport, Date currentDate) {
+		logger.info("Splitting stocks for company: " + company.getName());
+		// Time to split the stock!
+		// Rounding not a huge issue - the market will correct the price
+		// anyhow
+		long newPrice = company.getLastTradePrice() / 2;
+		company.setLastTradePrice(newPrice);
 
-			long outstandingShares = company.getOutstandingShares() * 2;
-			company.setOutstandingShares(outstandingShares);
+		long outstandingShares = company.getOutstandingShares() * 2;
+		company.setOutstandingShares(outstandingShares);
 
-			currentPeriodReport.setStockSplit(true);
-			companyDAO.saveCompany(company);
+		currentPeriodReport.setStockSplit(true);
+		companyDAO.saveCompany(company);
 
-			// Now get all share parcels and update the price (and reduce the
-			// effective purchase price)
-			Iterable<ShareParcel> shareParcels = shareParcelDAO.getHoldingsByCompany(company);
-			for (ShareParcel shareParcel : shareParcels) {
-				long previousShareCount = shareParcel.getShareCount();
-				shareParcel.setShareCount(previousShareCount * 2);
-				long previousAveragePrice = shareParcel.getPurchasePrice();
-				shareParcel.setPurchasePrice(previousAveragePrice / 2);
-				shareParcelDAO.saveShareParcel(shareParcel);
+		String message = company.getName() + " stock has split 2 for 1!";
+		PeriodMessage newCompanyMessage = new PeriodMessage(company.getSector(), company, company.getCurrentPeriod(), message);
+		periodMessageDAO.saveMessage(newCompanyMessage);
+
+		// Now get all share parcels and update the price (and reduce the
+		// effective purchase price)
+		Iterable<ShareParcel> shareParcels = shareParcelDAO.getHoldingsByCompany(company);
+		for (ShareParcel shareParcel : shareParcels) {
+			long previousShareCount = shareParcel.getShareCount();
+			shareParcel.setShareCount(previousShareCount * 2);
+			long previousAveragePrice = shareParcel.getPurchasePrice();
+			shareParcel.setPurchasePrice(previousAveragePrice / 2);
+			shareParcelDAO.saveShareParcel(shareParcel);
+			Trader owner = shareParcel.getTrader();
+			if (!owner.isAITrader()) {
+				// Send them a message.
+				TraderMessage traderMessage = new TraderMessage(owner, currentDate, "Stock Split - " + company.getName(), "Shares in " + company.getName()
+						+ " have split 2 for 1. Your portfolio has been adjusted accordingly.");
+				traderMessageDAO.saveMessage(traderMessage);
 			}
-
 		}
+
 	}
 
 	private void distributeDividends(CompanyPeriodReport currentPeriodReport, Date currentDate) {
