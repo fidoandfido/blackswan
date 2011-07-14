@@ -53,10 +53,10 @@
         <!-- Bind the getCurrentSession() method to the thread. -->
         <property name="current_session_context_class">thread</property>
 
-
         <mapping class="net.fidoandfido.model.AppStatus"/>
         <mapping class="net.fidoandfido.model.Company"/>
         <mapping class="net.fidoandfido.model.CompanyPeriodReport"/>
+        <mapping class="net.fidoandfido.model.PeriodMessage"/>
         <mapping class="net.fidoandfido.model.PeriodQuarter"/>
         <mapping class="net.fidoandfido.model.PeriodRumour"/>
         <mapping class="net.fidoandfido.model.ExchangeGroup"/>
