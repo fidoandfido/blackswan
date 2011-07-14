@@ -407,4 +407,8 @@ public class StockExchange {
 		this.maxTradingCompanyCount = maxTradingCompanyCount;
 	}
 
+	public void incrementCompanyCount(int i) {
+		this.companyCount = companyCount + i;
+	}
+
 }
