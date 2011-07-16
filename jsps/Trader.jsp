@@ -139,6 +139,10 @@
 				</table>
 				<br/>
 				<p>
+				<a href="/myapp/TraderAuditReport.jsp">Full audit report</a>
+				</p>
+				
+				<p>
 					<b>Portfolio:</b>
 				</p>
 
