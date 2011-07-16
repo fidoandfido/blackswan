@@ -84,16 +84,8 @@
 	</div>
 	<hr />
 	<!--  end #logo -->
-	<div id="header">
-		<div id="menu">
-			<ul>
-				<li class="current_page_item"><a href="/myapp/Welcome.jsp">Home</a></li>
-				<li class="current_page_item"><a href="/myapp/News.jsp">News</a></li>
-				<li class="current_page_item"><a href="/myapp/Exchange.jsp">Exchanges</a></li>
-				<li class="current_page_item"><a href="/myapp/logout">Log out</a><li>
-			</ul>
-		</div>
-	</div>
+
+<%@ include file="webTemplates/pageHeaderA.txt" %>
 </div>
 
 <div id="page">

@@ -1,3 +1,4 @@
+<%@page import="net.fidoandfido.dao.UserSessionDAO"%>
 <%@page import="net.fidoandfido.servlets.MessageServlet"%>
 <%@page import="net.fidoandfido.engine.quarter.QuarterEventGenerator"%>
 <%@page import="java.util.Map"%>
@@ -19,46 +20,57 @@
 <%@page import="java.util.Date"%>
 <%@page session="true" %>
 <%
-	HibernateUtil.beginTransaction();
-	User user = WebUtil.getCurrentUserBySession(request.getSession().getId());
-	boolean isAdmin = user == null ? false : user.isUserAdmin();
-	TraderDAO traderDAO = new TraderDAO();
-	Trader trader = null;
-	if (user != null) {
-		trader = traderDAO.getTraderByUser(user);	
-	}
-	Date currentDate = new Date();
+HibernateUtil.beginTransaction();
+User user = null;
+Trader trader = null;
+Date currentDate = new Date();
 
+UserSessionDAO userSessionDAO = new UserSessionDAO();
+UserSession userSession = userSessionDAO.getUserSessionBySessionId(request.getSession().getId());
+
+if (userSession != null && userSession.isActive()) {
+	user = userSession.getUser();
+	trader = user.getTrader();
+}
+
+if (user == null || trader == null) {
+	response.sendRedirect("/myapp/Welcome.jsp");
+	return;
+}
 	
 %>
-
-
-
 <html>
 
-<%@ include file="webTemplates/header.txt" %>
+<script type="text/javascript" src="/myapp/scripts/popup.js""></script>
+
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+	<title>Black Swan Trading</title>
+
+	<link href="stylesheets/new-style.css" rel="stylesheet" type="text/css" media="screen" />
+</head>
+
+
+<!--  PAGE HEADER -->
+<div id="header-wrapper">
+	<div id="logo">
+		<h1><a href="/myapp/Welcome.jsp">Black Swan Trading</a></h1>
+	</div>
+	<hr />
+	<!--  end #logo -->	<!--  PAGE HEADER -->
+<div id="header-wrapper">
+	<div id="logo">
+		<h1><a href="/myapp/Welcome.jsp">Black Swan Trading</a></h1>
+	</div>
+	<hr />
+	<!--  end #logo -->	
 <%@ include file="webTemplates/pageHeaderA.txt" %>
-<%@ include file="webTemplates/pageHeaderB.txt" %>
+</div>
+</div>
+
 
 <div id="page">
 	<div id="content">
-<%
-	if (user == null) {
-%>
-<p>Hello!
-<a href="/myapp/Welcome.jsp">Sign in</a>
-to access (or create) your trader profile.</p>
-<%
-	} else if (trader == null) {
-		// Show trader registration form
-%>
-	<form action="/myapp/register" method="post">
-		<div>Enter a name for you trader:<input name="trader_name"  cols="60"></input></div>
-		<div><input type="submit" value="Create Trader" /></div>
-	</form>
-<%
-	} else {
-%>
 			<div class="post">
 				<h2 class="title">Post a Message to yourself)</h2>
 				<div class="entry">
@@ -74,32 +86,10 @@ to access (or create) your trader profile.</p>
 				</form>
 									
 				</div>
-			</div>	
-			
-<%
-			if (isAdmin) {
-				// Show the time that all the bits will be available.
-%>
-			<div class="post">
-				<h2 class="title">Admin Information</h2>
-				<div class="entry">
-				Trader has administrator privileges.
-				</div>
-			</div>	
-<%
-			}
-%>				
-
-<%			
-		}
-%>
+			</div>
 
 	</div>
 	<!-- end #content -->
-
-
-<%= WebPageUtil.generateSideBar(trader, user) %>
-
 	<div style="clear: both;">&nbsp;</div>
 </div>
 <!--  end page -->
