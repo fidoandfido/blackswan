@@ -125,7 +125,6 @@
 
 </div>
 <!-- end #content -->
-<%=WebPageUtil.generateSideBar(trader, user)%>
 	<div style="clear: both;">&nbsp;</div>
 </div>
 <!--  end page -->
