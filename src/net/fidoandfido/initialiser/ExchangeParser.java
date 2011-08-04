@@ -71,11 +71,8 @@ public class ExchangeParser extends DefaultHandler {
 				// and ignore it.
 			}
 
-			// EventGenerator generator =
-			// EventGeneratorFactory.getGeneratorByName(eventGeneratorName);
-			stockExchange = new StockExchange(currentExchangeGroup, name, description, companyCount, eventGeneratorName,
-					currentExchangeGroup.getPeriodLength(), interestRate, economicModifierName, companyModifierName, maxSharePrice, requiredLevel,
-					maxCompantTradingCount, minTradingCount);
+			stockExchange = new StockExchange(currentExchangeGroup, name, description, companyCount, eventGeneratorName, interestRate, economicModifierName,
+					companyModifierName, maxSharePrice, requiredLevel, maxCompantTradingCount, minTradingCount);
 			currentExchangeGroup.addExchange(stockExchange);
 
 		} else if (localName.equals(SECTOR_TAG)) {
