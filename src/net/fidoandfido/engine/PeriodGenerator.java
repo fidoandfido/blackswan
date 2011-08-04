@@ -14,7 +14,6 @@ import net.fidoandfido.dao.StockExchangePeriodDAO;
 import net.fidoandfido.dao.TraderDAO;
 import net.fidoandfido.dao.TraderEventDAO;
 import net.fidoandfido.dao.TraderMessageDAO;
-import net.fidoandfido.engine.companymodifiers.CompanyModiferFactory;
 import net.fidoandfido.engine.companymodifiers.CompanyModifier;
 import net.fidoandfido.engine.economicmodfiers.EconomicModifier;
 import net.fidoandfido.engine.economicmodfiers.EconomicModifierFactory;
@@ -145,6 +144,8 @@ public class PeriodGenerator implements Runnable {
 		}
 		logger.info("Date: " + currentDate);
 
+		CompanyProfileController companyProfileController = new CompanyProfileController();
+
 		for (StockExchange exchange : exchangeGroup.getExchanges()) {
 			// Check if this is before the end date of the current stockExchange
 			// period.
@@ -171,17 +172,17 @@ public class PeriodGenerator implements Runnable {
 			exchange.setCurrentPeriod(currentExchangePeriod);
 
 			// Create company modifier and event generator
-			CompanyModifier companyModifier = CompanyModiferFactory.getCompanyModifier(exchange.getCompanyModifierName());
 			QuarterEventGenerator generator = new QuarterEventGenerator();
 
 			Iterable<Company> companyList = companyDAO.getCompaniesByExchange(exchange);
 			for (Company company : companyList) {
 				// Refresh our handle (since we may have flushed the hibernate session.)
-				company = CompanyDAO.getCompanyById(company.getId());
+				company = companyDAO.getCompanyById(company.getId());
 				if (!company.isTrading()) {
 					continue;
 				}
 				logger.info("Updating company: " + company.getName());
+				CompanyModifier companyModifier = companyProfileController.getCompanyModifer(company);
 
 				if (company.getCompanyStatus().equals(Company.IPO_COMPANY_STATUS)) {
 					company.setCompanyStatus(Company.TRADING_COMPANY_STATUS);
@@ -267,7 +268,7 @@ public class PeriodGenerator implements Runnable {
 
 				companyPeriodReportDAO.savePeriodReport(newPeriodReport);
 
-				generator.generateQuarters(newPeriodReport, company, exchange);
+				generator.generateQuarters(newPeriodReport, company, exchange, companyProfileController);
 				company.setCurrentPeriod(newPeriodReport);
 				companyDAO.saveCompany(company);
 				HibernateUtil.flushAndClearSession();

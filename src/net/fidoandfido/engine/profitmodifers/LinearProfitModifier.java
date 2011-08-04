@@ -104,7 +104,7 @@ public class LinearProfitModifier implements EventProfitModifier {
 		long revenueRate = 20;
 		long expenseRate = 12;
 		long dividendRate = 20;
-		Company company = new Company("Foobar Enterprises", "fbe", assets, debts, shareCount, "sector", "", "", dividendRate, revenueRate, expenseRate);
+		Company company = new Company("Foobar Enterprises", "fbe", assets, debts, shareCount, "sector", "", dividendRate, revenueRate, expenseRate);
 		company.setStockExchange(exchange);
 
 		long primeInterestRateBasisPoints = company.getPrimeInterestRateBasisPoints();
@@ -121,8 +121,6 @@ public class LinearProfitModifier implements EventProfitModifier {
 		QuarterData initialData = new QuarterData(profit, expenses, revenues, interest);
 		LinearProfitModifier modifier = new LinearProfitModifier();
 
-		QuarterData fullYearData = new QuarterData(profit * 4, expenses * 4, revenues * 4, interest * 4);
-
 		System.out.println("Company data:");
 		System.out.println("Assets: " + WebPageUtil.formatCurrency(company.getAssetValue()));
 		System.out.println("Debt: " + WebPageUtil.formatCurrency(company.getDebtValue()));
@@ -137,7 +135,6 @@ public class LinearProfitModifier implements EventProfitModifier {
 		System.out.println("DEFAULT EARNINGS - PER QUARTER THEN PER YEAR");
 		System.out.println("Profit\t\trevenue\t\texpenses\tinterest\tEarning/share\tDividend");
 		printData(company, initialData);
-		printData(company, fullYearData);
 
 		// Show the rest of the data, using moderate volatility
 		for (QuarterPerformanceType eventType : QuarterPerformanceType.values()) {

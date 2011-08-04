@@ -41,11 +41,7 @@ public class CyclicalQuarterGenerator implements QuarterGenerator {
 
 	@Override
 	public QuarterPerformanceType getNextEventType() {
-		return getNextEventType(QuarterPerformanceType.AVERAGE);
-	}
-
-	@Override
-	public QuarterPerformanceType getNextEventType(QuarterPerformanceType previousEvent) {
+		QuarterPerformanceType previousEvent = QuarterPerformanceType.AVERAGE;
 		// This will produce events of the same general type.
 		// it will be biased against the extreme events.
 

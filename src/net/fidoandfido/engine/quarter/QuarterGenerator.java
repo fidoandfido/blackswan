@@ -6,5 +6,4 @@ public interface QuarterGenerator {
 
 	public QuarterPerformanceType getNextEventType();
 
-	public QuarterPerformanceType getNextEventType(QuarterPerformanceType event);
 }

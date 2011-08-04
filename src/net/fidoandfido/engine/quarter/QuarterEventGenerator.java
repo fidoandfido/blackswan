@@ -6,7 +6,8 @@ import java.util.Random;
 import net.fidoandfido.dao.CompanyPeriodReportDAO;
 import net.fidoandfido.dao.PeriodPartInformationDAO;
 import net.fidoandfido.dao.RumourDAO;
-import net.fidoandfido.engine.profitmodifers.LinearProfitModifier;
+import net.fidoandfido.engine.CompanyProfileController;
+import net.fidoandfido.engine.profitmodifers.EventProfitModifier;
 import net.fidoandfido.model.Company;
 import net.fidoandfido.model.CompanyPeriodReport;
 import net.fidoandfido.model.PeriodQuarter;
@@ -19,18 +20,7 @@ public class QuarterEventGenerator {
 	// To be used to get the event type.
 	private Random randomTime = new Random();
 
-	// private static final int FIRST_QUARTER_PART_INDEX = 0;
-	// private static final int SECOND_QUARTER_PART_INDEX = 1;
-	// private static final int THIRD_QUARTER_PART_INDEX = 2;
-	// private static final int FOURTH_QUARTER_PART_INDEX = 3;
 	private static final int PERIOD_PART_COUNT = 4;
-
-	public static final String FIRST_QUARTER = "First quarter forecast";
-	public static final String SECOND_QUARTER = "Second quarter forecast";
-	public static final String THIRD_QUARTER = "Third quarter forecast";
-	public static final String FOURTH_QUARTER = "Fourth quarter forecast";
-
-	public static final String[] QUARTER_NAME_ARRAY = { FIRST_QUARTER, SECOND_QUARTER, THIRD_QUARTER, FOURTH_QUARTER };
 
 	public static final int AGE_PROBABILITY_RANGE = 100;
 	public static final int GOLDEN_AGE_HIT = 99;
@@ -44,7 +34,6 @@ public class QuarterEventGenerator {
 	// private static final int DIVIDEND_ANNOUNCED = 4;
 
 	public QuarterEventGenerator() {
-		super();
 		periodPartInformationDAO = new PeriodPartInformationDAO();
 		companyPeriodReportDAO = new CompanyPeriodReportDAO();
 		rumourDAO = new RumourDAO();
@@ -52,7 +41,8 @@ public class QuarterEventGenerator {
 
 	Random enterAnAgeRandom = new Random(17);
 
-	public void generateQuarters(CompanyPeriodReport periodReport, Company company, StockExchange stockExchange) {
+	public void generateQuarters(CompanyPeriodReport periodReport, Company company, StockExchange stockExchange,
+			CompanyProfileController companyProfileController) {
 
 		// Check to see if we are in a golden age / battler age.
 		// If not, roll the dice to see if we go into one!
@@ -70,12 +60,11 @@ public class QuarterEventGenerator {
 			}
 		}
 
-		// String sectorName = company.getSector();
-		LinearProfitModifier profitModifier = new LinearProfitModifier();
-		QuarterGenerator quarterGenerator = QuarterGeneratorFactory.getGeneratorByName(stockExchange.getName(), stockExchange.getEventGeneratorName());
+		EventProfitModifier profitModifier = companyProfileController.getProfitModifier(company);
+		QuarterGenerator quarterGenerator = companyProfileController.getQuarterGenerator(company);
 		QuarterData currentQuarterData = new QuarterData(0, 0, 0, 0);
 
-		for (int i = 0; i < QUARTER_NAME_ARRAY.length; i++) {
+		for (int i = 0; i < 4; i++) {
 			QuarterPerformanceType quarterEvent = quarterGenerator.getNextEventType();
 			if (company.getRemainingPeriodsOfDarkAge() > 0) {
 				if (quarterEvent == QuarterPerformanceType.GOOD || quarterEvent == QuarterPerformanceType.GREAT
@@ -93,7 +82,7 @@ public class QuarterEventGenerator {
 			String message = getMessage(quarterEvent);
 			Date longTermCompanyDate = getDateWithinPeriod(periodReport, PERIOD_PART_COUNT, i, true);
 			currentQuarterData = profitModifier.adjustProfit(quarterEvent, currentQuarterData, company, periodReport, PERIOD_PART_COUNT);
-			PeriodQuarter secondQuarterInformation = new PeriodQuarter(company, periodReport, longTermCompanyDate, message, quarterEvent, QUARTER_NAME_ARRAY[i]);
+			PeriodQuarter secondQuarterInformation = new PeriodQuarter(company, periodReport, longTermCompanyDate, message, quarterEvent, i);
 			secondQuarterInformation.setData(currentQuarterData);
 			periodPartInformationDAO.savePeriodPartInformation(secondQuarterInformation);
 			periodReport.addPeriodQuarter(secondQuarterInformation);
