@@ -1,4 +1,5 @@
-<%@page import="net.fidoandfido.util.ChartGenerator"%>
+<%@page import="net.fidoandfido.charts.CompanyProfitChartGenerator"%>
+<%@page import="net.fidoandfido.charts.SharePriceChartGenerator"%>
 <%@page import="net.fidoandfido.model.UserSession"%>
 <%@page import="net.fidoandfido.dao.UserSessionDAO"%>
 <%@page import="net.fidoandfido.model.Order"%>
@@ -124,10 +125,10 @@
 		// Show company information!
 		CompanyPeriodReport currentReport = company.getCurrentPeriod();
 		Map<String, PeriodQuarter> events = currentReport.getPeriodPartInformationMappedByEvent();
-		PeriodQuarter firstQuarterEvent = events.get(QuarterEventGenerator.FIRST_QUARTER);
-		PeriodQuarter secondQuarterEvent = events.get(QuarterEventGenerator.SECOND_QUARTER);
-		PeriodQuarter thirdQuarterEvent = events.get(QuarterEventGenerator.THIRD_QUARTER);
-		PeriodQuarter fourthQuarterEvent = events.get(QuarterEventGenerator.FOURTH_QUARTER);
+		PeriodQuarter firstQuarterEvent = events.get(PeriodQuarter.FIRST_QUARTER);
+		PeriodQuarter secondQuarterEvent = events.get(PeriodQuarter.SECOND_QUARTER);
+		PeriodQuarter thirdQuarterEvent = events.get(PeriodQuarter.THIRD_QUARTER);
+		PeriodQuarter fourthQuarterEvent = events.get(PeriodQuarter.FOURTH_QUARTER);
 %>
 			<div class="post">
 				<h2 class="title"><%= company.getName() %></h2>
@@ -284,12 +285,22 @@
 				</form>
 
 <%
-			ChartGenerator chartGenerator = new ChartGenerator();
-			session.setAttribute(GraphServlet.CHART_ATTRIBUTE + company.getCode(), chartGenerator.generateChart(company));
+			String graphType  = "sharePrice";
+			SharePriceChartGenerator chartGenerator = new SharePriceChartGenerator();
+			session.setAttribute(GraphServlet.CHART_ATTRIBUTE + company.getCode() + graphType, chartGenerator.generateChart(company));
 			
 %>
 				
-				<img src="/myapp/graph?<%=GraphServlet.COMPANY_CODE%>=<%=company.getCode()%>"/>
+				<img src="/myapp/graph?<%=GraphServlet.COMPANY_CODE%>=<%=company.getCode()%>&<%=GraphServlet.GRAPH_TYPE%>=<%=graphType%>"/>
+			<p></p>
+<%
+			String profitGraphType  = "operatingProfit";
+			CompanyProfitChartGenerator profitChartGenerator = new CompanyProfitChartGenerator();
+			session.setAttribute(GraphServlet.CHART_ATTRIBUTE + company.getCode() + profitGraphType, profitChartGenerator.generateChart(company));
+			
+%>
+				
+				<img src="/myapp/graph?<%=GraphServlet.COMPANY_CODE%>=<%=company.getCode()%>&<%=GraphServlet.GRAPH_TYPE%>=<%=profitGraphType%>"/>
 				
 				</div>
 			</div>	
@@ -307,8 +318,7 @@
 				<li>Revenue rate: <%= company.getRevenueRate() + company.getStockExchange().getCurrentPeriod().getRevenueRateDelta() %>%</li>
 				<li>Expense rate: <%= company.getExpenseRate() + company.getStockExchange().getCurrentPeriod().getExpenseRateDelta() %>%</li>
 				<li>Interest rate: <%= company.getStockExchange().getPrimeInterestRateBasisPoints() %> Basis points</li>
-				<li>Golden age? <%= company.getRemainingPeriodsOfGoldenAge() > 0 ? "Yes" : "No" %></li>
-				<li>Dark age? <%= company.getRemainingPeriodsOfDarkAge() > 0 ? "Yes" : "No" %></li>
+				<li>Company Profile: <%= company.getCompanyProfile() %></li>
 				<li><b>FIRST QUARTER</b></li>					
 				<li>First Quarter available after: <%= firstQuarterEvent.getDateInformationAvailable().toString() %></li>
 				<li>event type: <%= firstQuarterEvent.getEventType() %> </li>

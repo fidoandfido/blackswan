@@ -1,4 +1,4 @@
-<%@page import="net.fidoandfido.util.ChartGenerator"%>
+<%@page import="net.fidoandfido.charts.SharePriceChartGenerator"%>
 <%@page import="org.jfree.chart.title.TextTitle"%>
 <%@page import="java.util.Comparator"%>
 <%@page import="java.util.Collections"%>
@@ -77,13 +77,14 @@
 <div id="graph">
 	<div id="content">
 <%
+	String graphType = "sharePrice";
 	if (user != null) {
-		ChartGenerator chartGenerator = new ChartGenerator();
-		session.setAttribute(GraphServlet.CHART_ATTRIBUTE + company.getCode(), chartGenerator.generateChart(company));
+		SharePriceChartGenerator chartGenerator = new SharePriceChartGenerator();
+		session.setAttribute(GraphServlet.CHART_ATTRIBUTE + company.getCode() + graphType, chartGenerator.generateChart(company));
 	}
 %>
 				
-		<img src="/myapp/graph?<%=GraphServlet.COMPANY_CODE%>=<%=company.getCode()%>"/>
+		<img src="/myapp/graph?<%=GraphServlet.COMPANY_CODE%>=<%=company.getCode()%>&<%=GraphServlet.GRAPH_TYPE%>=<%=graphType%>"/>
 		</div>
 </div>	
 
