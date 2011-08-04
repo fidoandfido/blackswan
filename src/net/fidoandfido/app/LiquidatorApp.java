@@ -1,5 +1,6 @@
 package net.fidoandfido.app;
 
+import java.util.Date;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -42,7 +43,7 @@ public class LiquidatorApp {
 
 		// Liquidate!
 		AITrader aiTrader = new LiquididatingAI();
-		aiTrader.performTrades(trader);
+		aiTrader.performTrades(trader, new Date());
 		trader.setCash(AppInitialiser.TRADER_LIQUIDATE_CASH);
 		traderDAO.saveTrader(trader);
 		HibernateUtil.commitTransaction();
