@@ -1,4 +1,4 @@
-package net.fidoandfido.util;
+package net.fidoandfido.charts;
 
 import java.awt.Color;
 import java.text.SimpleDateFormat;
@@ -25,7 +25,7 @@ import org.jfree.data.time.TimeSeries;
 import org.jfree.data.time.TimeSeriesCollection;
 import org.jfree.ui.RectangleInsets;
 
-public class ChartGenerator {
+public class SharePriceChartGenerator {
 
 	public JFreeChart generateChart(Company company) {
 		if (company == null) {
