@@ -32,7 +32,7 @@ public class AITradeExecutor {
 
 	// Execute a buy.
 	// Return as soon as something goes wrong!
-	public void executeBuy(Trader trader, Company company, long suppliedPrice, long preferredShareCount) {
+	public void executeBuy(Trader trader, Company company, long suppliedPrice, long preferredShareCount, Date date) {
 		// We are going to buy some shares!
 		if (!company.isTrading()) {
 			logger.warn("Trader attempting to trade non-trading company! co:" + company.getName() + " trader: " + trader.getName());
@@ -78,7 +78,6 @@ public class AITradeExecutor {
 		Order marketMakerOrder = new Order(marketMaker, company, shareCount, price, OrderType.SELL);
 		orderDAO.saveOrder(marketMakerOrder);
 
-		Date date = new Date();
 		long saleAmount = shareCount * price;
 		TraderEvent event = new TraderEvent(trader, TraderEvent.BUY_SHARES_PAYMENT, date, buyOrder.getCompany(), shareCount, saleAmount * -1, trader.getCash(),
 				trader.getCash() - saleAmount);
@@ -122,7 +121,7 @@ public class AITradeExecutor {
 
 	}
 
-	public void executeSell(Trader trader, Company company, long suppliedPrice, long preferredShareCount) {
+	public void executeSell(Trader trader, Company company, long suppliedPrice, long preferredShareCount, Date date) {
 		if (!company.isTrading()) {
 			logger.warn("Trader attempting to trade non-trading company! co:" + company.getName() + " trader: " + trader.getName());
 			return;
@@ -164,7 +163,6 @@ public class AITradeExecutor {
 		Order marketMakerOrder = new Order(marketMaker, company, shareCount, price, OrderType.BUY);
 		orderDAO.saveOrder(marketMakerOrder);
 
-		Date date = new Date();
 		long saleAmount = shareCount * price;
 		TraderEvent event = new TraderEvent(trader, TraderEvent.SELL_SHARES_PAYMENT, date, sellOrder.getCompany(), shareCount, saleAmount * -1,
 				trader.getCash(), trader.getCash() + saleAmount);

@@ -1,5 +1,6 @@
 package net.fidoandfido.engine.ai;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Random;
 
@@ -14,7 +15,7 @@ public class EarningAI extends AITrader {
 	private static final int COMPANIES_TO_BUY = 20;
 
 	@Override
-	public void performTrades(Trader trader) {
+	public void performTrades(Trader trader, Date tradeDate) {
 		// If it is above the cash rate - we buy.
 		// If it is below, we sell.
 		CompanyDAO companyDAO = new CompanyDAO();
@@ -43,15 +44,15 @@ public class EarningAI extends AITrader {
 				if (delta > 5) {
 					// More than 5 % spread between earnings and cash rate...
 					sharePrice = adjustPrice(sharePrice, VERY_GOOD_BUY_RATE);
-					buy(trader, company, sharePrice, DEFAULT_BUY_COUNT);
+					buy(trader, company, sharePrice, DEFAULT_BUY_COUNT, tradeDate);
 				} else {
 					sharePrice = adjustPrice(sharePrice, GOOD_BUY_RATE);
-					buy(trader, company, sharePrice, DEFAULT_BUY_COUNT);
+					buy(trader, company, sharePrice, DEFAULT_BUY_COUNT, tradeDate);
 				}
 			} else {
 				// time to sell!
 				sharePrice = adjustPrice(sharePrice, SELL_RATE);
-				sell(trader, company, sharePrice, DEFAULT_SELL_COUNT);
+				sell(trader, company, sharePrice, DEFAULT_SELL_COUNT, tradeDate);
 			}
 		}
 

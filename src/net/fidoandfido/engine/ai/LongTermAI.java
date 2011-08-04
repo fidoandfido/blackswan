@@ -1,5 +1,7 @@
 package net.fidoandfido.engine.ai;
 
+import java.util.Date;
+
 import net.fidoandfido.model.Trader;
 
 public class LongTermAI extends AITrader {
@@ -12,8 +14,7 @@ public class LongTermAI extends AITrader {
 	}
 
 	@Override
-	public void performTrades(Trader trader) {
-		// TODO Auto-generated method stub
+	public void performTrades(Trader trader, Date tradeDate) {
 
 	}
 

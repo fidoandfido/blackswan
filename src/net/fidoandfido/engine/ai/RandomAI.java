@@ -31,7 +31,7 @@ public class RandomAI extends AITrader {
 	public static int CHANCE_TO_BUY_OR_SELL = 3;
 
 	@Override
-	public void performTrades(Trader trader) {
+	public void performTrades(Trader trader, Date tradeDate) {
 		// So basically, we are going to get some companies, look at their
 		// earnings per share,
 		// if the earning per share (as a percent) is above the stock market
@@ -40,7 +40,7 @@ public class RandomAI extends AITrader {
 		// prime interest rate, we sell
 		Set<Company> companySet = new HashSet<Company>();
 
-		List<PeriodQuarter> recentEvents = periodPartInformationDAO.getLatestEvents(20, new Date());
+		List<PeriodQuarter> recentEvents = periodPartInformationDAO.getLatestEvents(20, tradeDate);
 		for (PeriodQuarter periodQuarter : recentEvents) {
 			Company company = periodQuarter.getCompany();
 
@@ -58,10 +58,10 @@ public class RandomAI extends AITrader {
 			int decision = sellOrBuyRandom.nextInt(CHANCE_TO_BUY_OR_SELL);
 			if (decision == BUY) {
 				// This one is a buy!
-				adjustPriceAndBuy(trader, company, BUY_RATE, SMALL_BUY_COUNT);
+				adjustPriceAndBuy(trader, company, BUY_RATE, SMALL_BUY_COUNT, tradeDate);
 			} else if (decision == SELL) {
 				// time to sell!
-				adjustPriceAndSell(trader, company, SELL_RATE, SMALL_SELL_COUNT);
+				adjustPriceAndSell(trader, company, SELL_RATE, SMALL_SELL_COUNT, tradeDate);
 			}
 		}
 	}

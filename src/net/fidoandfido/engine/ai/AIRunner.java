@@ -65,6 +65,10 @@ public class AIRunner implements Runnable {
 	}
 
 	public void process() {
+		process(new Date());
+	}
+
+	public void process(Date tradeDate) {
 		try {
 			logger.info("AIRunner - processing");
 			HibernateUtil.beginTransaction();
@@ -91,7 +95,7 @@ public class AIRunner implements Runnable {
 				trader = traderDAO.getTraderById(trader.getId());
 				AITrader aiTrader = aiFactory.getStrategyByName(trader.getAiStrategyName());
 				logger.info("AIRunner - Performing trades: " + trader.getName() + " -- " + aiTrader.getName());
-				aiTrader.performTrades(trader);
+				aiTrader.performTrades(trader, tradeDate);
 				localList.remove(index);
 				HibernateUtil.flushAndClearSession();
 			}
@@ -104,7 +108,7 @@ public class AIRunner implements Runnable {
 				trader = traderDAO.getTraderById(trader.getId());
 				// Liquidate!
 				AITrader aiTrader = new LiquididatingAI();
-				aiTrader.performTrades(trader);
+				aiTrader.performTrades(trader, tradeDate);
 				trader.setCash(AppInitialiser.TRADER_LIQUIDATE_CASH);
 				localList.remove(index);
 				HibernateUtil.flushAndClearSession();

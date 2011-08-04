@@ -1,5 +1,7 @@
 package net.fidoandfido.engine.ai;
 
+import java.util.Date;
+
 import net.fidoandfido.model.Company;
 import net.fidoandfido.model.Trader;
 
@@ -25,22 +27,22 @@ public abstract class AITrader implements AITradeStrategy {
 
 	private AITradeExecutor executor = new AITradeExecutor();
 
-	protected void buy(Trader trader, Company company, long price, long shareCount) {
-		executor.executeBuy(trader, company, price, shareCount);
+	protected void buy(Trader trader, Company company, long price, long shareCount, Date date) {
+		executor.executeBuy(trader, company, price, shareCount, date);
 	}
 
-	protected void adjustPriceAndBuy(Trader trader, Company company, int rate, long shareCount) {
+	protected void adjustPriceAndBuy(Trader trader, Company company, int rate, long shareCount, Date date) {
 		long price = adjustPrice(company.getLastTradePrice(), rate);
-		executor.executeBuy(trader, company, price, shareCount);
+		executor.executeBuy(trader, company, price, shareCount, date);
 	}
 
-	protected void sell(Trader trader, Company company, long price, long shareCount) {
-		executor.executeSell(trader, company, price, shareCount);
+	protected void sell(Trader trader, Company company, long price, long shareCount, Date date) {
+		executor.executeSell(trader, company, price, shareCount, date);
 	}
 
-	protected void adjustPriceAndSell(Trader trader, Company company, int rate, long shareCount) {
+	protected void adjustPriceAndSell(Trader trader, Company company, int rate, long shareCount, Date date) {
 		long price = adjustPrice(company.getLastTradePrice(), rate);
-		executor.executeSell(trader, company, price, shareCount);
+		executor.executeSell(trader, company, price, shareCount, date);
 	}
 
 	/**

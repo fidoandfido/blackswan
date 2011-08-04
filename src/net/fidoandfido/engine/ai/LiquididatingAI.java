@@ -1,5 +1,6 @@
 package net.fidoandfido.engine.ai;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Random;
 
@@ -21,7 +22,7 @@ public class LiquididatingAI extends AITrader {
 	}
 
 	@Override
-	public void performTrades(Trader trader) {
+	public void performTrades(Trader trader, Date tradeDate) {
 		ShareParcelDAO shareParcelDAO = new ShareParcelDAO();
 		CompanyDAO companyDAO = new CompanyDAO();
 		Iterable<ShareParcel> holdings = shareParcelDAO.getHoldingsByTrader(trader);
@@ -31,7 +32,7 @@ public class LiquididatingAI extends AITrader {
 			Company company = shareParcel.getCompany();
 			// Since we are selling, drop the price by the sell rate
 			long askingPrice = adjustPrice(company.getLastTradePrice(), SELL_RATE);
-			sell(trader, company, askingPrice, shareCount);
+			sell(trader, company, askingPrice, shareCount, tradeDate);
 
 		}
 		// Now try to buy 1000 shares in 20 companies... (skip over the
@@ -49,7 +50,7 @@ public class LiquididatingAI extends AITrader {
 				companyList.remove(index);
 			}
 			long askingPrice = adjustPrice(company.getLastTradePrice(), BUY_RATE);
-			buy(trader, company, askingPrice, SHARE_COUNT);
+			buy(trader, company, askingPrice, SHARE_COUNT, tradeDate);
 		}
 
 	}

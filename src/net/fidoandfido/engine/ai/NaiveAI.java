@@ -23,8 +23,8 @@ public class NaiveAI extends AITrader {
 	}
 
 	@Override
-	public void performTrades(Trader trader) {
-		List<PeriodQuarter> recentEvents = periodPartInformationDAO.getLatestEvents(20, new Date());
+	public void performTrades(Trader trader, Date tradeDate) {
+		List<PeriodQuarter> recentEvents = periodPartInformationDAO.getLatestEvents(20, tradeDate);
 		Set<Company> companiesProcessed = new HashSet<Company>();
 		for (PeriodQuarter periodQuarter : recentEvents) {
 
@@ -42,22 +42,22 @@ public class NaiveAI extends AITrader {
 
 			switch (periodQuarter.getEventType()) {
 			case CATASTROPHIC:
-				adjustPriceAndSell(trader, company, VERY_BAD_SELL_RATE, DEFAULT_SELL_COUNT);
+				adjustPriceAndSell(trader, company, VERY_BAD_SELL_RATE, DEFAULT_SELL_COUNT, tradeDate);
 				break;
 			case TERRIBLE:
-				adjustPriceAndSell(trader, company, BAD_SELL_RATE, DEFAULT_SELL_COUNT);
+				adjustPriceAndSell(trader, company, BAD_SELL_RATE, DEFAULT_SELL_COUNT, tradeDate);
 				break;
 			case POOR:
-				adjustPriceAndSell(trader, company, SELL_RATE, DEFAULT_SELL_COUNT);
+				adjustPriceAndSell(trader, company, SELL_RATE, DEFAULT_SELL_COUNT, tradeDate);
 				break;
 			case GOOD:
-				adjustPriceAndBuy(trader, company, BUY_RATE, DEFAULT_BUY_COUNT);
+				adjustPriceAndBuy(trader, company, BUY_RATE, DEFAULT_BUY_COUNT, tradeDate);
 				break;
 			case GREAT:
-				adjustPriceAndBuy(trader, company, GOOD_BUY_RATE, DEFAULT_BUY_COUNT);
+				adjustPriceAndBuy(trader, company, GOOD_BUY_RATE, DEFAULT_BUY_COUNT, tradeDate);
 				break;
 			case EXTRAORDINARY:
-				adjustPriceAndBuy(trader, company, VERY_GOOD_BUY_RATE, MAX_BUY_COUNT);
+				adjustPriceAndBuy(trader, company, VERY_GOOD_BUY_RATE, MAX_BUY_COUNT, tradeDate);
 				break;
 			case AVERAGE:
 			}

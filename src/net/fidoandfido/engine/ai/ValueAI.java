@@ -1,5 +1,6 @@
 package net.fidoandfido.engine.ai;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Random;
 
@@ -18,7 +19,7 @@ public class ValueAI extends AITrader {
 	}
 
 	@Override
-	public void performTrades(Trader trader) {
+	public void performTrades(Trader trader, Date tradeDate) {
 		// So basically, we are going to get the companies, look at their
 		// earnings per share,
 		// We are looking at the book value + the current earning % as a
@@ -63,7 +64,7 @@ public class ValueAI extends AITrader {
 				if (askingPrice < halfwayPoint) {
 					askingPrice = halfwayPoint;
 				}
-				buy(trader, company, askingPrice, DEFAULT_BUY_COUNT);
+				buy(trader, company, askingPrice, DEFAULT_BUY_COUNT, tradeDate);
 			} else {
 				// time to sell!
 				long halfwayPoint = ((sharePrice - fairPrice) / 2) + fairPrice;
@@ -71,7 +72,7 @@ public class ValueAI extends AITrader {
 				if (askingPrice < halfwayPoint) {
 					askingPrice = halfwayPoint;
 				}
-				sell(trader, company, askingPrice, DEFAULT_SELL_COUNT);
+				sell(trader, company, askingPrice, DEFAULT_SELL_COUNT, tradeDate);
 			}
 		}
 	}
