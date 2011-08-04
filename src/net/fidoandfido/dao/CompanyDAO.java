@@ -43,7 +43,13 @@ public class CompanyDAO {
 		return (Company) crit.uniqueResult();
 	}
 
-	public static Company getCompanyById(String id) {
+	/**
+	 * Retrieve company by the hibernate generated company ID (NOT THE CODE!)
+	 * 
+	 * @param id
+	 * @return
+	 */
+	public Company getCompanyById(String id) {
 		Session session = HibernateUtil.getSession();
 		Criteria crit = session.createCriteria(Company.class);
 		crit.add(Restrictions.eq("id", id));
