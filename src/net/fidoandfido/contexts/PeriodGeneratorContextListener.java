@@ -21,7 +21,9 @@ public class PeriodGeneratorContextListener implements ServletContextListener {
 		List<String> groupNames = stockExchangeDAO.getExchangeGroupNameList();
 		HibernateUtil.commitTransaction();
 		for (String groupName : groupNames) {
+			HibernateUtil.beginTransaction();
 			PeriodGenerator periodGenerator = new PeriodGenerator(groupName);
+			HibernateUtil.commitTransaction();
 			Thread periodGeneratorThread = new Thread(periodGenerator);
 			periodGeneratorThread.setName("PERIOD_GENERATOR_THREAD_" + groupName);
 			periodGeneratorThread.start();
