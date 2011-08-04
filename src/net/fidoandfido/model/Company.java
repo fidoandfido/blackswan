@@ -55,13 +55,13 @@ public class Company {
 	 * Profit modifier and event generator profile
 	 */
 	@Column
-	private String performanceProfileName;
+	private String companyProfile;
 
-	/**
-	 * Performance description
-	 */
 	@Column
-	private String performanceDescription;
+	private int profileIndex = 0;
+
+	@Column
+	private String profileStatus = "";
 
 	// Company balance sheet and share count
 	/**
@@ -197,30 +197,25 @@ public class Company {
 	@Column
 	private boolean isTrading;
 
-	@Column
-	private boolean isSpeculator;
-
 	public Company() {
 		// Default constructor for persistence
 	}
 
 	public Company(String name, String code, long assetValue, long debtValue, long outstandingShares, String sector, String performanceProfileName,
-			String performanceDescription, long dividendRate, long defaultRevenueRate, long defaultExpenseRate) {
+			long dividendRate, long defaultRevenueRate, long defaultExpenseRate) {
 		this.name = name;
 		this.code = code;
 		this.assetValue = assetValue;
 		this.debtValue = debtValue;
 		this.outstandingShares = outstandingShares;
 		this.sector = sector;
-		this.performanceProfileName = performanceProfileName;
-		this.performanceDescription = performanceDescription;
+		this.companyProfile = performanceProfileName;
 		this.dividendRate = dividendRate;
 		this.revenueRate = defaultRevenueRate;
 		this.expenseRate = defaultExpenseRate;
 		companyStatus = TRADING_COMPANY_STATUS;
 		isTrading = true;
 		isInsolvent = false;
-		isSpeculator = false;
 	}
 
 	/*
@@ -458,31 +453,16 @@ public class Company {
 	/**
 	 * @return the performanceProfileName
 	 */
-	public String getPerformanceProfileName() {
-		return performanceProfileName;
+	public String getCompanyProfile() {
+		return companyProfile;
 	}
 
 	/**
 	 * @param performanceProfileName
 	 *            the performanceProfileName to set
 	 */
-	public void setPerformanceProfileName(String performanceProfileName) {
-		this.performanceProfileName = performanceProfileName;
-	}
-
-	/**
-	 * @return the performanceDescription
-	 */
-	public String getPerformanceDescription() {
-		return performanceDescription;
-	}
-
-	/**
-	 * @param performanceDescription
-	 *            the performanceDescription to set
-	 */
-	public void setPerformanceDescription(String performanceDescription) {
-		this.performanceDescription = performanceDescription;
+	public void setCompanyProfile(String performanceProfileName) {
+		this.companyProfile = performanceProfileName;
 	}
 
 	/**
@@ -812,18 +792,33 @@ public class Company {
 	}
 
 	/**
-	 * @return the isSpeculator
+	 * @return the profileIndex
 	 */
-	public boolean isSpeculator() {
-		return isSpeculator;
+	public int getProfileIndex() {
+		return profileIndex;
 	}
 
 	/**
-	 * @param isSpeculator
-	 *            the isSpeculator to set
+	 * @param profileIndex
+	 *            the profileIndex to set
 	 */
-	public void setSpeculator(boolean isSpeculator) {
-		this.isSpeculator = isSpeculator;
+	public void setProfileIndex(int profileIndex) {
+		this.profileIndex = profileIndex;
+	}
+
+	/**
+	 * @return the profileStatus
+	 */
+	public String getProfileStatus() {
+		return profileStatus;
+	}
+
+	/**
+	 * @param profileStatus
+	 *            the profileStatus to set
+	 */
+	public void setProfileStatus(String profileStatus) {
+		this.profileStatus = profileStatus;
 	}
 
 }

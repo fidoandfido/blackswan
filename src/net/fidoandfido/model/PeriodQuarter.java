@@ -20,6 +20,13 @@ import org.hibernate.annotations.GenericGenerator;
 @Table(name = "PeriodQuarter")
 public class PeriodQuarter {
 
+	public static final String FIRST_QUARTER = "First quarter forecast";
+	public static final String SECOND_QUARTER = "Second quarter forecast";
+	public static final String THIRD_QUARTER = "Third quarter forecast";
+	public static final String FOURTH_QUARTER = "Fourth quarter forecast";
+
+	public static final String[] QUARTER_NAME_ARRAY = { FIRST_QUARTER, SECOND_QUARTER, THIRD_QUARTER, FOURTH_QUARTER };
+
 	public static class EventCompator implements Comparator<PeriodQuarter> {
 
 		@Override
@@ -98,7 +105,7 @@ public class PeriodQuarter {
 	private long runningInterest;
 
 	@Column
-	private String announcementType;
+	private int quarterIndex;
 
 	@Column
 	private long requiredLevel;
@@ -108,14 +115,14 @@ public class PeriodQuarter {
 	}
 
 	public PeriodQuarter(Company company, CompanyPeriodReport companyPeriodReport, Date dateInformationAvailable, String message,
-			QuarterPerformanceType eventType, String forecastType) {
+			QuarterPerformanceType eventType, int quarterIndex) {
 		super();
 		this.company = company;
 		this.companyPeriodReport = companyPeriodReport;
 		this.dateInformationAvailable = dateInformationAvailable;
 		this.message = message;
 		this.eventType = eventType;
-		this.announcementType = forecastType;
+		this.quarterIndex = quarterIndex;
 		this.requiredLevel = company.getStockExchange().getRequiredLevel();
 	}
 
@@ -210,20 +217,27 @@ public class PeriodQuarter {
 	}
 
 	/**
-	 * @return the expectedProfit
+	 * @return the Profit for this quarter (net profit: revenue - expenses - interest)
 	 */
 	public long getProfit() {
 		return profit;
 	}
 
 	/**
-	 * @param expectedProfit
-	 *            the expectedProfit to set
+	 * Set profit for this quarter (net profit: revenue - expenses - interest)
+	 * 
+	 * @param profit
+	 *            the profit to set
 	 */
-	public void setProfit(long expectedProfit) {
-		this.profit = expectedProfit;
+	public void setProfit(long profit) {
+		this.profit = profit;
 	}
 
+	/**
+	 * Revenue earnt this quarter
+	 * 
+	 * @return
+	 */
 	public long getRevenue() {
 		return revenue;
 	}
@@ -232,6 +246,11 @@ public class PeriodQuarter {
 		this.revenue = revenue;
 	}
 
+	/**
+	 * Expenses paid this quarter
+	 * 
+	 * @return
+	 */
 	public long getExpenses() {
 		return expenses;
 	}
@@ -240,6 +259,11 @@ public class PeriodQuarter {
 		this.expenses = expenses;
 	}
 
+	/**
+	 * Interest paid this quarter
+	 * 
+	 * @return
+	 */
 	public long getInterest() {
 		return interest;
 	}
@@ -309,21 +333,6 @@ public class PeriodQuarter {
 	}
 
 	/**
-	 * @return the forecastType
-	 */
-	public String getAnnouncementType() {
-		return announcementType;
-	}
-
-	/**
-	 * @param forecastType
-	 *            the forecastType to set
-	 */
-	public void setAnnouncementType(String forecastType) {
-		this.announcementType = forecastType;
-	}
-
-	/**
 	 * @return the requiredLevel
 	 */
 	public long getRequiredLevel() {
@@ -387,5 +396,24 @@ public class PeriodQuarter {
 			break;
 		}
 		return isGood;
+	}
+
+	/**
+	 * @return the quarterIndex
+	 */
+	public int getQuarterIndex() {
+		return quarterIndex;
+	}
+
+	/**
+	 * @param quarterIndex
+	 *            the quarterIndex to set
+	 */
+	public void setQuarterIndex(int quarterIndex) {
+		this.quarterIndex = quarterIndex;
+	}
+
+	public String getAnnouncementType() {
+		return QUARTER_NAME_ARRAY[quarterIndex];
 	}
 }

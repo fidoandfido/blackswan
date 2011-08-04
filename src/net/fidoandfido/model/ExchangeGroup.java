@@ -28,6 +28,9 @@ public class ExchangeGroup {
 	@Column
 	private String description;
 
+	/**
+	 * Period length (in milliseconds) for this exchange group
+	 */
 	@Column
 	private long periodLength;
 

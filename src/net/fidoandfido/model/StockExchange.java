@@ -51,9 +51,6 @@ public class StockExchange {
 	private String eventGeneratorName;
 
 	@Column
-	private long periodLength;
-
-	@Column
 	private long defaultPrimeInterestRateBasisPoints;
 
 	@Column
@@ -90,7 +87,7 @@ public class StockExchange {
 		// Default constructor required for persistence
 	}
 
-	public StockExchange(ExchangeGroup exchangeGroup, String name, String description, int companyCount, String eventGeneratorName, long companyPeriodLength,
+	public StockExchange(ExchangeGroup exchangeGroup, String name, String description, int companyCount, String eventGeneratorName,
 			long defaultPrimeInterestRateBasisPoints, String economicModifierName, String companyModifierName, long maxSharePrice, long requiredLevel,
 			int maxTradingCompanyCount, int minTradingCompanyCount)
 
@@ -101,7 +98,6 @@ public class StockExchange {
 		this.description = description;
 		this.companyCount = companyCount;
 		this.eventGeneratorName = eventGeneratorName;
-		this.periodLength = companyPeriodLength;
 		this.defaultPrimeInterestRateBasisPoints = defaultPrimeInterestRateBasisPoints;
 		this.economicModifierName = economicModifierName;
 		this.companyModifierName = companyModifierName;
@@ -217,15 +213,7 @@ public class StockExchange {
 	 * @return the companyPeriodLength
 	 */
 	public long getPeriodLength() {
-		return periodLength;
-	}
-
-	/**
-	 * @param companyPeriodLength
-	 *            the companyPeriodLength to set
-	 */
-	public void setPeriodLength(long companyPeriodLength) {
-		this.periodLength = companyPeriodLength;
+		return exchangeGroup.getPeriodLength();
 	}
 
 	/**
