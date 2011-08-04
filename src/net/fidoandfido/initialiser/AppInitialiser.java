@@ -20,6 +20,7 @@ import net.fidoandfido.dao.ShareParcelDAO;
 import net.fidoandfido.dao.StockExchangeDAO;
 import net.fidoandfido.dao.TraderDAO;
 import net.fidoandfido.dao.UserDAO;
+import net.fidoandfido.engine.CompanyProfileController;
 import net.fidoandfido.engine.quarter.QuarterEventGenerator;
 import net.fidoandfido.model.AppStatus;
 import net.fidoandfido.model.Company;
@@ -96,6 +97,10 @@ public class AppInitialiser {
 	 * @throws Exception
 	 */
 	public void initApp() throws Exception {
+		initApp(new Date());
+	}
+
+	public void initApp(Date date) throws Exception {
 		if (appNotInited()) {
 			System.out.println("Creating and saving Users");
 			createAndSaveUsers();
@@ -104,9 +109,9 @@ public class AppInitialiser {
 			System.out.println("Creating and saving reputation items.");
 			createAndSaveItems();
 			System.out.println("Creating and saving exchanges.");
-			createAndSaveExchanges();
+			createAndSaveExchanges(date);
 			System.out.println("Creating and saving companies.");
-			createAndSaveCompanies();
+			createAndSaveCompanies(date);
 			updateStatus();
 		} else {
 			System.out.println("App already initialised!");
@@ -168,7 +173,7 @@ public class AppInitialiser {
 
 	}
 
-	private void createAndSaveExchanges() throws IOException, SAXException {
+	private void createAndSaveExchanges(Date date) throws IOException, SAXException {
 		XMLReader reader = XMLReaderFactory.createXMLReader();
 		ExchangeParser exchangeParser = new ExchangeParser();
 		reader.setContentHandler(exchangeParser);
@@ -178,7 +183,7 @@ public class AppInitialiser {
 			for (StockExchange exchange : exchangeGroup.getExchanges()) {
 				String name = exchange.getName();
 				if (!exchangeMap.containsKey(name)) {
-					Date periodStartDate = new Date();
+					Date periodStartDate = date;
 					Date endDate = new Date(periodStartDate.getTime() + exchange.getPeriodLength());
 					Map<String, SectorOutlook> sectorOutlooks = new HashMap<String, SectorOutlook>();
 					for (String sector : exchange.getSectors()) {
@@ -223,12 +228,13 @@ public class AppInitialiser {
 		return company;
 	}
 
-	private void createAndSaveCompanies() throws SAXException, IOException {
+	private void createAndSaveCompanies(Date date) throws SAXException, IOException {
 		// Initialise our company lists...
 		initCompanyGenerator();
 
-		Date date = new Date();
 		QuarterEventGenerator generator = new QuarterEventGenerator();
+
+		CompanyProfileController profileController = new CompanyProfileController();
 
 		for (StockExchange exchange : exchangeMap.values()) {
 			System.out.println("Starting exchange: " + exchange);
@@ -246,7 +252,7 @@ public class AppInitialiser {
 
 				companyPeriodReportDAO.savePeriodReport(periodReport);
 
-				generator.generateQuarters(periodReport, company, exchange);
+				generator.generateQuarters(periodReport, company, exchange, profileController);
 
 				company.setCurrentPeriod(periodReport);
 				companyDAO.saveCompany(company);
@@ -312,6 +318,7 @@ public class AppInitialiser {
 	private Random dividendRateRandom = new Random(17);
 	private Random expenseRateRandom = new Random(17);
 	private Random returnRateRandom = new Random(17);
+	private Random profileRandom = new Random(17);
 
 	public void initialiseSectorList(Set<String> sectorList) {
 		sectorCompatibleBodyList = bodies;
@@ -465,11 +472,11 @@ public class AppInitialiser {
 		int returnRate = possibleReturns[returnRateRandom.nextInt(possibleReturns.length)];
 		long defaultRevenueRate = defaultExpenseRate + returnRate;
 
-		String performanceProfile = "";
-		String performanceProfileDescription = "";
+		String[] possibleProfiles = CompanyProfileController.INITIAL_COMPANY_TYPES;
 
-		Company company = new Company(name, code, assets, debt, shareCount, sector, performanceProfile, performanceProfileDescription, dividendRate,
-				defaultRevenueRate, defaultExpenseRate);
+		String performanceProfile = possibleProfiles[profileRandom.nextInt(possibleProfiles.length)];
+
+		Company company = new Company(name, code, assets, debt, shareCount, sector, performanceProfile, dividendRate, defaultRevenueRate, defaultExpenseRate);
 
 		// Last trade price will effectively be capitalisation / share count
 		company.setLastTradePrice(company.getCapitalisation() / shareCount);
