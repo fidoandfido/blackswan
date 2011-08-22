@@ -21,6 +21,7 @@ import net.fidoandfido.dao.StockExchangeDAO;
 import net.fidoandfido.dao.TraderDAO;
 import net.fidoandfido.dao.UserDAO;
 import net.fidoandfido.engine.CompanyProfileController;
+import net.fidoandfido.engine.companyprofiles.CompanyProfile;
 import net.fidoandfido.engine.quarter.QuarterEventGenerator;
 import net.fidoandfido.model.AppStatus;
 import net.fidoandfido.model.Company;
@@ -92,7 +93,7 @@ public class AppInitialiser {
 	}
 
 	/**
-	 * Initialise the application. This whole unit of work should be unertaken within a transaction.
+	 * Initialise the application. This whole unit of work should be undertaken within a transaction.
 	 * 
 	 * @throws Exception
 	 */
@@ -472,9 +473,9 @@ public class AppInitialiser {
 		int returnRate = possibleReturns[returnRateRandom.nextInt(possibleReturns.length)];
 		long defaultRevenueRate = defaultExpenseRate + returnRate;
 
-		String[] possibleProfiles = CompanyProfileController.INITIAL_COMPANY_TYPES;
+		CompanyProfile[] possibleProfiles = CompanyProfileController.profiles.values().toArray(new CompanyProfile[] {});
 
-		String performanceProfile = possibleProfiles[profileRandom.nextInt(possibleProfiles.length)];
+		String performanceProfile = possibleProfiles[profileRandom.nextInt(possibleProfiles.length)].getName();
 
 		Company company = new Company(name, code, assets, debt, shareCount, sector, performanceProfile, dividendRate, defaultRevenueRate, defaultExpenseRate);
 
