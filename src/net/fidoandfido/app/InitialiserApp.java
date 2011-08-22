@@ -18,10 +18,14 @@ public class InitialiserApp {
 		System.out.println("Connected to database, beginning initialisation.");
 		AppInitialiser appInitialiser = new AppInitialiser();
 
-		boolean doHistoricalTrades = false;
+		// //////////////////////////////////
+		// / THIS IS IMPORTANT!!!!
+		// //////////////////////////////////
+		boolean doHistoricalTrades = true;
+
 		Date currentDate = new Date();
 		// Put it back 65 minutes (60 * 1000 milliseconds)
-		long offset = 55 * (60 * 1000);
+		long offset = 65 * (60 * 1000);
 
 		Date historicalStartDate = new Date(currentDate.getTime() - offset);
 
