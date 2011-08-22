@@ -55,7 +55,7 @@ public class Company {
 	 * Profit modifier and event generator profile
 	 */
 	@Column
-	private String companyProfile;
+	private String companyProfileName;
 
 	@Column
 	private int profileIndex = 0;
@@ -173,21 +173,6 @@ public class Company {
 	@Column
 	private long quartersSinceBadQuarter = 0;
 
-	/**
-	 * Indicate how many periods (if any) this company has left of a golden age.
-	 * 
-	 * Small chance each period a company may enter a golden age; this is set by the period generator.
-	 * 
-	 * Period event generators *may* use this to override the default event types for the company. (They also may ignore
-	 * it)
-	 * 
-	 */
-	@Column
-	private long remainingPeriodsOfGoldenAge = 0;
-
-	@Column
-	private long remainingPeriodsOfDarkAge = 0;
-
 	@Column
 	private String companyStatus;
 
@@ -209,7 +194,7 @@ public class Company {
 		this.debtValue = debtValue;
 		this.outstandingShares = outstandingShares;
 		this.sector = sector;
-		this.companyProfile = performanceProfileName;
+		this.companyProfileName = performanceProfileName;
 		this.dividendRate = dividendRate;
 		this.revenueRate = defaultRevenueRate;
 		this.expenseRate = defaultExpenseRate;
@@ -453,16 +438,16 @@ public class Company {
 	/**
 	 * @return the performanceProfileName
 	 */
-	public String getCompanyProfile() {
-		return companyProfile;
+	public String getCompanyProfileName() {
+		return companyProfileName;
 	}
 
 	/**
 	 * @param performanceProfileName
 	 *            the performanceProfileName to set
 	 */
-	public void setCompanyProfile(String performanceProfileName) {
-		this.companyProfile = performanceProfileName;
+	public void setCompanyProfileName(String performanceProfileName) {
+		this.companyProfileName = performanceProfileName;
 	}
 
 	/**
@@ -668,44 +653,6 @@ public class Company {
 	 */
 	public void setMinimumDividend(long minimumDividendRate) {
 		this.minimumDividend = minimumDividendRate;
-	}
-
-	/**
-	 * @return the remainingPeriodsOfGoldenAge
-	 */
-	public long getRemainingPeriodsOfGoldenAge() {
-		return remainingPeriodsOfGoldenAge;
-	}
-
-	public void decrementRemainingPeriodsOfGoldenAge() {
-		this.remainingPeriodsOfGoldenAge--;
-	}
-
-	/**
-	 * @param remainingPeriodsOfGoldenAge
-	 *            the remainingPeriodsOfGoldenAge to set
-	 */
-	public void setRemainingPeriodsOfGoldenAge(long remainingPeriodsOfGoldenAge) {
-		this.remainingPeriodsOfGoldenAge = remainingPeriodsOfGoldenAge;
-	}
-
-	/**
-	 * @return the remainingPeriodsOfBattlerAge
-	 */
-	public long getRemainingPeriodsOfDarkAge() {
-		return remainingPeriodsOfDarkAge;
-	}
-
-	public void decrementRemainingPeriodsOfDarkAge() {
-		this.remainingPeriodsOfDarkAge--;
-	}
-
-	/**
-	 * @param remainingPeriodsOfBattlerAge
-	 *            the remainingPeriodsOfBattlerAge to set
-	 */
-	public void setRemainingPeriodsOfDarkAge(long remainingPeriodsOfDarkAge) {
-		this.remainingPeriodsOfDarkAge = remainingPeriodsOfDarkAge;
 	}
 
 	/**
