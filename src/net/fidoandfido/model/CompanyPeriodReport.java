@@ -25,6 +25,10 @@ import org.hibernate.annotations.SortType;
  * @author andy
  * 
  */
+/**
+ * @author andy
+ * 
+ */
 @Entity
 @Table(name = "CompanyPeriodReport")
 public class CompanyPeriodReport {
@@ -108,6 +112,9 @@ public class CompanyPeriodReport {
 	@Column
 	private long generation;
 
+	@Column
+	private String companyProfileName;
+
 	public CompanyPeriodReport() {
 		// Default constructor required for persistence
 	}
@@ -123,6 +130,7 @@ public class CompanyPeriodReport {
 		this.minimumEndDate = new Date(startDate.getTime() + periodLength);
 		this.open = true;
 		this.generation = generation;
+		this.companyProfileName = company.getCompanyProfileName();
 		periodQuarterList = new TreeSet<PeriodQuarter>(new PeriodQuarter.EventCompator());
 	}
 
@@ -480,6 +488,21 @@ public class CompanyPeriodReport {
 			}
 		}
 		return quarterCount;
+	}
+
+	/**
+	 * @return the companyProfileName
+	 */
+	public String getCompanyProfileName() {
+		return companyProfileName;
+	}
+
+	/**
+	 * @param companyProfileName
+	 *            the companyProfileName to set
+	 */
+	public void setCompanyProfileName(String companyProfileName) {
+		this.companyProfileName = companyProfileName;
 	}
 
 }
