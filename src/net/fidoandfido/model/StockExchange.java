@@ -48,9 +48,6 @@ public class StockExchange {
 	private int maxTradingCompanyCount = 0;
 
 	@Column
-	private String eventGeneratorName;
-
-	@Column
 	private long defaultPrimeInterestRateBasisPoints;
 
 	@Column
@@ -87,9 +84,9 @@ public class StockExchange {
 		// Default constructor required for persistence
 	}
 
-	public StockExchange(ExchangeGroup exchangeGroup, String name, String description, int companyCount, String eventGeneratorName,
-			long defaultPrimeInterestRateBasisPoints, String economicModifierName, String companyModifierName, long maxSharePrice, long requiredLevel,
-			int maxTradingCompanyCount, int minTradingCompanyCount)
+	public StockExchange(ExchangeGroup exchangeGroup, String name, String description, int companyCount, long defaultPrimeInterestRateBasisPoints,
+			String economicModifierName, String companyModifierName, long maxSharePrice, long requiredLevel, int maxTradingCompanyCount,
+			int minTradingCompanyCount)
 
 	{
 		super();
@@ -97,7 +94,6 @@ public class StockExchange {
 		this.name = name;
 		this.description = description;
 		this.companyCount = companyCount;
-		this.eventGeneratorName = eventGeneratorName;
 		this.defaultPrimeInterestRateBasisPoints = defaultPrimeInterestRateBasisPoints;
 		this.economicModifierName = economicModifierName;
 		this.companyModifierName = companyModifierName;
@@ -192,21 +188,6 @@ public class StockExchange {
 	 */
 	public void setCompanyCount(int companyCount) {
 		this.companyCount = companyCount;
-	}
-
-	/**
-	 * @return the eventGeneratorName
-	 */
-	public String getEventGeneratorName() {
-		return eventGeneratorName;
-	}
-
-	/**
-	 * @param eventGeneratorName
-	 *            the eventGeneratorName to set
-	 */
-	public void setEventGeneratorName(String eventGeneratorName) {
-		this.eventGeneratorName = eventGeneratorName;
 	}
 
 	/**

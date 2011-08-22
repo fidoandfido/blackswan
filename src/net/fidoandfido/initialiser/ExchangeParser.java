@@ -23,7 +23,6 @@ public class ExchangeParser extends DefaultHandler {
 	private static final String NAME_ATTRIB = "name";
 	private static final String COMPANIES_ATTRIB = "company-count";
 	private static final String DESCRIPTION_ATTRIB = "description";
-	private static final String EVENT_GENERATOR_NAME = "event-generator";
 	private static final String PERIOD_LENGTH_ATTRIB = "period-length-mins";
 	private static final String STARTING_INTEREST = "interest-rate";
 	private static final String ECONOMIC_MODIFIER_NAME = "economic-modifier";
@@ -56,7 +55,6 @@ public class ExchangeParser extends DefaultHandler {
 			String name = attributes.getValue(NAME_ATTRIB);
 			String description = attributes.getValue(DESCRIPTION_ATTRIB);
 			int companyCount = Integer.parseInt(attributes.getValue(COMPANIES_ATTRIB));
-			String eventGeneratorName = attributes.getValue(EVENT_GENERATOR_NAME);
 			String economicModifierName = attributes.getValue(ECONOMIC_MODIFIER_NAME);
 			String companyModifierName = attributes.getValue(COMPANY_MODIFIER_NAME);
 			long maxSharePrice = Long.parseLong(attributes.getValue(MAX_SHARE_PRICE_ATTRIB));
@@ -71,8 +69,8 @@ public class ExchangeParser extends DefaultHandler {
 				// and ignore it.
 			}
 
-			stockExchange = new StockExchange(currentExchangeGroup, name, description, companyCount, eventGeneratorName, interestRate, economicModifierName,
-					companyModifierName, maxSharePrice, requiredLevel, maxCompantTradingCount, minTradingCount);
+			stockExchange = new StockExchange(currentExchangeGroup, name, description, companyCount, interestRate, economicModifierName, companyModifierName,
+					maxSharePrice, requiredLevel, maxCompantTradingCount, minTradingCount);
 			currentExchangeGroup.addExchange(stockExchange);
 
 		} else if (localName.equals(SECTOR_TAG)) {

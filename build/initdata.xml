@@ -2,16 +2,15 @@
 <data>
 
 
-<exchange-group name="group1" description="Group 1" period-length-mins="10">
+<exchange-group name="group1" description="Group 1" period-length-mins="60">
 	<exchange name="ESX"
-			company-count="20"
-			event-generator="cyclicEvents"
+			company-count="200"
 			description="Eastern Stock Exchange: The big one."
 			interest-rate="400"
 			economic-modifier="GENTLE_MODIFIER"
 			max-share-price="10000"
-			min-trading-company-count="15"
-			max-trading-company-count="30">
+			min-trading-company-count="150"
+			max-trading-company-count="300">
 		<sector name="aerospace" />
 		<sector name="IT" />
 		<sector name="logistics" />
@@ -31,7 +30,6 @@
 		<sector name="motor vehicles" />
 	</exchange>
 	
-	<!--
 	<exchange name="SMX"
 			required-level="2"
 			company-count="100" 
@@ -53,7 +51,7 @@
 		<sector name="produce" />
 		<sector name="motor vehicles" />		
 	</exchange>
-   -->
+	
    <!--
 	<exchange name="HTSX"
 			required-level="2"
