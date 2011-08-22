@@ -8,6 +8,8 @@ public class AverageQuarterGenerator implements QuarterGenerator {
 
 	static Random random = new Random(17);
 
+	private QuarterPerformanceType previousType = QuarterPerformanceType.AVERAGE;
+
 	@Override
 	public QuarterPerformanceType getNextEventType() {
 
@@ -20,33 +22,93 @@ public class AverageQuarterGenerator implements QuarterGenerator {
 		// 85 - 96 Great ( 12 %)
 		// 97 - 99 Extraordinary (3 %)
 
-		// 70 % chance of poor - good - average
-		// 96 % chance of terrible - great
+		// 0 Catastrophic ( 1 %)
+		// 1 - 5 Terrible ( 5 %)
+		// 6 - 30 Poor (25 %)
+		// 31 - 68 Average (38 %)
+		// 69 - 93 Good (25 %)
+		// 93 - 98 Great ( 5 %)
+		// 99 Extraordinary (1 %)
 
-		if (eventIndex <= 2) {
-			return QuarterPerformanceType.CATASTROPHIC;
-		}
-		if (eventIndex <= 14) {
-			return QuarterPerformanceType.TERRIBLE;
-		}
-		if (eventIndex <= 34) {
-			return QuarterPerformanceType.POOR;
-		}
-		if (eventIndex <= 64) {
-			return QuarterPerformanceType.AVERAGE;
-		}
-		if (eventIndex <= 84) {
-			return QuarterPerformanceType.GOOD;
-		}
-		if (eventIndex <= 96) {
-			return QuarterPerformanceType.GREAT;
-		}
-		if (eventIndex <= 99) {
-			return QuarterPerformanceType.EXTRAORDINARY;
+		// 88 % chance of poor - good - average
+		// 98 % chance of terrible - great
+		// Modify -> ensure there is some 'stickiness'
+
+		QuarterPerformanceType currentPerformanceType = QuarterPerformanceType.AVERAGE;
+
+		if (eventIndex <= 0) {
+			currentPerformanceType = QuarterPerformanceType.CATASTROPHIC;
+		} else if (eventIndex <= 5) {
+			currentPerformanceType = QuarterPerformanceType.TERRIBLE;
+		} else if (eventIndex <= 30) {
+			currentPerformanceType = QuarterPerformanceType.POOR;
+		} else if (eventIndex <= 68) {
+			currentPerformanceType = QuarterPerformanceType.AVERAGE;
+		} else if (eventIndex <= 93) {
+			currentPerformanceType = QuarterPerformanceType.GOOD;
+		} else if (eventIndex <= 98) {
+			currentPerformanceType = QuarterPerformanceType.GREAT;
+		} else if (eventIndex <= 99) {
+			currentPerformanceType = QuarterPerformanceType.EXTRAORDINARY;
 		}
 
-		// WTF???
-		return QuarterPerformanceType.AVERAGE;
+		// Now normalise it compared to the previous one.
+		switch (previousType) {
+		case EXTRAORDINARY:
+			// at worse we can be good.
+			if (currentPerformanceType == QuarterPerformanceType.CATASTROPHIC || currentPerformanceType == QuarterPerformanceType.TERRIBLE
+					|| currentPerformanceType == QuarterPerformanceType.POOR || currentPerformanceType == QuarterPerformanceType.AVERAGE) {
+				currentPerformanceType = QuarterPerformanceType.GOOD;
+			}
+			break;
+		case GREAT:
+			// At worse we can be average.
+			if (currentPerformanceType == QuarterPerformanceType.CATASTROPHIC || currentPerformanceType == QuarterPerformanceType.TERRIBLE
+					|| currentPerformanceType == QuarterPerformanceType.POOR) {
+				currentPerformanceType = QuarterPerformanceType.AVERAGE;
+			}
+			break;
+		case GOOD:
+			// At worse we can be poor.
+			if (currentPerformanceType == QuarterPerformanceType.CATASTROPHIC || currentPerformanceType == QuarterPerformanceType.TERRIBLE) {
+				currentPerformanceType = QuarterPerformanceType.POOR;
+			}
+			break;
+		case AVERAGE:
+			// At worse we can be Terrible, at best Great..
+			if (currentPerformanceType == QuarterPerformanceType.CATASTROPHIC) {
+				currentPerformanceType = QuarterPerformanceType.TERRIBLE;
+			} else if (currentPerformanceType == QuarterPerformanceType.EXTRAORDINARY) {
+				currentPerformanceType = QuarterPerformanceType.GREAT;
+			}
+			break;
+		case POOR:
+			// At best we can be Good
+			if (currentPerformanceType == QuarterPerformanceType.GREAT || currentPerformanceType == QuarterPerformanceType.EXTRAORDINARY) {
+				currentPerformanceType = QuarterPerformanceType.GOOD;
+			}
+			break;
+		case TERRIBLE:
+			// At best we can be average
+			if (currentPerformanceType == QuarterPerformanceType.GOOD || currentPerformanceType == QuarterPerformanceType.GREAT
+					|| currentPerformanceType == QuarterPerformanceType.EXTRAORDINARY) {
+				currentPerformanceType = QuarterPerformanceType.AVERAGE;
+			}
+			break;
+		case CATASTROPHIC:
+			if (currentPerformanceType == QuarterPerformanceType.AVERAGE || currentPerformanceType == QuarterPerformanceType.GOOD
+					|| currentPerformanceType == QuarterPerformanceType.GREAT || currentPerformanceType == QuarterPerformanceType.EXTRAORDINARY) {
+				currentPerformanceType = QuarterPerformanceType.POOR;
+			}
+			break;
+		}
 
+		previousType = currentPerformanceType;
+		return currentPerformanceType;
+
+	}
+
+	public void addPreviousEvent(QuarterPerformanceType eventType) {
+		previousType = eventType;
 	}
 }
