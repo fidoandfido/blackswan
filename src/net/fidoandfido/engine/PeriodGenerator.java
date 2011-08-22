@@ -182,7 +182,6 @@ public class PeriodGenerator implements Runnable {
 					continue;
 				}
 				logger.info("Updating company: " + company.getName());
-				CompanyModifier companyModifier = companyProfileController.getCompanyModifer(company);
 
 				if (company.getCompanyStatus().equals(Company.IPO_COMPANY_STATUS)) {
 					company.setCompanyStatus(Company.TRADING_COMPANY_STATUS);
@@ -193,16 +192,10 @@ public class PeriodGenerator implements Runnable {
 				}
 
 				// Create a new company report entry..
+				long generation = 0;
 				CompanyPeriodReport currentPeriodReport = company.getCurrentPeriod();
 
-				long generation = 0;
 				if (currentPeriodReport != null) {
-					if (currentPeriodReport.getMinimumEndDate().after(currentDate)) {
-						// Can't end a period report before now...
-						// Do something about that...
-						logger.info("Too soon for company: " + company.getName() + " end date must be after: " + currentPeriodReport.getMinimumEndDate());
-						continue;
-					}
 
 					// Update the company:
 					// Check if the company is to be dissolved, and do so if required.
@@ -224,19 +217,22 @@ public class PeriodGenerator implements Runnable {
 					}
 
 					economicModifier.updateCompanyTradingStatus(company);
-
-					if (!company.isInsolvent()) {
-						companyModifier.modifyCompanyDebts(company);
-					}
-
-					companyModifier.modifyCompanyRates(company);
-
 					generation = currentPeriodReport.getGeneration();
 					distributeDividends(currentPeriodReport, currentDate);
 					currentPeriodReport.close(currentDate);
 					companyPeriodReportDAO.savePeriodReport(currentPeriodReport);
 					company.setPreviousPeriodReport(currentPeriodReport);
 				}
+
+				// Update the company profile
+				companyProfileController.modifyCompanyProfile(company);
+
+				// Get the appropriate company modifier for this company, and modify the debts and the rates
+				CompanyModifier companyModifier = companyProfileController.getCompanyModifer(company);
+				if (!company.isInsolvent()) {
+					companyModifier.modifyCompanyDebts(company);
+				}
+				companyModifier.modifyCompanyRates(company);
 
 				CompanyPeriodReport newPeriodReport = new CompanyPeriodReport(company, currentDate, exchange.getPeriodLength(), generation + 1);
 
@@ -267,7 +263,6 @@ public class PeriodGenerator implements Runnable {
 				newPeriodReport.setStartingExpectedInterest(expectedInterest);
 
 				companyPeriodReportDAO.savePeriodReport(newPeriodReport);
-
 				generator.generateQuarters(newPeriodReport, company, exchange, companyProfileController);
 				company.setCurrentPeriod(newPeriodReport);
 				companyDAO.saveCompany(company);
