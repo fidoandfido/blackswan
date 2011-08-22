@@ -38,6 +38,10 @@ public class GentleCompanyModifier implements CompanyModifier {
 		this.maximumSpread = maximumSpread;
 	}
 
+	public GentleCompanyModifier() {
+		// Default constructor
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -95,21 +99,22 @@ public class GentleCompanyModifier implements CompanyModifier {
 		// This may have changed for the company; in which case we will adjust the rates accordingly.
 		spread = company.getRevenueRate() - company.getExpenseRate();
 
+		// Allow slightly larger jumps to get into the allowable spread
 		if (spread > maximumSpread) {
 			modified = true;
 			// see if we can reduce the revenue, otherwise increase expenses.
 			if (company.getRevenueRate() > minimumRevenueRate) {
-				company.modifyRevenueRate(-1);
+				company.modifyRevenueRate(-2);
 			} else {
-				company.modifyExpenseRate(1);
+				company.modifyExpenseRate(2);
 			}
 		} else if (spread < minimumSpread) {
 			modified = true;
 			// increase the revenue, otherwise decrease expenses.
 			if (company.getRevenueRate() < maximumRevenueRate) {
-				company.modifyRevenueRate(1);
+				company.modifyRevenueRate(2);
 			} else {
-				company.modifyExpenseRate(-1);
+				company.modifyExpenseRate(-2);
 			}
 		}
 
@@ -130,18 +135,16 @@ public class GentleCompanyModifier implements CompanyModifier {
 			modified = true;
 			company.incrementDebtValue(DEFAULT_LOAN);
 			company.incrementAssetValue(DEFAULT_LOAN);
-			 logger.info("Setting company status for company: " + company.getName() +
-			 " ---- New loan taken out to grow company. Loan value: "
-			 + WebPageUtil.formatCurrency(DEFAULT_LOAN));
+			logger.info("Setting company status for company: " + company.getName() + " ---- New loan taken out to grow company. Loan value: "
+					+ WebPageUtil.formatCurrency(DEFAULT_LOAN));
 			company.setCompanyStatus("New loan taken out to grow company. Loan value: " + WebPageUtil.formatCurrency(DEFAULT_LOAN));
 		} else if (val == 1) {
 			if (company.getDebtValue() >= DEFAULT_LOAN && company.getAssetValue() > DEFAULT_LOAN) {
 				modified = true;
 				company.incrementAssetValue(DEFAULT_LOAN * -1);
 				company.incrementDebtValue(DEFAULT_LOAN * -1);
-				 logger.info("Setting company status for company: " + company.getName()
-				 + " ---- Debt restructured, company no longer paying interest! Loan value: " +
-				 WebPageUtil.formatCurrency(DEFAULT_LOAN));
+				logger.info("Setting company status for company: " + company.getName()
+						+ " ---- Debt restructured, company no longer paying interest! Loan value: " + WebPageUtil.formatCurrency(DEFAULT_LOAN));
 				company.setCompanyStatus("Debt restructured, company no longer paying interest! Loan value: " + WebPageUtil.formatCurrency(DEFAULT_LOAN));
 			}
 		}
@@ -203,4 +206,123 @@ public class GentleCompanyModifier implements CompanyModifier {
 
 	}
 
+	/**
+	 * @return the random
+	 */
+	public Random getRandom() {
+		return random;
+	}
+
+	/**
+	 * @param random
+	 *            the random to set
+	 */
+	public void setRandom(Random random) {
+		this.random = random;
+	}
+
+	/**
+	 * @return the percentChanceOfRateChange
+	 */
+	public int getPercentChanceOfRateChange() {
+		return percentChanceOfRateChange;
+	}
+
+	/**
+	 * @param percentChanceOfRateChange
+	 *            the percentChanceOfRateChange to set
+	 */
+	public void setPercentChanceOfRateChange(int percentChanceOfRateChange) {
+		this.percentChanceOfRateChange = percentChanceOfRateChange;
+	}
+
+	/**
+	 * @return the maximumExpenseRate
+	 */
+	public long getMaximumExpenseRate() {
+		return maximumExpenseRate;
+	}
+
+	/**
+	 * @param maximumExpenseRate
+	 *            the maximumExpenseRate to set
+	 */
+	public void setMaximumExpenseRate(long maximumExpenseRate) {
+		this.maximumExpenseRate = maximumExpenseRate;
+	}
+
+	/**
+	 * @return the minimumExpenseRate
+	 */
+	public long getMinimumExpenseRate() {
+		return minimumExpenseRate;
+	}
+
+	/**
+	 * @param minimumExpenseRate
+	 *            the minimumExpenseRate to set
+	 */
+	public void setMinimumExpenseRate(long minimumExpenseRate) {
+		this.minimumExpenseRate = minimumExpenseRate;
+	}
+
+	/**
+	 * @return the maximumRevenueRate
+	 */
+	public long getMaximumRevenueRate() {
+		return maximumRevenueRate;
+	}
+
+	/**
+	 * @param maximumRevenueRate
+	 *            the maximumRevenueRate to set
+	 */
+	public void setMaximumRevenueRate(long maximumRevenueRate) {
+		this.maximumRevenueRate = maximumRevenueRate;
+	}
+
+	/**
+	 * @return the minimumRevenueRate
+	 */
+	public long getMinimumRevenueRate() {
+		return minimumRevenueRate;
+	}
+
+	/**
+	 * @param minimumRevenueRate
+	 *            the minimumRevenueRate to set
+	 */
+	public void setMinimumRevenueRate(long minimumRevenueRate) {
+		this.minimumRevenueRate = minimumRevenueRate;
+	}
+
+	/**
+	 * @return the minimumSpread
+	 */
+	public long getMinimumSpread() {
+		return minimumSpread;
+	}
+
+	/**
+	 * @param minimumSpread
+	 *            the minimumSpread to set
+	 */
+	public void setMinimumSpread(long minimumSpread) {
+		this.minimumSpread = minimumSpread;
+	}
+
+	/**
+	 * @return the maximumSpread
+	 */
+	public long getMaximumSpread() {
+		return maximumSpread;
+	}
+
+	/**
+	 * @param maximumSpread
+	 *            the maximumSpread to set
+	 */
+	public void setMaximumSpread(long maximumSpread) {
+		this.maximumSpread = maximumSpread;
+	}
 }
