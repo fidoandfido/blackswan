@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 
 import javax.swing.JFrame;
@@ -24,7 +25,6 @@ import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
-import org.jfree.chart.renderer.xy.XYSplineRenderer;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.jfree.ui.RectangleInsets;
@@ -37,7 +37,7 @@ public class CompanyProfitChartGenerator {
 		HibernateUtil.beginTransaction();
 		CompanyDAO companyDAO = new CompanyDAO();
 
-		int MAX_GRAPHS = 200;
+		int MAX_GRAPHS = 20;
 		int graphCounter = 0;
 
 		List<Company> companyList = companyDAO.getCompanyList();
@@ -45,7 +45,7 @@ public class CompanyProfitChartGenerator {
 			CompanyProfitChartGenerator companyProfitChartGenerator = new CompanyProfitChartGenerator();
 			JFreeChart chart = companyProfitChartGenerator.generateChart(company);
 
-			JFrame frame = new JFrame("XY Plot Demo " + company.getName() + " --- PROFILE: " + company.getCompanyProfile());
+			JFrame frame = new JFrame("XY Plot Demo " + company.getName() + " --- PROFILE: " + company.getCompanyProfileName());
 			frame.setContentPane(new ChartPanel(chart));
 			frame.pack();
 			frame.setVisible(true);
@@ -71,7 +71,7 @@ public class CompanyProfitChartGenerator {
 		XYSeries actualProfitSeries = new XYSeries("Actual Operating Profit");
 
 		CompanyPeriodReportDAO companyPeriodReportDAO = new CompanyPeriodReportDAO();
-		List<CompanyPeriodReport> reportList = companyPeriodReportDAO.getRecentPeriodReportListByCompany(company, 5);
+		List<CompanyPeriodReport> reportList = companyPeriodReportDAO.getRecentPeriodReportListByCompany(company, 50);
 
 		// Sort the list based on generation.
 		Collections.sort(reportList, new Comparator<CompanyPeriodReport>() {
@@ -88,6 +88,8 @@ public class CompanyProfitChartGenerator {
 
 		List<String> xLabels = new ArrayList<String>();
 
+		Date date = new Date();
+
 		// Possible overflow?
 		long averageExpectedProfit = 0;
 		long maxDelta = 0;
@@ -98,17 +100,19 @@ public class CompanyProfitChartGenerator {
 			long quarterExpectedOperatingProfit = expectedOperatingProfit / 4;
 			averageExpectedProfit += quarterExpectedOperatingProfit / reportList.size();
 			for (PeriodQuarter periodQuarter : report.getPeriodQuarterList()) {
-				String prefix = report.getGeneration() + " - Q" + (periodQuarter.getQuarterIndex() + 1);
-				xLabels.add(prefix);
-				expectedProfitSeries.add(i, quarterExpectedOperatingProfit);
-				long quaterOperatingProfit = periodQuarter.getRevenue() - periodQuarter.getExpenses();
-				actualProfitSeries.add(i, quaterOperatingProfit);
-
-				long delta = Math.abs(quarterExpectedOperatingProfit - quaterOperatingProfit);
-				if (maxDelta < delta) {
-					maxDelta = delta;
+				if (periodQuarter.getDateInformationAvailable().before(date)) {
+					String prefix = report.getGeneration() + " - Q" + (periodQuarter.getQuarterIndex() + 1);
+					xLabels.add(prefix);
+					expectedProfitSeries.add(i, quarterExpectedOperatingProfit / 100);
+					long quaterOperatingProfit = periodQuarter.getRevenue() - periodQuarter.getExpenses();
+					quaterOperatingProfit = quaterOperatingProfit / 100;
+					actualProfitSeries.add(i, quaterOperatingProfit);
+					long delta = Math.abs(quarterExpectedOperatingProfit - quaterOperatingProfit);
+					if (maxDelta < delta) {
+						maxDelta = delta;
+					}
+					i++;
 				}
-				i++;
 			}
 		}
 
@@ -139,7 +143,6 @@ public class CompanyProfitChartGenerator {
 		// Delta will be 10x the average expected operating profit
 		// Offset will be the expected operating profit
 		// Oops. Didn't take into account possibility of negative proffits, or really small profits.
-
 		double minRange = averageExpectedProfit - (10 * averageExpectedProfit);
 		double maxRange = averageExpectedProfit + (10 * averageExpectedProfit);
 		if (minRange > maxRange) {
@@ -148,11 +151,16 @@ public class CompanyProfitChartGenerator {
 			maxRange = tmp;
 		}
 
+		// How about going against the total asset base of the company?
+		maxRange = company.getAssetValue() / 100;
+		maxRange = maxRange / 10;
+		minRange = maxRange * -1;
+
 		yAxis.setRange(minRange, maxRange);
 
 		plot.setDomainCrosshairVisible(true);
 		plot.setRangeCrosshairVisible(true);
-		plot.setRenderer(new XYSplineRenderer(5));
+		// plot.setRenderer(new XYSplineRenderer(2));
 		plot.getRenderer().setSeriesPaint(0, Color.MAGENTA);
 		plot.getRenderer().setSeriesPaint(1, Color.BLUE);
 

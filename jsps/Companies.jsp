@@ -318,7 +318,7 @@
 				<li>Revenue rate: <%= company.getRevenueRate() + company.getStockExchange().getCurrentPeriod().getRevenueRateDelta() %>%</li>
 				<li>Expense rate: <%= company.getExpenseRate() + company.getStockExchange().getCurrentPeriod().getExpenseRateDelta() %>%</li>
 				<li>Interest rate: <%= company.getStockExchange().getPrimeInterestRateBasisPoints() %> Basis points</li>
-				<li>Company Profile: <%= company.getCompanyProfile() %></li>
+				<li>Company Profile: <%=company.getCompanyProfileName()%></li>
 				<li><b>FIRST QUARTER</b></li>					
 				<li>First Quarter available after: <%= firstQuarterEvent.getDateInformationAvailable().toString() %></li>
 				<li>event type: <%= firstQuarterEvent.getEventType() %> </li>
