@@ -44,41 +44,12 @@ public class QuarterEventGenerator {
 	public void generateQuarters(CompanyPeriodReport periodReport, Company company, StockExchange stockExchange,
 			CompanyProfileController companyProfileController) {
 
-		// Check to see if we are in a golden age / battler age.
-		// If not, roll the dice to see if we go into one!
-		if (company.getRemainingPeriodsOfDarkAge() > 0) {
-			company.decrementRemainingPeriodsOfDarkAge();
-		} else if (company.getRemainingPeriodsOfGoldenAge() > 0) {
-			company.decrementRemainingPeriodsOfGoldenAge();
-		} else {
-			// We weren't in any age, see if we go in one now...
-			int enterAge = enterAnAgeRandom.nextInt(AGE_PROBABILITY_RANGE);
-			if (enterAge == DARK_AGE_HIT) {
-				company.setRemainingPeriodsOfDarkAge(AGE_LENGTH);
-			} else if (enterAge == GOLDEN_AGE_HIT) {
-				company.setRemainingPeriodsOfGoldenAge(AGE_LENGTH);
-			}
-		}
-
 		EventProfitModifier profitModifier = companyProfileController.getProfitModifier(company);
 		QuarterGenerator quarterGenerator = companyProfileController.getQuarterGenerator(company);
 		QuarterData currentQuarterData = new QuarterData(0, 0, 0, 0);
 
 		for (int i = 0; i < 4; i++) {
 			QuarterPerformanceType quarterEvent = quarterGenerator.getNextEventType();
-			if (company.getRemainingPeriodsOfDarkAge() > 0) {
-				if (quarterEvent == QuarterPerformanceType.GOOD || quarterEvent == QuarterPerformanceType.GREAT
-						|| quarterEvent == QuarterPerformanceType.EXTRAORDINARY) {
-					quarterEvent = QuarterPerformanceType.AVERAGE;
-				}
-			}
-			if (company.getRemainingPeriodsOfGoldenAge() > 0) {
-				if (quarterEvent == QuarterPerformanceType.POOR || quarterEvent == QuarterPerformanceType.TERRIBLE
-						|| quarterEvent == QuarterPerformanceType.CATASTROPHIC) {
-					quarterEvent = QuarterPerformanceType.AVERAGE;
-				}
-			}
-
 			String message = getMessage(quarterEvent);
 			Date longTermCompanyDate = getDateWithinPeriod(periodReport, PERIOD_PART_COUNT, i, true);
 			currentQuarterData = profitModifier.adjustProfit(quarterEvent, currentQuarterData, company, periodReport, PERIOD_PART_COUNT);
