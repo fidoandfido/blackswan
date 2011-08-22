@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <data>
 
-
 <exchange-group name="group1" description="Group 1" period-length-mins="60">
 	<exchange name="ESX"
 			company-count="200"
