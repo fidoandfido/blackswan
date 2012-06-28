@@ -6,4 +6,4 @@ Compete against friends as you build your fortune, buying and selling stocks in 
 Earn rewards and unlock new ways to earn money as you progress.
 Spend your hard earned cash on items to improve your reputation, giving you access to more information.
 
-Launching soon!
+Development recommencing shortly!
